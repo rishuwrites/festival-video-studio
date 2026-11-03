@@ -51,6 +51,10 @@ def _oauth_access_token():
     return access_token
 
 
+def oauth_access_token():
+    return _oauth_access_token()
+
+
 def _search_results(api_key, query, access_token=None):
     results = []
     page_token = ""

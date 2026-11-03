@@ -13,6 +13,7 @@ import images
 import render
 import voice
 from festival_sources import find_transcribed_videos
+from youtube_upload import scheduled_datetime, upload_scheduled
 
 
 FESTIVAL_STYLE = (
@@ -109,9 +110,14 @@ def _make_description(topic, date, scope, research, sources):
     )
 
 
-def generate_video(topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None):
+def generate_video(
+    topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None,
+    publish_date="", publish_time="", upload=False,
+):
     if not topic.strip():
         raise ValueError("A festival topic is required")
+    if upload:
+        scheduled_datetime(publish_date, publish_time)
     scope = scope.strip() or S.DEFAULT_SCOPE
     print("Finding five distinct channels with accessible public captions")
     video_sources = find_transcribed_videos(topic.strip(), date.strip(), scope)
@@ -183,7 +189,7 @@ def generate_video(topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None):
         total = sum(segment["times"][-1][1] for segment in segments)
         validate_narration_duration(total)
 
-        seed = int(hashlib.sha256(f"{topic}|{date}|{location}".encode("utf-8")).hexdigest()[:8], 16)
+        seed = int(hashlib.sha256(f"{topic}|{date}|{scope}".encode("utf-8")).hexdigest()[:8], 16)
         compositions = {index: [] for index in range(len(scenes))}
         generated = set()
         for index, scene in enumerate(scenes):
@@ -278,10 +284,32 @@ def generate_video(topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None):
     with open(metadata_path, "w", encoding="utf-8") as file:
         json.dump(metadata, file, ensure_ascii=False, indent=2)
 
+    if upload:
+        if not publish_date or not publish_time:
+            raise ValueError("Scheduled upload requires a publish date and time in IST")
+        print(f"  scheduling YouTube upload for {publish_date} {publish_time} IST")
+        youtube_result = upload_scheduled(video_path, metadata_path, publish_date, publish_time)
+        metadata.update({
+            "upload_status": youtube_result["status"],
+            "youtube_video_id": youtube_result["video_id"],
+            "youtube_url": youtube_result["url"],
+            "publish_at_ist": youtube_result["publish_at_ist"],
+        })
+        with open(metadata_path, "w", encoding="utf-8") as file:
+            json.dump(metadata, file, ensure_ascii=False, indent=2)
+        print(f"  YouTube scheduled: {youtube_result['url']} at {youtube_result['publish_at_ist']}")
+
     print(f"  rendered preview: {video_path}")
     print(f"  research report: {research_path}")
-    print("  upload is disabled; review the claims, dates, source links, and local timings before publishing")
-    return {"video": video_path, "thumbnail": thumb_path, "metadata": metadata_path, "research": research_path}
+    if not upload:
+        print("  YouTube upload is disabled; review the claims, dates, source links, and local timings")
+    return {
+        "video": video_path,
+        "thumbnail": thumb_path,
+        "metadata": metadata_path,
+        "research": research_path,
+        "youtube": metadata.get("youtube_url", ""),
+    }
 
 
 def main():
@@ -296,11 +324,22 @@ def main():
         help="Coverage scope; defaults to India-wide with focus on Uttar Pradesh and Bihar",
     )
     parser.add_argument("--output-dir", default=os.getenv("FESTIVAL_OUTPUT_DIR", ""))
+    parser.add_argument("--publish-date", default=os.getenv("FESTIVAL_PUBLISH_DATE", ""), help="Scheduled publish date (YYYY-MM-DD, IST)")
+    parser.add_argument("--publish-time", default=os.getenv("FESTIVAL_PUBLISH_TIME", ""), help="Scheduled publish time (HH:MM, 24-hour IST)")
+    parser.add_argument(
+        "--upload",
+        action="store_true",
+        default=os.getenv("YOUTUBE_UPLOAD", "").strip().lower() in ("1", "true", "yes", "on"),
+        help="Upload as a private video scheduled for the selected date and time",
+    )
     args = parser.parse_args()
     if not args.topic.strip():
         parser.error("--topic or FESTIVAL_TOPIC is required")
     try:
-        generate_video(args.topic, args.date, args.scope, args.output_dir or None)
+        generate_video(
+            args.topic, args.date, args.scope, args.output_dir or None,
+            args.publish_date, args.publish_time, args.upload,
+        )
     except Exception as exc:
         raise SystemExit(f"Festival video generation failed: {type(exc).__name__}: {exc}") from exc
 

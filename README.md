@@ -10,7 +10,7 @@ Create original Hindi festival explainers with research notes, original illustra
 - Generates an original 9–12 chapter Hindi script. Source captions are research inputs only: they are never saved in the report or copied into the script.
 - Verifies the synthesized narration lasts at least six minutes before rendering.
 - Produces an MP4, thumbnail, metadata JSON, and a research JSON report.
-- Never uploads or publishes automatically.
+- Can upload directly to YouTube as a **private scheduled video** when YouTube upload is enabled in the manual workflow.
 
 The default coverage is **all of India**, with extra research attention to **Uttar Pradesh and Bihar**, including regional customs. The script must separate nationwide facts from regional practices rather than presenting one state’s customs as universal. Exact muhurta timings vary city by city, so the nationwide video will not present one city’s time as valid across India.
 
@@ -27,11 +27,11 @@ $env:YT_REFRESH_TOKEN = "..."
 python recap\festival_main.py --topic "Dhanteras" --date "2026"
 ```
 
-YouTube search can use your existing OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN`) or an optional `YT_API_KEY`. OAuth must have YouTube read-only access (`youtube.readonly`) and YouTube Data API v3 must be enabled for the Google Cloud project. If your refresh token only has upload access, re-authorize it with the read-only scope. Use `--scope` to customize coverage, or the older `--location` option as an alias. For example, `--scope "India (nationwide, focus on UP and Bihar)"`. Image generation can use Cloudflare credentials; the configured image providers are tried as fallbacks. Output is written to `output\`.
+YouTube search and uploads use your OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN`). The refresh token must include both `youtube.readonly` and `youtube.upload`; YouTube Data API v3 must be enabled for the Google Cloud project. If upload fails with insufficient permissions, re-authorize the refresh token with both scopes. Use `--scope` to customize coverage, or the older `--location` option as an alias. For example, `--scope "India (nationwide, focus on UP and Bihar)"`. Image generation can use Cloudflare credentials; the configured image providers are tried as fallbacks. Output is written to `output\`.
 
 ## GitHub Actions
 
-Add `GEMINI_API_KEY`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. These are the existing serial-recap YouTube OAuth credentials; a separate `YT_API_KEY` is not required. The OAuth refresh token needs `youtube.readonly` access. Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Run **Festival explainer video** manually with a topic and date; its default scope covers India with a special focus on Uttar Pradesh and Bihar.
+Add `GEMINI_API_KEY`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. These are the existing serial-recap YouTube OAuth credentials; a separate `YT_API_KEY` is not required. The OAuth refresh token needs both `youtube.readonly` and `youtube.upload` access. Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Run **Festival explainer video** manually with a topic, festival date, **publish date (YYYY-MM-DD)**, and **publish time (24-hour HH:MM IST)**. The upload checkbox is on by default and creates a private scheduled video; the selected time must still be at least 15 minutes in the future after rendering finishes. Turn upload off to generate a preview only.
 
 ## Tests
 

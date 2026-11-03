@@ -17,6 +17,21 @@ on:
         type: string
         required: false
         default: India (nationwide, with focus on Uttar Pradesh and Bihar)
+      publish_date:
+        description: YouTube scheduled publish date (YYYY-MM-DD, India Standard Time)
+        type: string
+        required: false
+        default: ""
+      publish_time:
+        description: YouTube scheduled publish time (24-hour HH:MM, India Standard Time)
+        type: string
+        required: false
+        default: ""
+      upload:
+        description: Upload to YouTube as a private scheduled video
+        type: boolean
+        required: true
+        default: true
 
 permissions:
   contents: read
@@ -34,6 +49,9 @@ jobs:
       FESTIVAL_TOPIC: ${{ inputs.topic }}
       FESTIVAL_DATE: ${{ inputs.date }}
       FESTIVAL_SCOPE: ${{ inputs.scope || 'India (nationwide, with focus on Uttar Pradesh and Bihar)' }}
+      FESTIVAL_PUBLISH_DATE: ${{ inputs.publish_date }}
+      FESTIVAL_PUBLISH_TIME: ${{ inputs.publish_time }}
+      YOUTUBE_UPLOAD: ${{ inputs.upload }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
       YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
@@ -61,6 +79,7 @@ jobs:
         run: python recap/festival_main.py
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: festival-video-${{ github.run_id }}
           path: output/festival_*
