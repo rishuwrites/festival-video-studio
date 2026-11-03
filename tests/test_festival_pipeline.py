@@ -183,6 +183,39 @@ class GroundedFestivalResearchTests(unittest.TestCase):
             ):
                 gemini.research_festival("दिवाली", "2026", "India", video_sources=[])
 
+    def test_retries_with_backup_key_after_primary_quota_exhaustion(self):
+        quota_response = mock.Mock(status_code=429)
+        quota_response.json.return_value = {
+            "error": {"status": "RESOURCE_EXHAUSTED", "message": "quota exceeded"},
+        }
+        success_response = mock.Mock(status_code=200)
+        success_response.json.return_value = {
+            "candidates": [{
+                "content": {"parts": [{"text": '{"headline":"छठ पूजा"}'}]},
+                "groundingMetadata": {
+                    "groundingChunks": [
+                        {"web": {"title": "Source 1", "uri": "https://example.org/1"}},
+                        {"web": {"title": "Source 2", "uri": "https://example.org/2"}},
+                    ],
+                },
+            }],
+        }
+        with mock.patch.dict(os.environ, {
+            "GEMINI_API_KEY": "primary-key",
+            "GEMINI_API_KEY1": "backup-key",
+        }, clear=True), \
+                mock.patch.object(gemini, "list_models", return_value=["gemini-test"]), \
+                mock.patch.object(
+                    gemini.requests, "post",
+                    side_effect=[quota_response, success_response],
+                ) as post:
+            result = gemini.research_festival("छठ पूजा", "2026", "India", video_sources=[])
+
+        self.assertEqual([call.kwargs["params"]["key"] for call in post.call_args_list], [
+            "primary-key", "backup-key",
+        ])
+        self.assertEqual(len(result["sources"]), 2)
+
     def test_requires_five_distinct_transcribed_channels(self):
         sources = video_source_inputs()
         sources[-1]["channel_id"] = sources[0]["channel_id"]

@@ -106,9 +106,13 @@ def _api_error_detail(response):
 
 
 def research_festival(topic, date="", location="India", video_sources=None):
-    key = os.environ.get("GEMINI_API_KEY")
-    if not key:
-        raise RuntimeError("GEMINI_API_KEY is required for festival research")
+    keys = list(dict.fromkeys(
+        value.strip()
+        for value in (os.environ.get("GEMINI_API_KEY"), os.environ.get("GEMINI_API_KEY1"))
+        if value and value.strip()
+    ))
+    if not keys:
+        raise RuntimeError("GEMINI_API_KEY or GEMINI_API_KEY1 is required for festival research")
     video_sources = video_sources or []
     if video_sources:
         if len(video_sources) < 5:
@@ -139,50 +143,53 @@ def research_festival(topic, date="", location="India", video_sources=None):
         .replace("{transcripts}", "\n".join(transcript_blocks))
     )
     errors = []
-    for model in list_models(key)[:8]:
-        try:
-            response = requests.post(
-                f"{BASE}/models/{model}:generateContent",
-                params={"key": key},
-                json={
-                    "contents": [{"parts": [{"text": prompt}]}],
-                    "tools": [{"googleSearch": {}}],
-                    "generationConfig": {"temperature": 0.3},
-                },
-                timeout=300,
-            )
-        except requests.RequestException as exc:
-            errors.append(f"{model}: {type(exc).__name__}")
-            continue
-        if response.status_code != 200:
-            detail = _api_error_detail(response)
-            suffix = f" ({detail})" if detail else ""
-            errors.append(f"{model}: HTTP {response.status_code}{suffix}")
-            continue
-        try:
-            result = extract_grounded_research(response.json())
-        except (KeyError, IndexError, TypeError, ValueError) as exc:
-            errors.append(f"{model}: invalid response ({type(exc).__name__})")
-            continue
-        if len(result["sources"]) < 2:
-            errors.append(f"{model}: fewer than two usable Google Search citations")
-            continue
-        transcript_sources = [
-            {
-                "title": source["title"],
-                "url": source["url"],
-                "channel": source["channel"],
-                "channel_id": source["channel_id"],
-                "video_id": source["video_id"],
-                "language": source["language"],
-                "transcript_word_count": source["transcript_word_count"],
-                "kind": "video_transcript",
-            }
-            for source in video_sources[:5]
-        ]
-        result["sources"] = transcript_sources + [
-            {**source, "kind": "grounded_web"} for source in result["sources"]
-        ]
-        print(f"  festival research grounded with {model} ({len(result['sources'])} sources)")
-        return result
+    for key_index, key in enumerate(keys):
+        if key_index:
+            print(f"  retrying festival research with backup Gemini API key {key_index}")
+        for model in list_models(key)[:8]:
+            try:
+                response = requests.post(
+                    f"{BASE}/models/{model}:generateContent",
+                    params={"key": key},
+                    json={
+                        "contents": [{"parts": [{"text": prompt}]}],
+                        "tools": [{"googleSearch": {}}],
+                        "generationConfig": {"temperature": 0.3},
+                    },
+                    timeout=300,
+                )
+            except requests.RequestException as exc:
+                errors.append(f"{model}: {type(exc).__name__}")
+                continue
+            if response.status_code != 200:
+                detail = _api_error_detail(response)
+                suffix = f" ({detail})" if detail else ""
+                errors.append(f"{model}: HTTP {response.status_code}{suffix}")
+                continue
+            try:
+                result = extract_grounded_research(response.json())
+            except (KeyError, IndexError, TypeError, ValueError) as exc:
+                errors.append(f"{model}: invalid response ({type(exc).__name__})")
+                continue
+            if len(result["sources"]) < 2:
+                errors.append(f"{model}: fewer than two usable Google Search citations")
+                continue
+            transcript_sources = [
+                {
+                    "title": source["title"],
+                    "url": source["url"],
+                    "channel": source["channel"],
+                    "channel_id": source["channel_id"],
+                    "video_id": source["video_id"],
+                    "language": source["language"],
+                    "transcript_word_count": source["transcript_word_count"],
+                    "kind": "video_transcript",
+                }
+                for source in video_sources[:5]
+            ]
+            result["sources"] = transcript_sources + [
+                {**source, "kind": "grounded_web"} for source in result["sources"]
+            ]
+            print(f"  festival research grounded with {model} ({len(result['sources'])} sources)")
+            return result
     raise RuntimeError("Gemini festival research failed: " + "; ".join(errors[-4:]))

@@ -54,6 +54,7 @@ jobs:
       YOUTUBE_UPLOAD: ${{ inputs.upload }}
       FESTIVAL_TRANSCRIPT_RESEARCH: "false"
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GEMINI_API_KEY1: ${{ secrets.GEMINI_API_KEY1 }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
       YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
       YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
