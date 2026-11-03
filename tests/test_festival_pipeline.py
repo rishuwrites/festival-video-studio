@@ -125,6 +125,31 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         self.assertIn("Transcript text 4", prompt)
         self.assertIn("do not reproduce", prompt)
 
+    def test_festival_research_supports_web_only_mode_without_claiming_transcripts(self):
+        payload = {
+            "candidates": [{
+                "content": {"parts": [{"text": '{"headline":"उत्सव"}'}]},
+                "groundingMetadata": {
+                    "groundingChunks": [
+                        {"web": {"title": "Source 1", "uri": "https://example.org/1"}},
+                        {"web": {"title": "Source 2", "uri": "https://example.org/2"}},
+                    ],
+                },
+            }],
+        }
+        response = mock.Mock(status_code=200)
+        response.json.return_value = payload
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}), \
+                mock.patch.object(gemini, "list_models", return_value=["gemini-test"]), \
+                mock.patch.object(gemini.requests, "post", return_value=response) as post:
+            result = gemini.research_festival("छठ पूजा", "2026", DEFAULT_SCOPE, video_sources=[])
+
+        prompt = post.call_args.kwargs["json"]["contents"][0]["parts"][0]["text"]
+        self.assertIn("If no transcripts are supplied, do not claim or imply that video transcripts were analyzed", prompt)
+        self.assertNotIn("Transcript text", prompt)
+        self.assertEqual(len(result["sources"]), 2)
+        self.assertTrue(all(source["kind"] == "grounded_web" for source in result["sources"]))
+
     def test_rejects_research_without_two_grounded_sources(self):
         payload = {
             "candidates": [{
@@ -227,6 +252,24 @@ class RelatedVideoTranscriptTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "found 1"):
                 festival_sources.find_transcribed_videos("दीवाली", "2026", "India")
 
+    def test_web_only_mode_skips_youtube_search_and_caption_requests(self):
+        with mock.patch.dict(os.environ, {"FESTIVAL_TRANSCRIPT_RESEARCH": "false"}), \
+                mock.patch.object(festival_main, "find_transcribed_videos") as find_videos:
+            sources = festival_main._collect_video_research_sources("छठ पूजा", "2026", DEFAULT_SCOPE)
+
+        self.assertEqual(sources, [])
+        find_videos.assert_not_called()
+
+    def test_transcript_research_remains_enabled_by_default(self):
+        with mock.patch.dict(os.environ, {}, clear=True), \
+                mock.patch.object(
+                    festival_main, "find_transcribed_videos", return_value=video_source_inputs(),
+                ) as find_videos:
+            sources = festival_main._collect_video_research_sources("छठ पूजा", "2026", DEFAULT_SCOPE)
+
+        self.assertEqual(len(sources), 5)
+        find_videos.assert_called_once_with("छठ पूजा", "2026", DEFAULT_SCOPE)
+
     def test_existing_oauth_secrets_authorize_youtube_search(self):
         oauth_response = mock.Mock(status_code=200)
         oauth_response.json.return_value = {"access_token": "temporary-access-token"}
@@ -291,13 +334,34 @@ class FestivalValidationTests(unittest.TestCase):
 
         self.assertEqual(len(research["scenes"]), 9)
 
+    def test_accepts_web_grounded_script_without_video_transcripts(self):
+        result = festival_research(scene_count=9)
+        result["sources"] = [source for source in result["sources"] if source["kind"] == "grounded_web"]
+        result["research"]["key_facts"][0]["source_titles"] = ["Web source 0"]
+
+        research = festival_main.validate_research(result)
+
+        self.assertEqual(len(research["scenes"]), 9)
+
     def test_rejects_insufficient_scenes_or_sources(self):
         with self.assertRaisesRegex(ValueError, "9-12 scenes"):
             festival_main.validate_research(festival_research(scene_count=5))
 
         result = festival_research(scene_count=9)
-        result["sources"] = [s for s in result["sources"] if s["kind"] != "video_transcript"][:4]
-        with self.assertRaisesRegex(ValueError, "five distinct video channels"):
+        result["sources"] = []
+        with self.assertRaisesRegex(ValueError, "two Google Search source citations"):
+            festival_main.validate_research(result)
+
+        result = festival_research(scene_count=9)
+        result["sources"] = [s for s in result["sources"] if s["kind"] == "grounded_web"]
+        result["research"]["key_facts"][0]["source_titles"] = ["Web source 0"]
+        result["sources"] = [
+            source for source in result["sources"]
+        ] + [
+            source for source in festival_research(scene_count=9)["sources"]
+            if source["kind"] == "video_transcript"
+        ][:4]
+        with self.assertRaisesRegex(ValueError, "five distinct channels"):
             festival_main.validate_research(result)
 
     def test_rejects_invalid_emotion(self):

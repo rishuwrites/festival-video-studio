@@ -42,7 +42,7 @@ concurrency:
 
 jobs:
   generate:
-    runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       PYTHONUNBUFFERED: "1"
@@ -52,12 +52,12 @@ jobs:
       FESTIVAL_PUBLISH_DATE: ${{ inputs.publish_date }}
       FESTIVAL_PUBLISH_TIME: ${{ inputs.publish_time }}
       YOUTUBE_UPLOAD: ${{ inputs.upload }}
+      FESTIVAL_TRANSCRIPT_RESEARCH: "false"
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
       YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
       YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
       YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-      YT_API_KEY: ${{ secrets.YT_API_KEY }}
       HF_FLUX_SPACE: ${{ vars.HF_FLUX_SPACE || 'https://black-forest-labs-flux-1-schnell.hf.space' }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CF_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
@@ -72,7 +72,8 @@ jobs:
 
       - name: Install rendering dependencies
         run: |
-          command -v ffmpeg
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-core libraqm0 libfribidi0 libharfbuzz0b
           python -m pip install -r requirements.txt
           python -c "import PIL.features; assert PIL.features.check('raqm'), 'Pillow RAQM support is required for Hindi text rendering'"
           python -c "import sys; sys.path.insert(0, 'recap'); import render; print('Using Devanagari font:', render.find_font())"

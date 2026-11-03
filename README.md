@@ -4,8 +4,8 @@ Create original Hindi festival explainers with research notes, original illustra
 
 ## What it does
 
-- Searches YouTube for relevant videos and requires public Hindi/English captions from **five distinct channels**.
-- Compares source-video themes with current Google Search-grounded research.
+- Can analyze public Hindi/English captions from **five distinct YouTube channels** when transcript research is enabled and captions are accessible.
+- Uses current Google Search-grounded research; GitHub-hosted workflow uses this mode because YouTube may block caption requests from hosted-runner IPs.
 - Requires at least two grounded web citations and records all source links in a research report.
 - Generates an original 9–12 chapter Hindi script. Source captions are research inputs only: they are never saved in the report or copied into the script.
 - Verifies the synthesized narration lasts at least six minutes before rendering.
@@ -31,20 +31,9 @@ YouTube search and uploads use your OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SE
 
 ## GitHub Actions
 
-This workflow uses a **self-hosted Linux runner** because GitHub-hosted runners may be blocked from retrieving YouTube captions. Since this project folder is on Windows, the recommended setup is Ubuntu under WSL 2; it also provides the Linux text-shaping support needed for Hindi rendering.
+The manual workflow runs on a GitHub-hosted Ubuntu runner. Since YouTube blocks caption retrieval from some hosted-runner IPs, Actions uses Google Search-grounded research without transcript fetching. The generated research report marks this as `grounded_web_only`; it must not claim that it analyzed video transcripts. Local runs attempt the five-channel caption workflow by default; set `FESTIVAL_TRANSCRIPT_RESEARCH=false` to use web-only research there too.
 
-1. Install WSL 2 and Ubuntu on Windows if they are not installed. In Ubuntu, install the video and Hindi-font dependencies:
-
-   ```bash
-   sudo apt-get update
-   sudo apt-get install -y ffmpeg fonts-noto-core libraqm0 libfribidi0 libharfbuzz0b python3 python3-pip
-   ```
-
-2. In the private repository, open **Settings → Actions → Runners → New self-hosted runner**, choose **Linux x64**, and follow GitHub's instructions inside the Ubuntu/WSL shell. Keep that shell and the Windows computer awake while jobs execute. Leave the runner's default labels: `self-hosted`, `linux`, and `x64`. The workflow installs Python packages and verifies FFmpeg, RAQM, and a Devanagari font before generation.
-3. Add `GEMINI_API_KEY`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. The refresh token needs `youtube.upload`; it also needs `youtube.readonly` for source searches unless you provide the optional `YT_API_KEY` secret for public search. YouTube Data API v3 must be enabled for the Google Cloud project. Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`.
-4. Run **Festival explainer video** manually with a topic, festival date, **publish date (YYYY-MM-DD)**, and **publish time (24-hour HH:MM IST)**. The upload checkbox is on by default and creates a private scheduled video; the selected time must still be at least 15 minutes in the future after rendering finishes. Turn upload off to generate a preview only.
-
-Only attach a self-hosted runner to this private repository and run trusted workflow code on it. Do not use the runner for untrusted pull requests or public-repository workflows.
+Add `GEMINI_API_KEY` and the existing YouTube OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN`) as repository Actions secrets. For scheduled uploads, the refresh token needs both `youtube.upload` and `youtube.readonly` (read access is used to check for duplicate titles). YouTube source-search access and `YT_API_KEY` are not needed in hosted web-only research mode. Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Run **Festival explainer video** manually with a topic, festival date, **publish date (YYYY-MM-DD)**, and **publish time (24-hour HH:MM IST)**. The upload checkbox is on by default and creates a private scheduled video; the selected time must still be at least 15 minutes in the future after rendering finishes. Turn upload off to generate a preview only.
 
 ## Tests
 

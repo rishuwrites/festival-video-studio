@@ -69,8 +69,10 @@ def validate_research(result):
         raise ValueError("Festival research sources are missing")
     video_sources = [source for source in sources if isinstance(source, dict) and source.get("kind") == "video_transcript"]
     web_sources = [source for source in sources if isinstance(source, dict) and source.get("kind") == "grounded_web"]
-    if len(video_sources) < 5 or len({source.get("channel_id") for source in video_sources}) < 5:
-        raise ValueError("Festival research must analyze captions from five distinct video channels")
+    if video_sources and (
+        len(video_sources) < 5 or len({source.get("channel_id") for source in video_sources}) < 5
+    ):
+        raise ValueError("If video captions are used, they must come from five distinct channels")
     if len(web_sources) < 2:
         raise ValueError("At least two Google Search source citations are required")
     for source in sources:
@@ -110,6 +112,15 @@ def _make_description(topic, date, scope, research, sources):
     )
 
 
+def _collect_video_research_sources(topic, date, scope):
+    transcript_research = os.getenv("FESTIVAL_TRANSCRIPT_RESEARCH", "true").strip().lower()
+    if transcript_research in ("0", "false", "no", "off"):
+        print("Video transcript research disabled; using Google Search-grounded research")
+        return []
+    print("Finding five distinct channels with accessible public captions")
+    return find_transcribed_videos(topic, date, scope)
+
+
 def generate_video(
     topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None,
     publish_date="", publish_time="", upload=False,
@@ -119,8 +130,7 @@ def generate_video(
     if upload:
         scheduled_datetime(publish_date, publish_time)
     scope = scope.strip() or S.DEFAULT_SCOPE
-    print("Finding five distinct channels with accessible public captions")
-    video_sources = find_transcribed_videos(topic.strip(), date.strip(), scope)
+    video_sources = _collect_video_research_sources(topic.strip(), date.strip(), scope)
     grounded = gemini.research_festival(topic.strip(), date.strip(), scope, video_sources=video_sources)
     research = validate_research(grounded)
 
@@ -139,6 +149,7 @@ def generate_video(
         "topic": topic,
         "date": date,
         "coverage_scope": scope,
+        "research_mode": "video_transcripts_and_grounded_web" if video_sources else "grounded_web_only",
         "research_summary": research["research_summary"],
         "key_facts": research["key_facts"],
         "search_queries": grounded.get("search_queries", []),
@@ -146,6 +157,7 @@ def generate_video(
         "video_sources_analyzed": len([
             source for source in grounded["sources"] if source.get("kind") == "video_transcript"
         ]),
+        "research_mode": "video_transcripts_and_grounded_web" if video_sources else "grounded_web_only",
         "script": {
             "hook": research["hook"],
             "scenes": research["scenes"],
@@ -276,6 +288,7 @@ def generate_video(
         "video_sources_analyzed": len([
             source for source in grounded["sources"] if source.get("kind") == "video_transcript"
         ]),
+        "research_mode": "video_transcripts_and_grounded_web" if video_sources else "grounded_web_only",
         "narration_seconds": round(total),
         "video": os.path.basename(video_path),
         "thumbnail": os.path.basename(thumb_path),
