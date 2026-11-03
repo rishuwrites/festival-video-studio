@@ -31,7 +31,20 @@ YouTube search and uploads use your OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SE
 
 ## GitHub Actions
 
-Add `GEMINI_API_KEY`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. The refresh token needs `youtube.upload`; it also needs `youtube.readonly` for source searches unless you provide the optional `YT_API_KEY` secret for public search. YouTube Data API v3 must be enabled for the Google Cloud project. Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Run **Festival explainer video** manually with a topic, festival date, **publish date (YYYY-MM-DD)**, and **publish time (24-hour HH:MM IST)**. The upload checkbox is on by default and creates a private scheduled video; the selected time must still be at least 15 minutes in the future after rendering finishes. Turn upload off to generate a preview only.
+This workflow uses a **self-hosted Linux runner** because GitHub-hosted runners may be blocked from retrieving YouTube captions. Since this project folder is on Windows, the recommended setup is Ubuntu under WSL 2; it also provides the Linux text-shaping support needed for Hindi rendering.
+
+1. Install WSL 2 and Ubuntu on Windows if they are not installed. In Ubuntu, install the video and Hindi-font dependencies:
+
+   ```bash
+   sudo apt-get update
+   sudo apt-get install -y ffmpeg fonts-noto-core libraqm0 libfribidi0 libharfbuzz0b python3 python3-pip
+   ```
+
+2. In the private repository, open **Settings → Actions → Runners → New self-hosted runner**, choose **Linux x64**, and follow GitHub's instructions inside the Ubuntu/WSL shell. Keep that shell and the Windows computer awake while jobs execute. Leave the runner's default labels: `self-hosted`, `linux`, and `x64`. The workflow installs Python packages and verifies FFmpeg, RAQM, and a Devanagari font before generation.
+3. Add `GEMINI_API_KEY`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. The refresh token needs `youtube.upload`; it also needs `youtube.readonly` for source searches unless you provide the optional `YT_API_KEY` secret for public search. YouTube Data API v3 must be enabled for the Google Cloud project. Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`.
+4. Run **Festival explainer video** manually with a topic, festival date, **publish date (YYYY-MM-DD)**, and **publish time (24-hour HH:MM IST)**. The upload checkbox is on by default and creates a private scheduled video; the selected time must still be at least 15 minutes in the future after rendering finishes. Turn upload off to generate a preview only.
+
+Only attach a self-hosted runner to this private repository and run trusted workflow code on it. Do not use the runner for untrusted pull requests or public-repository workflows.
 
 ## Tests
 
