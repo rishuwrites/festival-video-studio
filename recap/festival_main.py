@@ -95,35 +95,35 @@ def _safe_slug(text):
     return slug[:60].strip("-")
 
 
-def _make_description(topic, date, location, research, sources):
+def _make_description(topic, date, scope, research, sources):
     date_line = f"Requested date/year: {date}\n" if date else ""
     source_lines = "\n".join(f"- {source['title']}: {source['url']}" for source in sources[:8])
     return (
         f"{research['headline']}\n\n"
         f"{research['research_summary']}\n\n"
-        f"Topic: {topic}\n{date_line}Calendar location: {location}\n\n"
-        "Timings and observances can vary by city, panchang, and regional tradition. "
-        "Check the cited source for your location before relying on an exact muhurta.\n\n"
+        f"Topic: {topic}\n{date_line}Coverage: {scope}\n\n"
+        "Dates and customs can vary by panchang and regional tradition. "
+        "Exact muhurta timings are city-specific; check a local panchang before relying on them.\n\n"
         f"Research sources:\n{source_lines}\n\n"
         "#Festival #Hindi #IndianCulture"
     )
 
 
-def generate_video(topic, date="", location="India", output_dir=None):
+def generate_video(topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None):
     if not topic.strip():
         raise ValueError("A festival topic is required")
-    location = location.strip() or "India"
+    scope = scope.strip() or S.DEFAULT_SCOPE
     print("Finding five distinct channels with accessible public captions")
-    video_sources = find_transcribed_videos(topic.strip(), date.strip(), location)
-    grounded = gemini.research_festival(topic.strip(), date.strip(), location, video_sources=video_sources)
+    video_sources = find_transcribed_videos(topic.strip(), date.strip(), scope)
+    grounded = gemini.research_festival(topic.strip(), date.strip(), scope, video_sources=video_sources)
     research = validate_research(grounded)
 
     output_dir = output_dir or os.path.join(S.BASE, "output")
     os.makedirs(output_dir, exist_ok=True)
     slug = _safe_slug(topic)
     day_slug = _safe_slug(date) if date else dt.datetime.now(IST).strftime("%Y%m%d")
-    location_slug = _safe_slug(location)[:24]
-    basename = f"festival_{slug}_{day_slug}_{location_slug}"
+    scope_slug = _safe_slug(scope)[:24]
+    basename = f"festival_{slug}_{day_slug}_{scope_slug}"
     video_path = os.path.join(output_dir, basename + ".mp4")
     thumb_path = os.path.join(output_dir, basename + ".jpg")
     metadata_path = os.path.join(output_dir, basename + ".json")
@@ -132,7 +132,7 @@ def generate_video(topic, date="", location="India", output_dir=None):
         "generated_at_ist": dt.datetime.now(IST).isoformat(),
         "topic": topic,
         "date": date,
-        "location": location,
+        "coverage_scope": scope,
         "research_summary": research["research_summary"],
         "key_facts": research["key_facts"],
         "search_queries": grounded.get("search_queries", []),
@@ -250,11 +250,11 @@ def generate_video(topic, date="", location="India", output_dir=None):
             thumbnail_art,
             research["thumbnail_text"],
             "पर्व विशेष",
-            f"{location} | {date or 'जानकारी'}",
+            f"भारत | {date or 'जानकारी'}",
             thumb_path,
         )
 
-    description = _make_description(topic, date, location, research, grounded["sources"])
+    description = _make_description(topic, date, scope, research, grounded["sources"])
     keywords = [str(keyword) for keyword in research.get("keywords", []) if str(keyword).strip()]
     metadata = {
         "title": research["headline"],
@@ -262,7 +262,7 @@ def generate_video(topic, date="", location="India", output_dir=None):
         "tags": keywords[:20],
         "topic": topic,
         "date": date,
-        "location": location,
+        "coverage_scope": scope,
         "duration_seconds": round(offset),
         "chapters": starts,
         "sources": grounded["sources"],
@@ -288,13 +288,19 @@ def main():
     parser = argparse.ArgumentParser(description="Create a source-grounded Hindi festival explainer video")
     parser.add_argument("--topic", default=os.getenv("FESTIVAL_TOPIC", ""), help="Festival or observance to explain")
     parser.add_argument("--date", default=os.getenv("FESTIVAL_DATE", ""), help="Optional date/year, for example 2026")
-    parser.add_argument("--location", default=os.getenv("FESTIVAL_LOCATION", "India"), help="City/region for calendar details")
+    parser.add_argument(
+        "--scope",
+        "--location",
+        dest="scope",
+        default=os.getenv("FESTIVAL_SCOPE") or S.DEFAULT_SCOPE,
+        help="Coverage scope; defaults to India-wide with focus on Uttar Pradesh and Bihar",
+    )
     parser.add_argument("--output-dir", default=os.getenv("FESTIVAL_OUTPUT_DIR", ""))
     args = parser.parse_args()
     if not args.topic.strip():
         parser.error("--topic or FESTIVAL_TOPIC is required")
     try:
-        generate_video(args.topic, args.date, args.location, args.output_dir or None)
+        generate_video(args.topic, args.date, args.scope, args.output_dir or None)
     except Exception as exc:
         raise SystemExit(f"Festival video generation failed: {type(exc).__name__}: {exc}") from exc
 

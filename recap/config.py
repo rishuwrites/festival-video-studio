@@ -2,6 +2,7 @@ import os
 
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_SCOPE = "India (nationwide, with focus on Uttar Pradesh and Bihar)"
 W, H, FPS = 1920, 1080, 24
 CUT_SECONDS = 2.6
 MUSIC_VOLUME = 0.15

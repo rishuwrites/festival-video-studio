@@ -12,11 +12,11 @@ on:
         type: string
         required: false
         default: ""
-      location:
-        description: City/region for local Panchang details
+      scope:
+        description: India-wide coverage, with special attention to UP and Bihar
         type: string
         required: false
-        default: India
+        default: India (nationwide, with focus on Uttar Pradesh and Bihar)
 
 permissions:
   contents: read
@@ -33,7 +33,7 @@ jobs:
       PYTHONUNBUFFERED: "1"
       FESTIVAL_TOPIC: ${{ inputs.topic }}
       FESTIVAL_DATE: ${{ inputs.date }}
-      FESTIVAL_LOCATION: ${{ inputs.location }}
+      FESTIVAL_SCOPE: ${{ inputs.scope || 'India (nationwide, with focus on Uttar Pradesh and Bihar)' }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
       YT_API_KEY: ${{ secrets.YT_API_KEY }}

@@ -12,7 +12,7 @@ Create original Hindi festival explainers with research notes, original illustra
 - Produces an MP4, thumbnail, metadata JSON, and a research JSON report.
 - Never uploads or publishes automatically.
 
-For Panchang dates and muhurta, provide a city. Calendar details can vary by location and tradition; verify the cited sources before publishing.
+The default coverage is **all of India**, with extra research attention to **Uttar Pradesh and Bihar**, including regional customs. The script must separate nationwide facts from regional practices rather than presenting one state’s customs as universal. Exact muhurta timings vary city by city, so the nationwide video will not present one city’s time as valid across India.
 
 ## Run locally
 
@@ -22,14 +22,14 @@ Install Python dependencies and FFmpeg. On Windows, install a Devanagari font su
 python -m pip install -r requirements.txt
 $env:GEMINI_API_KEY = "..."
 $env:YT_API_KEY = "..."
-python recap\festival_main.py --topic "Dhanteras" --date "2026" --location "Jaipur, Rajasthan"
+python recap\festival_main.py --topic "Dhanteras" --date "2026"
 ```
 
-Video search uses a YouTube Data API key. Image generation can use Cloudflare credentials; the configured image providers are tried as fallbacks. Output is written to `output\`.
+Use `--scope` to customize the coverage, or the older `--location` option as an alias. For example, `--scope "India (nationwide, focus on UP and Bihar)"`. Video search uses a YouTube Data API key. Image generation can use Cloudflare credentials; the configured image providers are tried as fallbacks. Output is written to `output\`.
 
 ## GitHub Actions
 
-Add `GEMINI_API_KEY` and `YT_API_KEY` as repository Actions secrets. Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Run **Festival explainer video** manually with a topic, date, and location, then download the artifact.
+Add `GEMINI_API_KEY` and `YT_API_KEY` as repository Actions secrets. Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Run **Festival explainer video** manually with a topic and date; its default scope covers India with a special focus on Uttar Pradesh and Bihar.
 
 ## Tests
 

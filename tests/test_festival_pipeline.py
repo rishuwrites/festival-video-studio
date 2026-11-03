@@ -12,6 +12,9 @@ import gemini
 import festival_sources
 
 
+DEFAULT_SCOPE = "India (nationwide, with focus on Uttar Pradesh and Bihar)"
+
+
 def festival_research(scene_count=6):
     scenes = [
         {
@@ -108,7 +111,7 @@ class GroundedFestivalResearchTests(unittest.TestCase):
                 mock.patch.object(gemini, "list_models", return_value=["gemini-test"]), \
                 mock.patch.object(gemini.requests, "post", return_value=response) as post:
             result = gemini.research_festival(
-                "दिवाली", "2026", "Jaipur", video_sources=video_source_inputs(),
+                "दिवाली", "2026", DEFAULT_SCOPE, video_sources=video_source_inputs(),
             )
 
         self.assertEqual(len(result["sources"]), 7)
@@ -116,7 +119,9 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         request = post.call_args.kwargs["json"]
         self.assertEqual(request["tools"], [{"googleSearch": {}}])
         prompt = request["contents"][0]["parts"][0]["text"]
-        self.assertIn("Jaipur", prompt)
+        self.assertIn("Uttar Pradesh and Bihar", prompt)
+        self.assertIn("nationwide", prompt)
+        self.assertIn("one city's exact muhurta as applying nationwide", prompt)
         self.assertIn("Transcript text 4", prompt)
         self.assertIn("do not reproduce", prompt)
 
@@ -182,7 +187,7 @@ class RelatedVideoTranscriptTests(unittest.TestCase):
         with mock.patch.dict(os.environ, {"YT_API_KEY": "test-api-key"}), \
                 mock.patch.object(festival_sources, "_transcript_client", return_value=client), \
                 mock.patch.object(festival_sources, "_search_results", return_value=self.results(range(6))):
-            sources = festival_sources.find_transcribed_videos("दीवाली", "2026", "Jaipur")
+            sources = festival_sources.find_transcribed_videos("दीवाली", "2026", DEFAULT_SCOPE)
 
         self.assertEqual(len(sources), 5)
         self.assertEqual(len({source["channel_id"] for source in sources}), 5)
@@ -200,6 +205,20 @@ class RelatedVideoTranscriptTests(unittest.TestCase):
         self.assertEqual(len(sources), 5)
         self.assertNotIn("video0", {source["video_id"] for source in sources})
 
+    def test_second_search_explicitly_covers_up_bihar_and_eastern_regions(self):
+        client = self.FakeTranscriptApi()
+        search_responses = [self.results(range(2)), self.results(range(2, 5))]
+        with mock.patch.dict(os.environ, {"YT_API_KEY": "test-api-key"}), \
+                mock.patch.object(festival_sources, "_transcript_client", return_value=client), \
+                mock.patch.object(festival_sources, "_search_results", side_effect=search_responses) as search:
+            sources = festival_sources.find_transcribed_videos("दीवाली", "2026")
+
+        self.assertEqual(len(sources), 5)
+        self.assertIn("India festival date", search.call_args_list[0].args[1])
+        regional_query = search.call_args_list[1].args[1]
+        self.assertIn("Uttar Pradesh Bihar", regional_query)
+        self.assertIn("Bhojpuri Maithili", regional_query)
+
     def test_fails_when_fewer_than_five_channels_have_captions(self):
         client = self.FakeTranscriptApi(failures={"video0", "video1", "video2"})
         with mock.patch.dict(os.environ, {"YT_API_KEY": "test-api-key"}), \
@@ -210,6 +229,10 @@ class RelatedVideoTranscriptTests(unittest.TestCase):
 
 
 class FestivalValidationTests(unittest.TestCase):
+    def test_default_scope_covers_india_and_highlights_up_bihar(self):
+        self.assertEqual(festival_main.S.DEFAULT_SCOPE, DEFAULT_SCOPE)
+        self.assertEqual(festival_main.generate_video.__defaults__[1], DEFAULT_SCOPE)
+
     def test_accepts_complete_source_grounded_script(self):
         research = festival_main.validate_research(festival_research(scene_count=9))
 

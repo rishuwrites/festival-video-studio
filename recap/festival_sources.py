@@ -3,6 +3,8 @@ import re
 
 import requests
 
+import config as S
+
 
 YOUTUBE_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
 REQUIRED_CHANNELS = 5
@@ -58,15 +60,15 @@ def _format_transcript(fetched):
     return text
 
 
-def find_transcribed_videos(topic, date="", location="India", api_key=None):
+def find_transcribed_videos(topic, date="", scope=S.DEFAULT_SCOPE, api_key=None):
     """Find five distinct channels' public Hindi/English captions; never persist transcript text."""
     api_key = api_key or os.getenv("YT_API_KEY")
     if not api_key:
         raise RuntimeError("YT_API_KEY is required to find and analyze five related YouTube videos")
 
     queries = [
-        " ".join(value for value in (topic, date, location, "festival date puja vidhi Hindi") if value),
-        " ".join(value for value in (topic, date, "festival story rituals Hindi") if value),
+        " ".join(value for value in (topic, date, "India festival date puja vidhi Hindi") if value),
+        " ".join(value for value in (topic, date, "Uttar Pradesh Bihar Purvanchal Bhojpuri Maithili festival rituals") if value),
     ]
     transcript_api = _transcript_client()
     selected = []
