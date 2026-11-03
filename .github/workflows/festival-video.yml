@@ -1,0 +1,66 @@
+name: Festival explainer video
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: Festival or observance to explain
+        type: string
+        required: true
+      date:
+        description: Optional date/year, for example 2026
+        type: string
+        required: false
+        default: ""
+      location:
+        description: City/region for local Panchang details
+        type: string
+        required: false
+        default: India
+
+permissions:
+  contents: read
+
+concurrency:
+  group: festival-video-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      PYTHONUNBUFFERED: "1"
+      FESTIVAL_TOPIC: ${{ inputs.topic }}
+      FESTIVAL_DATE: ${{ inputs.date }}
+      FESTIVAL_LOCATION: ${{ inputs.location }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+      YT_API_KEY: ${{ secrets.YT_API_KEY }}
+      HF_FLUX_SPACE: ${{ vars.HF_FLUX_SPACE || 'https://black-forest-labs-flux-1-schnell.hf.space' }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CF_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      POLLINATIONS_TOKEN: ${{ secrets.POLLINATIONS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install rendering dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-core libraqm0 libfribidi0 libharfbuzz0b
+          pip install -r requirements.txt
+
+      - name: Research and render preview
+        run: python recap/festival_main.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: festival-video-${{ github.run_id }}
+          path: output/festival_*
+          retention-days: 7
+          if-no-files-found: error

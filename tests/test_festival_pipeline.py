@@ -1,0 +1,267 @@
+import os
+import sys
+import unittest
+from pathlib import Path
+from unittest import mock
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "recap"))
+
+import festival_main
+import gemini
+import festival_sources
+
+
+def festival_research(scene_count=6):
+    scenes = [
+        {
+            "title": f"दृश्य {index}",
+            "narration": f"इस पर्व से जुड़ी जानकारी {index}। " + "महत्वपूर्ण जानकारी और परंपराओं के बारे में सरल व्याख्या। " * 20,
+            "emotion": "happy",
+            "visual_prompt": "A respectful Indian festival scene with lamps",
+        }
+        for index in range(scene_count)
+    ]
+    video_sources = [
+        {
+            "title": f"Video {index}",
+            "url": f"https://www.youtube.com/watch?v=video{index}",
+            "channel_id": f"channel{index}",
+            "kind": "video_transcript",
+        }
+        for index in range(5)
+    ]
+    web_sources = [
+        {"title": f"Web source {index}", "url": f"https://example.org/source{index}", "kind": "grounded_web"}
+        for index in range(2)
+    ]
+    return {
+        "research": {
+            "headline": "पर्व की पूरी जानकारी",
+            "thumbnail_text": "पर्व कब है",
+            "hook": "यह पर्व कब मनाया जाता है?",
+            "research_summary": "तिथि पंचांग और स्थान के अनुसार बदल सकती है।",
+            "key_facts": [{"claim": "तिथि स्थान के अनुसार बदल सकती है।", "source_titles": ["Video 0"]}],
+            "keywords": ["पर्व की तिथि", "festival date"],
+            "scenes": scenes,
+        },
+        "sources": video_sources + web_sources,
+        "search_queries": ["festival date"],
+    }
+
+
+def video_source_inputs():
+    return [
+        {
+            "video_id": f"video{index}",
+            "title": f"Title {index}",
+            "channel": f"Channel {index}",
+            "channel_id": f"channel{index}",
+            "url": f"https://www.youtube.com/watch?v=video{index}",
+            "language": "Hindi",
+            "transcript_word_count": 5,
+            "transcript": f"Transcript text {index}",
+        }
+        for index in range(5)
+    ]
+
+
+class GroundedFestivalResearchTests(unittest.TestCase):
+    def test_extracts_unique_https_sources_and_search_queries(self):
+        response = {
+            "candidates": [{
+                "content": {"parts": [{"text": '{"headline":"उत्सव"}'}]},
+                "groundingMetadata": {
+                    "webSearchQueries": ["festival date 2026"],
+                    "groundingChunks": [
+                        {"web": {"title": "Panchang", "uri": "https://example.org/date"}},
+                        {"web": {"title": "Duplicate", "uri": "https://example.org/date"}},
+                        {"web": {"title": "Unsafe", "uri": "http://example.org/unsafe"}},
+                    ],
+                },
+            }],
+        }
+
+        result = gemini.extract_grounded_research(response)
+
+        self.assertEqual(result["research"]["headline"], "उत्सव")
+        self.assertEqual(result["sources"], [
+            {"title": "Panchang", "url": "https://example.org/date"},
+        ])
+        self.assertEqual(result["search_queries"], ["festival date 2026"])
+
+    def test_festival_research_enables_google_search_grounding(self):
+        payload = {
+            "candidates": [{
+                "content": {"parts": [{"text": '{"headline":"उत्सव"}'}]},
+                "groundingMetadata": {
+                    "groundingChunks": [
+                        {"web": {"title": "Source 1", "uri": "https://example.org/1"}},
+                        {"web": {"title": "Source 2", "uri": "https://example.org/2"}},
+                    ],
+                },
+            }],
+        }
+        response = mock.Mock(status_code=200)
+        response.json.return_value = payload
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}), \
+                mock.patch.object(gemini, "list_models", return_value=["gemini-test"]), \
+                mock.patch.object(gemini.requests, "post", return_value=response) as post:
+            result = gemini.research_festival(
+                "दिवाली", "2026", "Jaipur", video_sources=video_source_inputs(),
+            )
+
+        self.assertEqual(len(result["sources"]), 7)
+        self.assertEqual(len([s for s in result["sources"] if s["kind"] == "video_transcript"]), 5)
+        request = post.call_args.kwargs["json"]
+        self.assertEqual(request["tools"], [{"googleSearch": {}}])
+        prompt = request["contents"][0]["parts"][0]["text"]
+        self.assertIn("Jaipur", prompt)
+        self.assertIn("Transcript text 4", prompt)
+        self.assertIn("do not reproduce", prompt)
+
+    def test_rejects_research_without_two_grounded_sources(self):
+        payload = {
+            "candidates": [{
+                "content": {"parts": [{"text": '{"headline":"उत्सव"}'}]},
+                "groundingMetadata": {"groundingChunks": []},
+            }],
+        }
+        response = mock.Mock(status_code=200)
+        response.json.return_value = payload
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}), \
+                mock.patch.object(gemini, "list_models", return_value=["gemini-test"]), \
+                mock.patch.object(gemini.requests, "post", return_value=response):
+            with self.assertRaisesRegex(RuntimeError, "fewer than two usable Google Search citations"):
+                gemini.research_festival(
+                    "दिवाली", "2026", "India", video_sources=video_source_inputs(),
+                )
+
+    def test_requires_five_distinct_transcribed_channels(self):
+        sources = video_source_inputs()
+        sources[-1]["channel_id"] = sources[0]["channel_id"]
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}):
+            with self.assertRaisesRegex(RuntimeError, "five distinct channels"):
+                gemini.research_festival("दिवाली", video_sources=sources)
+
+
+class RelatedVideoTranscriptTests(unittest.TestCase):
+    class FakeTranscript:
+        language = "Hindi"
+
+        def __init__(self, text):
+            self.snippets = [type("Snippet", (), {"text": text})()]
+
+    class FakeTranscriptApi:
+        def __init__(self, failures=()):
+            self.failures = set(failures)
+            self.requested = []
+
+        def fetch(self, video_id, languages):
+            self.requested.append((video_id, languages))
+            if video_id in self.failures:
+                raise RuntimeError("captions unavailable")
+            return RelatedVideoTranscriptTests.FakeTranscript(f"Useful transcript for {video_id}.")
+
+    @staticmethod
+    def results(channel_numbers):
+        return [
+            {
+                "id": {"videoId": f"video{index}"},
+                "snippet": {
+                    "channelId": f"channel{index}",
+                    "channelTitle": f"Channel {index}",
+                    "title": f"Festival video {index}",
+                },
+            }
+            for index in channel_numbers
+        ]
+
+    def test_collects_five_captioned_videos_from_distinct_channels(self):
+        client = self.FakeTranscriptApi()
+        with mock.patch.dict(os.environ, {"YT_API_KEY": "test-api-key"}), \
+                mock.patch.object(festival_sources, "_transcript_client", return_value=client), \
+                mock.patch.object(festival_sources, "_search_results", return_value=self.results(range(6))):
+            sources = festival_sources.find_transcribed_videos("दीवाली", "2026", "Jaipur")
+
+        self.assertEqual(len(sources), 5)
+        self.assertEqual(len({source["channel_id"] for source in sources}), 5)
+        self.assertEqual(sources[0]["transcript"], "Useful transcript for video0.")
+        self.assertEqual(client.requested[0][1], ["hi", "en"])
+
+    def test_skips_videos_without_captions_and_searches_again(self):
+        client = self.FakeTranscriptApi(failures={"video0", "video1"})
+        responses = [self.results(range(4)), self.results(range(4, 9))]
+        with mock.patch.dict(os.environ, {"YT_API_KEY": "test-api-key"}), \
+                mock.patch.object(festival_sources, "_transcript_client", return_value=client), \
+                mock.patch.object(festival_sources, "_search_results", side_effect=responses):
+            sources = festival_sources.find_transcribed_videos("दीवाली", "2026", "India")
+
+        self.assertEqual(len(sources), 5)
+        self.assertNotIn("video0", {source["video_id"] for source in sources})
+
+    def test_fails_when_fewer_than_five_channels_have_captions(self):
+        client = self.FakeTranscriptApi(failures={"video0", "video1", "video2"})
+        with mock.patch.dict(os.environ, {"YT_API_KEY": "test-api-key"}), \
+                mock.patch.object(festival_sources, "_transcript_client", return_value=client), \
+                mock.patch.object(festival_sources, "_search_results", return_value=self.results(range(4))):
+            with self.assertRaisesRegex(RuntimeError, "found 1"):
+                festival_sources.find_transcribed_videos("दीवाली", "2026", "India")
+
+
+class FestivalValidationTests(unittest.TestCase):
+    def test_accepts_complete_source_grounded_script(self):
+        research = festival_main.validate_research(festival_research(scene_count=9))
+
+        self.assertEqual(len(research["scenes"]), 9)
+
+    def test_rejects_insufficient_scenes_or_sources(self):
+        with self.assertRaisesRegex(ValueError, "9-12 scenes"):
+            festival_main.validate_research(festival_research(scene_count=5))
+
+        result = festival_research(scene_count=9)
+        result["sources"] = [s for s in result["sources"] if s["kind"] != "video_transcript"][:4]
+        with self.assertRaisesRegex(ValueError, "five distinct video channels"):
+            festival_main.validate_research(result)
+
+    def test_rejects_invalid_emotion(self):
+        result = festival_research(scene_count=9)
+        result["research"]["scenes"][0]["emotion"] = "fear"
+
+        with self.assertRaisesRegex(ValueError, "unsupported emotion"):
+            festival_main.validate_research(result)
+
+    def test_rejects_sources_without_secure_urls_and_long_thumbnail_copy(self):
+        result = festival_research(scene_count=9)
+        result["sources"][0]["url"] = "http://example.org/video"
+        with self.assertRaisesRegex(ValueError, "HTTPS URL"):
+            festival_main.validate_research(result)
+
+        result = festival_research(scene_count=9)
+        result["research"]["thumbnail_text"] = "यह एक बहुत लंबा थंबनेल शीर्षक है"
+        with self.assertRaisesRegex(ValueError, "5 words"):
+            festival_main.validate_research(result)
+
+    def test_rejects_script_that_is_too_short_for_six_minutes(self):
+        result = festival_research(scene_count=9)
+        for scene in result["research"]["scenes"]:
+            scene["narration"] = "छोटा पाठ।"
+
+        with self.assertRaisesRegex(ValueError, "at least 800 words"):
+            festival_main.validate_research(result)
+
+    def test_requires_actual_synthesized_audio_of_at_least_six_minutes(self):
+        with self.assertRaisesRegex(ValueError, "at least 360 seconds"):
+            festival_main.validate_narration_duration(359.99)
+        festival_main.validate_narration_duration(360)
+
+    def test_hindi_topics_get_deterministic_distinct_output_slugs(self):
+        first = festival_main._safe_slug("दीपावली")
+        second = festival_main._safe_slug("धनतेरस")
+
+        self.assertNotEqual(first, second)
+        self.assertTrue(first.startswith("festival-"))
+
+
+if __name__ == "__main__":
+    unittest.main()
