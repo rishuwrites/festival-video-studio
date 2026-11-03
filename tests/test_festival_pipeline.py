@@ -227,6 +227,56 @@ class RelatedVideoTranscriptTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "found 1"):
                 festival_sources.find_transcribed_videos("दीवाली", "2026", "India")
 
+    def test_existing_oauth_secrets_authorize_youtube_search(self):
+        oauth_response = mock.Mock(status_code=200)
+        oauth_response.json.return_value = {"access_token": "temporary-access-token"}
+        transcript_client = self.FakeTranscriptApi()
+        with mock.patch.dict(os.environ, {
+            "YT_CLIENT_ID": "existing-client-id",
+            "YT_CLIENT_SECRET": "existing-client-secret",
+            "YT_REFRESH_TOKEN": "existing-refresh-token",
+        }, clear=True), \
+                mock.patch.object(festival_sources.requests, "post", return_value=oauth_response) as post, \
+                mock.patch.object(festival_sources, "_transcript_client", return_value=transcript_client), \
+                mock.patch.object(
+                    festival_sources, "_search_results", return_value=self.results(range(5)),
+                ) as search:
+            sources = festival_sources.find_transcribed_videos("दीवाली", "2026")
+
+        self.assertEqual(len(sources), 5)
+        self.assertEqual(post.call_args.args[0], festival_sources.GOOGLE_TOKEN_URL)
+        self.assertEqual(post.call_args.kwargs["data"], {
+            "client_id": "existing-client-id",
+            "client_secret": "existing-client-secret",
+            "refresh_token": "existing-refresh-token",
+            "grant_type": "refresh_token",
+        })
+        self.assertEqual(search.call_args.kwargs["access_token"], "temporary-access-token")
+        self.assertIsNone(search.call_args.args[0])
+
+    def test_oauth_search_reports_readonly_scope_requirement(self):
+        oauth_response = mock.Mock(status_code=200)
+        oauth_response.json.return_value = {"access_token": "temporary-access-token"}
+        failed_search = mock.Mock(status_code=403)
+        failed_search.raise_for_status.side_effect = festival_sources.requests.HTTPError("forbidden")
+        with mock.patch.object(festival_sources.requests, "get", return_value=failed_search):
+            with self.assertRaisesRegex(RuntimeError, "youtube.readonly"):
+                festival_sources._search_results(None, "festival", access_token="temporary-access-token")
+
+    def test_oauth_refresh_failure_does_not_disclose_credentials(self):
+        failed_response = mock.Mock(status_code=400)
+        with mock.patch.dict(os.environ, {
+            "YT_CLIENT_ID": "client-id",
+            "YT_CLIENT_SECRET": "do-not-log-this-secret",
+            "YT_REFRESH_TOKEN": "do-not-log-this-refresh-token",
+        }, clear=True), \
+                mock.patch.object(festival_sources.requests, "post", return_value=failed_response):
+            with self.assertRaisesRegex(RuntimeError, "HTTP 400") as error:
+                festival_sources._oauth_access_token()
+
+        self.assertNotIn("do-not-log-this-secret", str(error.exception))
+        self.assertNotIn("do-not-log-this-refresh-token", str(error.exception))
+
 
 class FestivalValidationTests(unittest.TestCase):
     def test_default_scope_covers_india_and_highlights_up_bihar(self):

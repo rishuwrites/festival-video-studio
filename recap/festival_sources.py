@@ -7,18 +7,55 @@ import config as S
 
 
 YOUTUBE_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 REQUIRED_CHANNELS = 5
 MAX_SEARCH_PAGES = 2
 MAX_TRANSCRIPT_CHARS = 9000
 TRANSCRIPT_LANGUAGES = ["hi", "en"]
 
 
-def _search_results(api_key, query):
+def _oauth_access_token():
+    client_id = os.getenv("YT_CLIENT_ID", "").strip()
+    client_secret = os.getenv("YT_CLIENT_SECRET", "").strip()
+    refresh_token = os.getenv("YT_REFRESH_TOKEN", "").strip()
+    if not client_id or not client_secret or not refresh_token:
+        raise RuntimeError(
+            "Set YT_CLIENT_ID, YT_CLIENT_SECRET, and YT_REFRESH_TOKEN, "
+            "or provide YT_API_KEY for public YouTube search"
+        )
+
+    try:
+        response = requests.post(
+            GOOGLE_TOKEN_URL,
+            data={
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "refresh_token": refresh_token,
+                "grant_type": "refresh_token",
+            },
+            timeout=30,
+        )
+    except requests.RequestException as exc:
+        raise RuntimeError(f"Could not refresh the YouTube OAuth access token: {type(exc).__name__}") from exc
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"YouTube OAuth token refresh failed (HTTP {response.status_code}); "
+            "check YT_CLIENT_ID, YT_CLIENT_SECRET, and YT_REFRESH_TOKEN"
+        )
+    try:
+        access_token = response.json().get("access_token", "").strip()
+    except (ValueError, AttributeError) as exc:
+        raise RuntimeError("YouTube OAuth token endpoint returned an invalid response") from exc
+    if not access_token:
+        raise RuntimeError("YouTube OAuth token endpoint returned no access token")
+    return access_token
+
+
+def _search_results(api_key, query, access_token=None):
     results = []
     page_token = ""
     for _ in range(MAX_SEARCH_PAGES):
         params = {
-            "key": api_key,
             "part": "snippet",
             "q": query,
             "type": "video",
@@ -28,10 +65,22 @@ def _search_results(api_key, query):
             "relevanceLanguage": "hi",
             "safeSearch": "moderate",
         }
+        if api_key:
+            params["key"] = api_key
         if page_token:
             params["pageToken"] = page_token
-        response = requests.get(YOUTUBE_SEARCH_URL, params=params, timeout=30)
-        response.raise_for_status()
+        headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
+        try:
+            response = requests.get(YOUTUBE_SEARCH_URL, params=params, headers=headers, timeout=30)
+            response.raise_for_status()
+        except requests.HTTPError as exc:
+            status = getattr(response, "status_code", None)
+            if status == 403 and access_token:
+                raise RuntimeError(
+                    "YouTube search returned HTTP 403. The OAuth refresh token may lack "
+                    "youtube.readonly access, or YouTube Data API v3 may not be enabled."
+                ) from exc
+            raise
         payload = response.json()
         results.extend(payload.get("items", []))
         page_token = payload.get("nextPageToken", "")
@@ -63,8 +112,7 @@ def _format_transcript(fetched):
 def find_transcribed_videos(topic, date="", scope=S.DEFAULT_SCOPE, api_key=None):
     """Find five distinct channels' public Hindi/English captions; never persist transcript text."""
     api_key = api_key or os.getenv("YT_API_KEY")
-    if not api_key:
-        raise RuntimeError("YT_API_KEY is required to find and analyze five related YouTube videos")
+    access_token = None if api_key else _oauth_access_token()
 
     queries = [
         " ".join(value for value in (topic, date, "India festival date puja vidhi Hindi") if value),
@@ -78,7 +126,9 @@ def find_transcribed_videos(topic, date="", scope=S.DEFAULT_SCOPE, api_key=None)
 
     for query in queries:
         try:
-            results = _search_results(api_key, query)
+            results = _search_results(api_key, query, access_token=access_token)
+        except RuntimeError as exc:
+            raise RuntimeError(f"YouTube source search failed: {exc}") from exc
         except requests.RequestException as exc:
             status = getattr(getattr(exc, "response", None), "status_code", "")
             transcript_errors.append(f"YouTube search failed: {type(exc).__name__} (HTTP {status})")

@@ -21,15 +21,17 @@ Install Python dependencies and FFmpeg. On Windows, install a Devanagari font su
 ```powershell
 python -m pip install -r requirements.txt
 $env:GEMINI_API_KEY = "..."
-$env:YT_API_KEY = "..."
+$env:YT_CLIENT_ID = "..."
+$env:YT_CLIENT_SECRET = "..."
+$env:YT_REFRESH_TOKEN = "..."
 python recap\festival_main.py --topic "Dhanteras" --date "2026"
 ```
 
-Use `--scope` to customize the coverage, or the older `--location` option as an alias. For example, `--scope "India (nationwide, focus on UP and Bihar)"`. Video search uses a YouTube Data API key. Image generation can use Cloudflare credentials; the configured image providers are tried as fallbacks. Output is written to `output\`.
+YouTube search can use your existing OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN`) or an optional `YT_API_KEY`. OAuth must have YouTube read-only access (`youtube.readonly`) and YouTube Data API v3 must be enabled for the Google Cloud project. If your refresh token only has upload access, re-authorize it with the read-only scope. Use `--scope` to customize coverage, or the older `--location` option as an alias. For example, `--scope "India (nationwide, focus on UP and Bihar)"`. Image generation can use Cloudflare credentials; the configured image providers are tried as fallbacks. Output is written to `output\`.
 
 ## GitHub Actions
 
-Add `GEMINI_API_KEY` and `YT_API_KEY` as repository Actions secrets. Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Run **Festival explainer video** manually with a topic and date; its default scope covers India with a special focus on Uttar Pradesh and Bihar.
+Add `GEMINI_API_KEY`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. These are the existing serial-recap YouTube OAuth credentials; a separate `YT_API_KEY` is not required. The OAuth refresh token needs `youtube.readonly` access. Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Run **Festival explainer video** manually with a topic and date; its default scope covers India with a special focus on Uttar Pradesh and Bihar.
 
 ## Tests
 
