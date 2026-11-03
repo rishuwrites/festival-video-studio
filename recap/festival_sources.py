@@ -80,9 +80,24 @@ def _search_results(api_key, query, access_token=None):
         except requests.HTTPError as exc:
             status = getattr(response, "status_code", None)
             if status == 403 and access_token:
+                reason = ""
+                try:
+                    body = response.json()
+                    if isinstance(body, dict):
+                        error = body.get("error", {})
+                        if isinstance(error, dict):
+                            errors = error.get("errors", [])
+                            if isinstance(errors, list) and errors and isinstance(errors[0], dict):
+                                reason = errors[0].get("reason", "")
+                            if not reason:
+                                reason = error.get("status", "")
+                except (ValueError, AttributeError, TypeError):
+                    pass
+                reason_text = f" ({reason})" if isinstance(reason, str) and reason else ""
                 raise RuntimeError(
-                    "YouTube search returned HTTP 403. The OAuth refresh token may lack "
-                    "youtube.readonly access, or YouTube Data API v3 may not be enabled."
+                    f"YouTube search returned HTTP 403{reason_text}. The OAuth refresh token may lack "
+                    "youtube.readonly access, the YouTube Data API v3 may not be enabled, "
+                    "or the API quota may be exhausted."
                 ) from exc
             raise
         payload = response.json()

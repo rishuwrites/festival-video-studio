@@ -259,8 +259,11 @@ class RelatedVideoTranscriptTests(unittest.TestCase):
         oauth_response.json.return_value = {"access_token": "temporary-access-token"}
         failed_search = mock.Mock(status_code=403)
         failed_search.raise_for_status.side_effect = festival_sources.requests.HTTPError("forbidden")
+        failed_search.json.return_value = {
+            "error": {"errors": [{"reason": "insufficientPermissions"}]},
+        }
         with mock.patch.object(festival_sources.requests, "get", return_value=failed_search):
-            with self.assertRaisesRegex(RuntimeError, "youtube.readonly"):
+            with self.assertRaisesRegex(RuntimeError, "insufficientPermissions.*youtube.readonly"):
                 festival_sources._search_results(None, "festival", access_token="temporary-access-token")
 
     def test_oauth_refresh_failure_does_not_disclose_credentials(self):
