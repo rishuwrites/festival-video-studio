@@ -167,6 +167,22 @@ class GroundedFestivalResearchTests(unittest.TestCase):
                     "दिवाली", "2026", "India", video_sources=video_source_inputs(),
                 )
 
+    def test_reports_gemini_quota_exhaustion_reason(self):
+        response = mock.Mock(status_code=429)
+        response.json.return_value = {
+            "error": {
+                "status": "RESOURCE_EXHAUSTED",
+                "message": "You exceeded your current quota.",
+            },
+        }
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}), \
+                mock.patch.object(gemini, "list_models", return_value=["gemini-test"]), \
+                mock.patch.object(gemini.requests, "post", return_value=response):
+            with self.assertRaisesRegex(
+                RuntimeError, "RESOURCE_EXHAUSTED: You exceeded your current quota",
+            ):
+                gemini.research_festival("दिवाली", "2026", "India", video_sources=[])
+
     def test_requires_five_distinct_transcribed_channels(self):
         sources = video_source_inputs()
         sources[-1]["channel_id"] = sources[0]["channel_id"]

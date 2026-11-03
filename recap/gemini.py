@@ -92,6 +92,19 @@ def extract_grounded_research(payload):
     return {"research": data, "sources": sources, "search_queries": queries}
 
 
+def _api_error_detail(response):
+    try:
+        error = response.json().get("error", {})
+    except (ValueError, AttributeError):
+        return ""
+    if not isinstance(error, dict):
+        return ""
+    status = str(error.get("status", "")).strip()
+    message = str(error.get("message", "")).strip()
+    detail = ": ".join(value for value in (status, message) if value)
+    return detail[:300]
+
+
 def research_festival(topic, date="", location="India", video_sources=None):
     key = os.environ.get("GEMINI_API_KEY")
     if not key:
@@ -142,7 +155,9 @@ def research_festival(topic, date="", location="India", video_sources=None):
             errors.append(f"{model}: {type(exc).__name__}")
             continue
         if response.status_code != 200:
-            errors.append(f"{model}: HTTP {response.status_code}")
+            detail = _api_error_detail(response)
+            suffix = f" ({detail})" if detail else ""
+            errors.append(f"{model}: HTTP {response.status_code}{suffix}")
             continue
         try:
             result = extract_grounded_research(response.json())
