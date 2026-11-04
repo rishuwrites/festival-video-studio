@@ -164,7 +164,11 @@ def _extract_script(payload):
     parts = candidate["content"]["parts"]
     text = "".join(part.get("text", "") for part in parts).strip()
     text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
-    return json.loads(text)
+    research = json.loads(text)
+    thumbnail_text = research.get("thumbnail_text")
+    if isinstance(thumbnail_text, str) and len(thumbnail_text.split()) > 5:
+        research["thumbnail_text"] = " ".join(thumbnail_text.split()[:5])
+    return research
 
 
 def research_festival(topic, date="", location="India", video_sources=None, web_research=None):

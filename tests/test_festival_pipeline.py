@@ -156,7 +156,9 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         response = mock.Mock(status_code=200)
         response.json.return_value = {
             "candidates": [{
-                "content": {"parts": [{"text": '{"headline":"धनतेरस"}'}]},
+                "content": {"parts": [{
+                    "text": '{"headline":"धनतेरस","thumbnail_text":"धनतेरस कब और कैसे मनाएं आज"}',
+                }]},
             }],
         }
         sources = [
@@ -181,6 +183,7 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         self.assertEqual(request["generationConfig"]["responseMimeType"], "application/json")
         self.assertIn("New Delhi observes Dhanteras on November 6, 2026.", prompt)
         self.assertEqual(result["research"]["headline"], "धनतेरस")
+        self.assertEqual(result["research"]["thumbnail_text"], "धनतेरस कब और कैसे मनाएं")
         self.assertEqual(result["research_method"], "provided_web_research")
         self.assertEqual(result["search_queries"], ["Dhanteras 2026 date"])
         self.assertTrue(all(source["kind"] == "web_research" for source in result["sources"]))
