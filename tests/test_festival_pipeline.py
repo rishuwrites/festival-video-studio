@@ -445,6 +445,22 @@ class RelatedVideoTranscriptTests(unittest.TestCase):
 
 
 class FestivalValidationTests(unittest.TestCase):
+    def test_scene_image_count_keeps_shots_within_eight_seconds(self):
+        self.assertEqual(festival_main._scene_image_count(1), 1)
+        self.assertEqual(festival_main._scene_image_count(8), 1)
+        self.assertEqual(festival_main._scene_image_count(8.1), 2)
+        self.assertEqual(festival_main._scene_image_count(24), 3)
+
+    def test_shot_prompts_request_distinct_compositions_for_same_scene(self):
+        scene = {"visual_prompt": "A family lighting diyas"}
+
+        first = festival_main._shot_prompt(scene, 0, 3)
+        second = festival_main._shot_prompt(scene, 1, 3)
+
+        self.assertIn("wide establishing composition", first)
+        self.assertIn("medium composition", second)
+        self.assertIn("Keep the same scene", first)
+
     def test_default_scope_covers_india_and_highlights_up_bihar(self):
         self.assertEqual(festival_main.S.DEFAULT_SCOPE, DEFAULT_SCOPE)
         self.assertEqual(festival_main.generate_video.__defaults__[1], DEFAULT_SCOPE)

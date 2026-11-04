@@ -10,6 +10,7 @@ Create original Hindi festival explainers with research notes, original illustra
 - Generates an original 9–12 chapter Hindi script. Source captions are research inputs only: they are never saved in the report or copied into the script.
 - Verifies the synthesized narration lasts at least six minutes before rendering.
 - Produces an MP4, thumbnail, metadata JSON, and a research JSON report.
+- Generates a new composed illustration for at least every eight seconds of narration, with slow pan/zoom, animated voice waveform, word-highlighted captions, and a moving progress line.
 - Can upload directly to YouTube as a **private scheduled video** when YouTube upload is enabled in the manual workflow.
 
 The default coverage is **all of India**, with extra research attention to **Uttar Pradesh and Bihar**, including regional customs. The script must separate nationwide facts from regional practices rather than presenting one state’s customs as universal. Exact muhurta timings vary city by city, so the nationwide video will not present one city’s time as valid across India.

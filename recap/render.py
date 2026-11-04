@@ -118,8 +118,20 @@ def clip(comp, frames, path, variant):
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-loop", "1", "-i", comp, "-vf", vf, "-frames:v", str(N),
                     "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-pix_fmt", "yuv420p", "-an", path], check=True)
 
+def reframe(img, out, variant):
+    """Create a distinct crop for a failed generated shot so the visual cadence is preserved."""
+    im = Image.open(img).convert("RGB")
+    scale = 1.0 + 0.06 * (variant % 4)
+    crop_w, crop_h = int(W / scale), int(H / scale)
+    positions = ((0.25, 0.5), (0.75, 0.5), (0.5, 0.35), (0.5, 0.65))
+    center_x, center_y = positions[variant % len(positions)]
+    left = max(0, min(im.width - crop_w, int((im.width - crop_w) * center_x)))
+    top = max(0, min(im.height - crop_h, int((im.height - crop_h) * center_y)))
+    im = im.crop((left, top, left + crop_w, top + crop_h)).resize((W, H), Image.Resampling.LANCZOS)
+    im.save(out, quality=92)
+
 def segment(tag, chip_l, chip_r, emotion, lines, times, audio, comps, tmp, out, offset, total, v0=0, word_times=None):
-    D = times[-1][1]; n = max(1, round(D / S.CUT_SECONDS)); bounds = [D * k / n for k in range(n + 1)]; paths = []
+    D = times[-1][1]; n = max(1, math.ceil(D / S.CUT_SECONDS)); bounds = [D * k / n for k in range(n + 1)]; paths = []
     for k in range(n):
         p = f"{tmp}/{tag}_c{k}.mp4"; clip(comps[k % len(comps)], max(round(bounds[k + 1] * FPS) - round(bounds[k] * FPS), 2), p, v0 * 2 + k); paths.append(p)
     open(f"{tmp}/{tag}_c.txt", "w").write("".join(f"file '{os.path.abspath(p)}'\n" for p in paths))
@@ -128,7 +140,15 @@ def segment(tag, chip_l, chip_r, emotion, lines, times, audio, comps, tmp, out, 
     panel(chip_l, chip_r, emotion, f"{tmp}/{tag}_panel.png")
     bar = f"{tmp}/bar.png"
     if not os.path.exists(bar): Image.new("RGBA", (W, 12), (255, 200, 0, 245)).save(bar)
-    ins = ["-i", bg, "-i", audio, "-i", f"{tmp}/{tag}_panel.png", "-i", bar]; flt = "[0:v][2:v]overlay=0:0[v0];"; n_ov = 0
+    ins = ["-i", bg, "-i", audio, "-i", f"{tmp}/{tag}_panel.png", "-i", bar]
+    flt = (
+        "[0:v][2:v]overlay=0:0[base];"
+        "[1:a]asplit=2[aout][wavein];"
+        "[wavein]showwaves=s=760x38:mode=cline:colors=0xFFD04A:rate=24,"
+        "format=rgb24,colorkey=0x000000:0.12:0.08,format=rgba[wave];"
+        f"[base][wave]overlay=x=(W-w)/2:y={H - 58}:format=auto[v0];"
+    )
+    n_ov = 0
     wt_list = word_times if word_times and len(word_times) == len(lines) else [None] * len(lines)
     for li, (ln, (a, b), exact_w) in enumerate(zip(lines, times, wt_list)):
         for gi, (words, active_idx, ta, tb) in enumerate(chunks(ln, a, b, exact_words=exact_w)):
@@ -136,7 +156,7 @@ def segment(tag, chip_l, chip_r, emotion, lines, times, audio, comps, tmp, out, 
             caption(words, active_idx, cp); ins += ["-i", cp]
             flt += f"[v{n_ov}][{4 + n_ov}:v]overlay=0:830:enable='between(t,{ta:.3f},{tb:.3f})'[v{n_ov + 1}];"; n_ov += 1
     flt += f"[v{n_ov}][3:v]overlay=x='-{W}+{W}*(t+{offset:.3f})/{total:.3f}':y={H - 12}[outv]"
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error"] + ins + ["-filter_complex", flt, "-map", "[outv]", "-map", "1:a",
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error"] + ins + ["-filter_complex", flt, "-map", "[outv]", "-map", "[aout]",
                     "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-maxrate", "5000k", "-bufsize", "10000k", "-r", str(FPS), "-g", str(FPS * 2),
                     "-pix_fmt", "yuv420p", "-c:a", "aac", "-ar", "44100", "-ac", "2", "-b:a", "160k", "-t", f"{D:.3f}", out], check=True)
     for p in paths + [bg]: os.remove(p)

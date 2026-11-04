@@ -2,6 +2,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 import re
 import tempfile
@@ -121,6 +122,28 @@ def _research_mode(grounded, video_sources):
     return "video_transcripts_and_grounded_web" if video_sources else "grounded_web_only"
 
 
+def _scene_image_count(duration):
+    return max(1, math.ceil(duration / render.S.CUT_SECONDS))
+
+
+def _shot_prompt(scene, shot_index, shot_count):
+    angles = (
+        "wide establishing composition showing the full setting and surrounding decorations",
+        "medium composition focused on the main action and subject placement",
+        "close detail composition of a relevant cultural object, hands, or decoration",
+        "over-the-shoulder composition revealing the setting and point of attention",
+        "slightly elevated composition emphasizing the layout, lights, and environment",
+        "side-angle composition with clear foreground and background depth",
+    )
+    angle = angles[shot_index % len(angles)]
+    return (
+        f"{scene['visual_prompt']}. Create an original educational illustration for shot "
+        f"{shot_index + 1} of {shot_count}. Camera composition: {angle}. "
+        "Keep the same scene, character appearance, clothing, and art style across shots. "
+        "No text, letters, logos, watermark, or depiction of a real person."
+    )
+
+
 def _collect_video_research_sources(topic, date, scope):
     transcript_research = os.getenv("FESTIVAL_TRANSCRIPT_RESEARCH", "true").strip().lower()
     if transcript_research in ("0", "false", "no", "off"):
@@ -223,15 +246,16 @@ def generate_video(
         compositions = {index: [] for index in range(len(scenes))}
         generated = set()
         for index, scene in enumerate(scenes):
-            raw_path = os.path.join(tmp, f"scene_{index}.jpg")
-            comp_path = os.path.join(tmp, f"comp_{index}.jpg")
-            prompt = (
-                f"{scene['visual_prompt']}. Create original educational artwork, "
-                "not a depiction of a real person."
-            )
-            if images.generate(prompt, seed + index, raw_path, style=FESTIVAL_STYLE):
-                render.cover(raw_path, comp_path)
-                compositions[index].append(comp_path)
+            shot_count = _scene_image_count(segments[index + 1]["times"][-1][1])
+            for shot_index in range(shot_count):
+                raw_path = os.path.join(tmp, f"scene_{index}_shot_{shot_index}.jpg")
+                comp_path = os.path.join(tmp, f"comp_{index}_shot_{shot_index}.jpg")
+                prompt = _shot_prompt(scene, shot_index, shot_count)
+                shot_seed = seed + index * 100 + shot_index
+                if images.generate(prompt, shot_seed, raw_path, style=FESTIVAL_STYLE):
+                    render.cover(raw_path, comp_path)
+                    compositions[index].append(comp_path)
+            if compositions[index]:
                 generated.add(index)
         for missing, source in images.reuse_nearest_generated_images(compositions, generated):
             print(f"  scene {missing + 1}: reusing original artwork from scene {source + 1}")
@@ -241,6 +265,13 @@ def generate_video(
                 card_path = os.path.join(tmp, f"card_{index}.jpg")
                 render.card(scene["title"], scene["emotion"], card_path)
                 compositions[index].append(card_path)
+        for index, scene in enumerate(scenes):
+            shot_count = _scene_image_count(segments[index + 1]["times"][-1][1])
+            while len(compositions[index]) < shot_count:
+                shot_index = len(compositions[index])
+                comp_path = os.path.join(tmp, f"comp_{index}_fallback_{shot_index}.jpg")
+                render.reframe(compositions[index][shot_index % len(compositions[index])], comp_path, shot_index)
+                compositions[index].append(comp_path)
 
         files = []
         starts = []
