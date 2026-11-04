@@ -68,13 +68,16 @@ def validate_research(result):
     if not isinstance(sources, list):
         raise ValueError("Festival research sources are missing")
     video_sources = [source for source in sources if isinstance(source, dict) and source.get("kind") == "video_transcript"]
-    web_sources = [source for source in sources if isinstance(source, dict) and source.get("kind") == "grounded_web"]
+    web_sources = [
+        source for source in sources
+        if isinstance(source, dict) and source.get("kind") in ("grounded_web", "web_research")
+    ]
     if video_sources and (
         len(video_sources) < 5 or len({source.get("channel_id") for source in video_sources}) < 5
     ):
         raise ValueError("If video captions are used, they must come from five distinct channels")
     if len(web_sources) < 2:
-        raise ValueError("At least two Google Search source citations are required")
+        raise ValueError("At least two web research source citations are required")
     for source in sources:
         if not isinstance(source, dict) or not isinstance(source.get("title"), str) or not source["title"].strip():
             raise ValueError("Festival sources must include a title and an HTTPS URL")
@@ -112,10 +115,19 @@ def _make_description(topic, date, scope, research, sources):
     )
 
 
+def _research_mode(grounded, video_sources):
+    if grounded.get("research_method") == "provided_web_research":
+        return "video_transcripts_and_web_research" if video_sources else "web_research_only"
+    return "video_transcripts_and_grounded_web" if video_sources else "grounded_web_only"
+
+
 def _collect_video_research_sources(topic, date, scope):
     transcript_research = os.getenv("FESTIVAL_TRANSCRIPT_RESEARCH", "true").strip().lower()
     if transcript_research in ("0", "false", "no", "off"):
-        print("Video transcript research disabled; using Google Search-grounded research")
+        if os.getenv("FESTIVAL_RESEARCH_CONTEXT", "").strip():
+            print("Video transcript research disabled; using supplied web research and plain Gemini generation")
+        else:
+            print("Video transcript research disabled; using Google Search-grounded research")
         return []
     print("Finding five distinct channels with accessible public captions")
     return find_transcribed_videos(topic, date, scope)
@@ -131,7 +143,13 @@ def generate_video(
         scheduled_datetime(publish_date, publish_time)
     scope = scope.strip() or S.DEFAULT_SCOPE
     video_sources = _collect_video_research_sources(topic.strip(), date.strip(), scope)
-    grounded = gemini.research_festival(topic.strip(), date.strip(), scope, video_sources=video_sources)
+    grounded = gemini.research_festival(
+        topic.strip(),
+        date.strip(),
+        scope,
+        video_sources=video_sources,
+        web_research=os.getenv("FESTIVAL_RESEARCH_CONTEXT", "").strip() or None,
+    )
     research = validate_research(grounded)
 
     output_dir = output_dir or os.path.join(S.BASE, "output")
@@ -149,7 +167,7 @@ def generate_video(
         "topic": topic,
         "date": date,
         "coverage_scope": scope,
-        "research_mode": "video_transcripts_and_grounded_web" if video_sources else "grounded_web_only",
+        "research_mode": _research_mode(grounded, video_sources),
         "research_summary": research["research_summary"],
         "key_facts": research["key_facts"],
         "search_queries": grounded.get("search_queries", []),
@@ -157,7 +175,7 @@ def generate_video(
         "video_sources_analyzed": len([
             source for source in grounded["sources"] if source.get("kind") == "video_transcript"
         ]),
-        "research_mode": "video_transcripts_and_grounded_web" if video_sources else "grounded_web_only",
+        "research_mode": _research_mode(grounded, video_sources),
         "script": {
             "hook": research["hook"],
             "scenes": research["scenes"],
@@ -288,7 +306,7 @@ def generate_video(
         "video_sources_analyzed": len([
             source for source in grounded["sources"] if source.get("kind") == "video_transcript"
         ]),
-        "research_mode": "video_transcripts_and_grounded_web" if video_sources else "grounded_web_only",
+        "research_mode": _research_mode(grounded, video_sources),
         "narration_seconds": round(total),
         "video": os.path.basename(video_path),
         "thumbnail": os.path.basename(thumb_path),

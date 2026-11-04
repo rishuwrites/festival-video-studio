@@ -17,6 +17,11 @@ on:
         type: string
         required: false
         default: India (nationwide, with focus on Uttar Pradesh and Bihar)
+      research_context:
+        description: Optional JSON with researched notes and HTTPS source links; avoids Gemini Search grounding
+        type: string
+        required: false
+        default: ""
       publish_date:
         description: YouTube scheduled publish date (YYYY-MM-DD, India Standard Time)
         type: string
@@ -49,6 +54,7 @@ jobs:
       FESTIVAL_TOPIC: ${{ inputs.topic }}
       FESTIVAL_DATE: ${{ inputs.date }}
       FESTIVAL_SCOPE: ${{ inputs.scope || 'India (nationwide, with focus on Uttar Pradesh and Bihar)' }}
+      FESTIVAL_RESEARCH_CONTEXT: ${{ inputs.research_context }}
       FESTIVAL_PUBLISH_DATE: ${{ inputs.publish_date }}
       FESTIVAL_PUBLISH_TIME: ${{ inputs.publish_time }}
       YOUTUBE_UPLOAD: ${{ inputs.upload }}

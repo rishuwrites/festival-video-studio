@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -150,6 +151,47 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         self.assertIn("one city's exact muhurta as applying nationwide", prompt)
         self.assertIn("Transcript text 4", prompt)
         self.assertIn("do not reproduce", prompt)
+
+    def test_pre_researched_web_context_uses_plain_gemini_generation(self):
+        response = mock.Mock(status_code=200)
+        response.json.return_value = {
+            "candidates": [{
+                "content": {"parts": [{"text": '{"headline":"धनतेरस"}'}]},
+            }],
+        }
+        sources = [
+            {"title": "Drik Panchang 2026 Dhanteras timings", "url": "https://example.org/panchang"},
+            {"title": "Dhanteras customs", "url": "https://example.org/customs"},
+        ]
+        context = json.dumps({
+            "notes": ["New Delhi observes Dhanteras on November 6, 2026."],
+            "sources": sources,
+            "search_queries": ["Dhanteras 2026 date"],
+        })
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}), \
+                mock.patch.object(gemini, "list_models", return_value=["gemini-test"]), \
+                mock.patch.object(gemini.requests, "post", return_value=response) as post:
+            result = gemini.research_festival(
+                "धनतेरस", "2026", DEFAULT_SCOPE, video_sources=[], web_research=context,
+            )
+
+        request = post.call_args.kwargs["json"]
+        prompt = request["contents"][0]["parts"][0]["text"]
+        self.assertNotIn("tools", request)
+        self.assertEqual(request["generationConfig"]["responseMimeType"], "application/json")
+        self.assertIn("New Delhi observes Dhanteras on November 6, 2026.", prompt)
+        self.assertEqual(result["research"]["headline"], "धनतेरस")
+        self.assertEqual(result["research_method"], "provided_web_research")
+        self.assertEqual(result["search_queries"], ["Dhanteras 2026 date"])
+        self.assertTrue(all(source["kind"] == "web_research" for source in result["sources"]))
+
+    def test_pre_researched_web_context_requires_two_https_sources(self):
+        context = json.dumps({
+            "notes": "Festival notes",
+            "sources": [{"title": "Only source", "url": "https://example.org/source"}],
+        })
+        with self.assertRaisesRegex(ValueError, "at least two sources"):
+            gemini._parse_web_research(context)
 
     def test_festival_research_supports_web_only_mode_without_claiming_transcripts(self):
         payload = {
@@ -424,7 +466,7 @@ class FestivalValidationTests(unittest.TestCase):
 
         result = festival_research(scene_count=9)
         result["sources"] = []
-        with self.assertRaisesRegex(ValueError, "two Google Search source citations"):
+        with self.assertRaisesRegex(ValueError, "two web research source citations"):
             festival_main.validate_research(result)
 
         result = festival_research(scene_count=9)
