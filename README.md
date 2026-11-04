@@ -35,6 +35,8 @@ The manual workflow runs on a GitHub-hosted Ubuntu runner. Since YouTube blocks 
 
 Add `GEMINI_API_KEY` and `GEMINI_API_KEY1` (optional backup) plus the existing YouTube OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN`) as repository Actions secrets. Gemini research tries the primary key first, then the backup if all available models fail with it. For scheduled uploads, the refresh token needs both `youtube.upload` and `youtube.readonly` (read access is used to check for duplicate titles). YouTube source-search access and `YT_API_KEY` are not needed in hosted web-only research mode. Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Run **Festival explainer video** manually with a topic, festival date, **publish date (YYYY-MM-DD)**, and **publish time (24-hour HH:MM IST)**. The upload checkbox is on by default and creates a private scheduled video; the selected time must still be at least 15 minutes in the future after rendering finishes. Turn upload off to generate a preview only.
 
+Festival research uses Gemini's Google Search grounding tool, which is a different API operation from the serial recap bot's video-analysis requests and can have separate model and quota availability. On HTTP 429 `RESOURCE_EXHAUSTED`, check the Gemini API quota and billing for the Google Cloud projects behind both configured keys; adding another key from the same project may not add quota.
+
 ## Tests
 
 ```powershell

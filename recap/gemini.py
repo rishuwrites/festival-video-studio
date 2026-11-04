@@ -57,14 +57,24 @@ def list_models(key):
         )
         response.raise_for_status()
         payload = response.json()
-        for model in payload.get("models", []):
-            name = model.get("name", "").split("/")[-1]
-            if (
-                "flash" in name.lower()
-                and "generateContent" in model.get("supportedGenerationMethods", [])
-                and not any(part in name.lower() for part in ("image", "audio", "live", "preview", "exp"))
-            ):
-                candidates.append(name)
+        available = {
+            model.get("name", "").split("/")[-1]
+            for model in payload.get("models", [])
+            if "generateContent" in model.get("supportedGenerationMethods", [])
+            and "flash" in model.get("name", "").lower()
+            and not any(
+                part in model.get("name", "").lower()
+                for part in ("image", "audio", "live", "preview", "exp", "omni", "robotics", "computer")
+            )
+        }
+        candidates.extend(sorted(
+            (name for name in available if "lite" not in name.lower()),
+            reverse=True,
+        ))
+        candidates.extend(sorted(
+            (name for name in available if "lite" in name.lower()),
+            reverse=True,
+        ))
     except requests.RequestException:
         pass
     return list(dict.fromkeys(name for name in candidates if name))

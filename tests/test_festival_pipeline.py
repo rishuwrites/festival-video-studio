@@ -70,6 +70,32 @@ def video_source_inputs():
 
 
 class GroundedFestivalResearchTests(unittest.TestCase):
+    def test_lists_stable_flash_models_before_lite_and_excludes_omni_and_preview(self):
+        response = mock.Mock()
+        response.json.return_value = {
+            "models": [
+                {"name": "models/gemini-3.1-flash-lite", "supportedGenerationMethods": ["generateContent"]},
+                {"name": "models/gemini-3.5-flash", "supportedGenerationMethods": ["generateContent"]},
+                {"name": "models/gemini-omni-1.1-flash", "supportedGenerationMethods": ["generateContent"]},
+                {"name": "models/gemini-4-flash-preview", "supportedGenerationMethods": ["generateContent"]},
+                {"name": "models/gemini-3-flash-exp", "supportedGenerationMethods": ["generateContent"]},
+                {"name": "models/gemini-2.5-flash-image", "supportedGenerationMethods": ["generateContent"]},
+                {"name": "models/gemini-3.5-flash", "supportedGenerationMethods": ["embedContent"]},
+            ],
+        }
+        response.raise_for_status.return_value = None
+
+        with mock.patch.object(gemini, "MODEL", "gemini-flash-latest"), \
+                mock.patch.object(gemini.requests, "get", return_value=response):
+            models = gemini.list_models("test-key")
+
+        self.assertEqual(models, [
+            "gemini-flash-latest",
+            "gemini-2.5-flash",
+            "gemini-3.5-flash",
+            "gemini-3.1-flash-lite",
+        ])
+
     def test_extracts_unique_https_sources_and_search_queries(self):
         response = {
             "candidates": [{
