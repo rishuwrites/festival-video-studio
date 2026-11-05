@@ -83,7 +83,7 @@ def _pollinations(prompt, seed, attempt=0):
     models = ["flux", "flux-realism", "turbo"]
     model = models[attempt % len(models)]
     url = ("https://image.pollinations.ai/prompt/" + urllib.parse.quote(prompt[:1500]) +
-           f"?width=1280&height=720&seed={seed + attempt}&model={model}&nologo=true&enhance=true&safe=true")
+           f"?width=1280&height=720&seed={(int(seed) + attempt) % 2147483647}&model={model}&nologo=true&enhance=true&safe=true")
     hdr = {"User-Agent": "SerialRecapBot/1.0"}
     if os.getenv("POLLINATIONS_TOKEN"):
         hdr["Authorization"] = "Bearer " + os.getenv("POLLINATIONS_TOKEN")
@@ -99,7 +99,7 @@ def _flux(prompt, seed, attempt=0):
     space = os.getenv("HF_FLUX_SPACE") or "https://black-forest-labs-flux-1-schnell.hf.space"
     result = Client(space, verbose=False).predict(
         prompt=prompt[:2000],
-        seed=int(seed),
+        seed=int(seed) % 2147483647,
         randomize_seed=True,
         width=1280,
         height=720,
@@ -135,7 +135,8 @@ def generate_thumbnail(prompt, seed, out, style=None):
                 if not _retryable_image_error(exc):
                     break
                 if attempt + 1 < attempts:
-                    time.sleep(6 * (attempt + 1))
+                    rate_limited = getattr(getattr(exc, "response", None), "status_code", None) == 429
+                    time.sleep((30 if rate_limited else 6) * (attempt + 1))
     return False
 
 def reuse_nearest_generated_images(comps, generated_indices):
@@ -172,5 +173,6 @@ def generate(prompt, seed, out, style=None):
                 if not _retryable_image_error(exc):
                     break
                 if attempt + 1 < attempts:
-                    time.sleep(6 * (attempt + 1))
+                    rate_limited = getattr(getattr(exc, "response", None), "status_code", None) == 429
+                    time.sleep((30 if rate_limited else 6) * (attempt + 1))
     return False

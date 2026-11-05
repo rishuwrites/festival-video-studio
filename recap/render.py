@@ -58,6 +58,54 @@ def panel(chip_l, chip_r, emotion, out):
     d.rounded_rectangle((W - wr - 30, 28, W - 30, 92), 14, fill=col + (245,)); d.text((W - wr - 5, 32), chip_r, font=f, fill=(255, 255, 255))
     im.save(out)
 
+def banner_card(title, emotion, out):
+    """Chapter title banner that slides in from the left at the start of each scene."""
+    title = deva(title)
+    f = font(46); tmp = ImageDraw.Draw(Image.new("RGBA", (8, 8)))
+    w = min(int(tmp.textlength(title, font=f)) + 90, 1100); h = 84
+    im = Image.new("RGBA", (w, h), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    col = S.EMOTION_COLORS.get(emotion, (255, 190, 0))
+    d.rounded_rectangle((0, 0, w - 1, h - 1), 16, fill=(10, 10, 14, 215))
+    d.rounded_rectangle((0, 0, 16, h - 1), 8, fill=col + (255,))
+    d.text((38, 12), title, font=f, fill=(255, 255, 255), stroke_width=2, stroke_fill=(0, 0, 0))
+    im.save(out)
+    return w, h
+
+def fact_card(label, text, source, emotion, out):
+    """Key-fact callout (label chip + short Hindi fact + source line) that slides in from the right."""
+    label, text = deva(label), deva(text); source = f"स्रोत: {source}" if source else ""
+    fl, ft, fs = font(34), font(44), font(28)
+    w = 760; pad = 34
+    probe = ImageDraw.Draw(Image.new("RGBA", (8, 8)))
+    lines = wrap(probe, text, ft, w - 2 * pad)[:4]
+    h = pad + 50 + len(lines) * 58 + (44 if source else 0) + pad // 2
+    im = Image.new("RGBA", (w, h), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    col = S.EMOTION_COLORS.get(emotion, (255, 190, 0))
+    d.rounded_rectangle((0, 0, w - 1, h - 1), 22, fill=(12, 12, 18, 225), outline=col + (255,), width=4)
+    lw = int(probe.textlength(label, font=fl)) + 40
+    d.rounded_rectangle((pad, pad - 6, pad + lw, pad + 44), 12, fill=col + (255,))
+    d.text((pad + 20, pad - 4), label, font=fl, fill=(255, 255, 255))
+    y = pad + 62
+    for line in lines:
+        d.text((pad, y), line, font=ft, fill=(255, 255, 255), stroke_width=1, stroke_fill=(0, 0, 0)); y += 58
+    if source:
+        d.text((pad, y + 4), source, font=fs, fill=(255, 214, 90))
+    im.save(out)
+    return w, h
+
+def make_overlays(tag, title, fact, emotion, duration, tmp):
+    """Build the overlay specs for one segment: chapter banner (left) + key-fact card (right)."""
+    specs = []
+    if title and duration >= 3:
+        path = f"{tmp}/{tag}_banner.png"; w, h = banner_card(title, emotion, path)
+        specs.append({"path": path, "side": "left", "y": 112, "start": 0.3, "end": min(4.2, duration - 0.3)})
+    if isinstance(fact, dict) and fact.get("text") and duration >= 6:
+        path = f"{tmp}/{tag}_fact.png"
+        w, h = fact_card(fact.get("label") or "जानकारी", fact["text"], fact.get("source", ""), emotion, path)
+        start = min(max(2.0, duration * 0.25), duration - 4.5)
+        specs.append({"path": path, "side": "right", "y": 150, "start": start, "end": min(start + 7.5, duration - 0.5)})
+    return specs
+
 def chunks(text, a, b, exact_words=None):
     """Return short caption groups with word index and timings: (group_words, active_idx, start_s, end_s).
     Uses exact WordBoundary events from edge-tts when present, falling back to character-weighted timings."""
@@ -130,7 +178,7 @@ def reframe(img, out, variant):
     im = im.crop((left, top, left + crop_w, top + crop_h)).resize((W, H), Image.Resampling.LANCZOS)
     im.save(out, quality=92)
 
-def segment(tag, chip_l, chip_r, emotion, lines, times, audio, comps, tmp, out, offset, total, v0=0, word_times=None):
+def segment(tag, chip_l, chip_r, emotion, lines, times, audio, comps, tmp, out, offset, total, v0=0, word_times=None, overlays=None):
     D = times[-1][1]; n = max(1, math.ceil(D / S.CUT_SECONDS)); bounds = [D * k / n for k in range(n + 1)]; paths = []
     for k in range(n):
         p = f"{tmp}/{tag}_c{k}.mp4"; clip(comps[k % len(comps)], max(round(bounds[k + 1] * FPS) - round(bounds[k] * FPS), 2), p, v0 * 2 + k); paths.append(p)
@@ -155,6 +203,15 @@ def segment(tag, chip_l, chip_r, emotion, lines, times, audio, comps, tmp, out, 
             cp = f"{tmp}/{tag}_cap{li}_{gi}.png"
             caption(words, active_idx, cp); ins += ["-i", cp]
             flt += f"[v{n_ov}][{4 + n_ov}:v]overlay=0:830:enable='between(t,{ta:.3f},{tb:.3f})'[v{n_ov + 1}];"; n_ov += 1
+    for spec in overlays or []:                              # sliding banner / key-fact cards
+        ta, tb = spec["start"], spec["end"]
+        if tb - ta < 1: continue
+        ins += ["-i", spec["path"]]
+        if spec["side"] == "left":
+            x = f"min(30,-w+(30+w)*(t-{ta:.3f})/0.45)"
+        else:
+            x = f"max(W-w-40,W-(w+40)*(t-{ta:.3f})/0.45)"
+        flt += f"[v{n_ov}][{4 + n_ov}:v]overlay=x='{x}':y={spec['y']}:enable='between(t,{ta:.3f},{tb:.3f})'[v{n_ov + 1}];"; n_ov += 1
     flt += f"[v{n_ov}][3:v]overlay=x='-{W}+{W}*(t+{offset:.3f})/{total:.3f}':y={H - 12}[outv]"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error"] + ins + ["-filter_complex", flt, "-map", "[outv]", "-map", "[aout]",
                     "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-maxrate", "5000k", "-bufsize", "10000k", "-r", str(FPS), "-g", str(FPS * 2),

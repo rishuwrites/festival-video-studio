@@ -59,6 +59,8 @@ jobs:
       FESTIVAL_PUBLISH_TIME: ${{ inputs.publish_time }}
       YOUTUBE_UPLOAD: ${{ inputs.upload }}
       FESTIVAL_TRANSCRIPT_RESEARCH: "false"
+      FESTIVAL_WEB_SEARCH: "true"
+      BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_API_KEY1: ${{ secrets.GEMINI_API_KEY1 }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}

@@ -13,6 +13,7 @@ import gemini
 import images
 import render
 import voice
+import web_search
 from festival_sources import find_transcribed_videos
 from youtube_upload import scheduled_datetime, upload_scheduled
 
@@ -65,6 +66,7 @@ def validate_research(result):
                 raise ValueError(f"Festival scene {index} is missing {field}")
         if scene["emotion"] not in VALID_EMOTIONS:
             raise ValueError(f"Festival scene {index} has unsupported emotion: {scene['emotion']}")
+        scene["overlay"] = _clean_overlay(scene.get("overlay"))
     sources = result.get("sources")
     if not isinstance(sources, list):
         raise ValueError("Festival research sources are missing")
@@ -93,6 +95,53 @@ def validate_research(result):
         if not set(fact["source_titles"]).intersection(available_titles):
             raise ValueError("Each researched key fact must cite a retrieved video or web source")
     return research
+
+
+def _clean_overlay(raw):
+    """Overlay cards are optional decoration: sanitise them and drop anything unusable."""
+    if not isinstance(raw, dict):
+        return None
+    text = " ".join(str(raw.get("text") or "").split())
+    if not text:
+        return None
+    return {
+        "label": " ".join(str(raw.get("label") or "जानकारी").split()[:3]),
+        "text": " ".join(text.split()[:16]),
+        "source_title": str(raw.get("source_title") or "").strip(),
+    }
+
+
+def _overlay_for_scene(scene, sources):
+    """Attach a short source domain to a scene overlay when its source_title matches a real source."""
+    overlay = scene.get("overlay")
+    if not overlay:
+        return None
+    domain = ""
+    for source in sources:
+        if source.get("title") == overlay.get("source_title"):
+            domain = urlparse(source.get("url", "")).netloc.removeprefix("www.")
+            break
+    return {**overlay, "source": domain}
+
+
+def _collect_web_research(topic, date, scope):
+    """Web search -> open websites of several types -> Gemini research notes.
+
+    Returns a web_research dict, or None to fall back to Gemini's own Google Search grounding.
+    """
+    flag = os.getenv("FESTIVAL_WEB_SEARCH", "true").strip().lower()
+    if flag in ("0", "false", "no", "off"):
+        return None
+    if os.getenv("FESTIVAL_RESEARCH_CONTEXT", "").strip():
+        return None  # an explicit research_context input always wins
+    print("Searching the web for festival websites of several types")
+    try:
+        collected = web_search.collect_pages(topic, date, scope)
+        return gemini.research_notes(topic, date, scope, collected)
+    except Exception as exc:
+        print(f"  web search research unavailable ({type(exc).__name__}: {exc}); "
+              "falling back to Google Search grounding")
+        return None
 
 
 def _safe_slug(text):
@@ -166,12 +215,16 @@ def generate_video(
         scheduled_datetime(publish_date, publish_time)
     scope = scope.strip() or S.DEFAULT_SCOPE
     video_sources = _collect_video_research_sources(topic.strip(), date.strip(), scope)
+    web_research = (
+        os.getenv("FESTIVAL_RESEARCH_CONTEXT", "").strip()
+        or _collect_web_research(topic.strip(), date.strip(), scope)
+    )
     grounded = gemini.research_festival(
         topic.strip(),
         date.strip(),
         scope,
         video_sources=video_sources,
-        web_research=os.getenv("FESTIVAL_RESEARCH_CONTEXT", "").strip() or None,
+        web_research=web_research or None,
     )
     research = validate_research(grounded)
 
@@ -198,7 +251,6 @@ def generate_video(
         "video_sources_analyzed": len([
             source for source in grounded["sources"] if source.get("kind") == "video_transcript"
         ]),
-        "research_mode": _research_mode(grounded, video_sources),
         "script": {
             "hook": research["hook"],
             "scenes": research["scenes"],
@@ -226,6 +278,7 @@ def generate_video(
                 "chip": f"जानकारी {index + 1}/{len(scenes)}",
                 "name": scene["title"],
                 "emo": scene["emotion"],
+                "overlay": _overlay_for_scene(scene, grounded["sources"]),
             })
         segments.append({
             "tag": "outro",
@@ -242,7 +295,7 @@ def generate_video(
         total = sum(segment["times"][-1][1] for segment in segments)
         validate_narration_duration(total)
 
-        seed = int(hashlib.sha256(f"{topic}|{date}|{scope}".encode("utf-8")).hexdigest()[:8], 16)
+        seed = int(hashlib.sha256(f"{topic}|{date}|{scope}".encode("utf-8")).hexdigest()[:8], 16) % 2_000_000_000
         compositions = {index: [] for index in range(len(scenes))}
         generated = set()
         for index, scene in enumerate(scenes):
@@ -278,6 +331,10 @@ def generate_video(
         offset = 0.0
         for index, segment in enumerate(segments):
             segment_path = os.path.join(tmp, f"segment_{segment['tag']}.mp4")
+            overlays = render.make_overlays(
+                segment["tag"], segment["name"], segment.get("overlay"),
+                segment["emo"], segment["times"][-1][1], tmp,
+            )
             duration = render.segment(
                 segment["tag"],
                 "पर्व और परंपरा",
@@ -293,6 +350,7 @@ def generate_video(
                 total,
                 v0=index,
                 word_times=segment.get("word_times"),
+                overlays=overlays,
             )
             files.append(segment_path)
             if segment["name"]:
