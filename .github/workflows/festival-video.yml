@@ -48,7 +48,7 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 480
     env:
       PYTHONUNBUFFERED: "1"
       FESTIVAL_TOPIC: ${{ inputs.topic }}
