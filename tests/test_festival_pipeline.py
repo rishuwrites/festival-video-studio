@@ -92,9 +92,10 @@ class GroundedFestivalResearchTests(unittest.TestCase):
 
         self.assertEqual(models, [
             "gemini-flash-latest",
-            "gemini-2.5-flash",
             "gemini-3.5-flash",
             "gemini-3.1-flash-lite",
+            "gemini-4-flash-preview",
+            "gemini-2.5-flash",
         ])
 
     def test_extracts_unique_https_sources_and_search_queries(self):
@@ -248,6 +249,7 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         }
         with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}), \
                 mock.patch.object(gemini, "list_models", return_value=["gemini-test"]), \
+                mock.patch.object(gemini.time, "sleep"), \
                 mock.patch.object(gemini.requests, "post", return_value=response):
             with self.assertRaisesRegex(
                 RuntimeError, "RESOURCE_EXHAUSTED: You exceeded your current quota",
@@ -286,6 +288,33 @@ class GroundedFestivalResearchTests(unittest.TestCase):
             "primary-key", "backup-key",
         ])
         self.assertEqual(len(result["sources"]), 2)
+
+    def test_retries_transient_gemini_errors_after_backoff(self):
+        quota_response = mock.Mock(status_code=503)
+        success_response = mock.Mock(status_code=200)
+        success_response.json.return_value = {
+            "candidates": [{
+                "content": {"parts": [{"text": '{"headline":"छठ पूजा"}'}]},
+                "groundingMetadata": {
+                    "groundingChunks": [
+                        {"web": {"title": "Source 1", "uri": "https://example.org/1"}},
+                        {"web": {"title": "Source 2", "uri": "https://example.org/2"}},
+                    ],
+                },
+            }],
+        }
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}, clear=True), \
+                mock.patch.object(gemini, "list_models", return_value=["gemini-test"]), \
+                mock.patch.object(
+                    gemini.requests, "post",
+                    side_effect=[quota_response, success_response],
+                ) as post, \
+                mock.patch.object(gemini.time, "sleep") as sleep:
+            result = gemini.research_festival("छठ पूजा", "2026", "India", video_sources=[])
+
+        self.assertEqual(len(result["sources"]), 2)
+        self.assertEqual(post.call_count, 2)
+        sleep.assert_called_once_with(30)
 
     def test_requires_five_distinct_transcribed_channels(self):
         sources = video_source_inputs()

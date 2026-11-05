@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from urllib.parse import urlparse
 
 import requests
@@ -49,7 +50,7 @@ The source videos and their public captions follow. This section may be empty. U
 
 
 def list_models(key):
-    candidates = [MODEL, "gemini-2.5-flash"]
+    candidates = [MODEL, "gemini-flash-latest"]
     try:
         response = requests.get(
             f"{BASE}/models",
@@ -65,19 +66,24 @@ def list_models(key):
             and "flash" in model.get("name", "").lower()
             and not any(
                 part in model.get("name", "").lower()
-                for part in ("image", "audio", "live", "preview", "exp", "omni", "robotics", "computer")
+                for part in ("image", "audio", "live", "exp", "omni", "robotics", "computer")
             )
         }
         candidates.extend(sorted(
-            (name for name in available if "lite" not in name.lower()),
+            (name for name in available if "preview" not in name.lower() and "lite" not in name.lower()),
             reverse=True,
         ))
         candidates.extend(sorted(
-            (name for name in available if "lite" in name.lower()),
+            (name for name in available if "preview" not in name.lower() and "lite" in name.lower()),
+            reverse=True,
+        ))
+        candidates.extend(sorted(
+            (name for name in available if "preview" in name.lower()),
             reverse=True,
         ))
     except requests.RequestException:
         pass
+    candidates.append("gemini-2.5-flash")
     return list(dict.fromkeys(name for name in candidates if name))
 
 
@@ -230,71 +236,84 @@ def research_festival(topic, date="", location="India", video_sources=None, web_
             + "\n</web_research_data>"
         )
     errors = []
-    for key_index, key in enumerate(keys):
-        if key_index:
-            print(f"  retrying festival research with backup Gemini API key {key_index}")
-        for model in list_models(key)[:8]:
-            request = {
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"temperature": 0.3},
-            }
-            if web_research:
-                request["generationConfig"]["responseMimeType"] = "application/json"
-            else:
-                request["tools"] = [{"googleSearch": {}}]
-            try:
-                response = requests.post(
-                    f"{BASE}/models/{model}:generateContent",
-                    params={"key": key},
-                    json=request,
-                    timeout=300,
-                )
-            except requests.RequestException as exc:
-                errors.append(f"{model}: {type(exc).__name__}")
-                continue
-            if response.status_code != 200:
-                detail = _api_error_detail(response)
-                suffix = f" ({detail})" if detail else ""
-                errors.append(f"{model}: HTTP {response.status_code}{suffix}")
-                continue
-            try:
-                payload = response.json()
-                if web_research:
-                    result = {
-                        "research": _extract_script(payload),
-                        "sources": web_research["sources"],
-                        "search_queries": web_research["search_queries"],
-                        "research_method": "provided_web_research",
-                    }
-                else:
-                    result = extract_grounded_research(payload)
-            except (KeyError, IndexError, TypeError, ValueError) as exc:
-                errors.append(f"{model}: invalid response ({type(exc).__name__})")
-                continue
-            if not web_research and len(result["sources"]) < 2:
-                errors.append(f"{model}: fewer than two usable Google Search citations")
-                continue
-            transcript_sources = [
-                {
-                    "title": source["title"],
-                    "url": source["url"],
-                    "channel": source["channel"],
-                    "channel_id": source["channel_id"],
-                    "video_id": source["video_id"],
-                    "language": source["language"],
-                    "transcript_word_count": source["transcript_word_count"],
-                    "kind": "video_transcript",
+    model_lists = [(key, list_models(key)[:8]) for key in keys]
+    retry_waits = (0, 30, 60, 120)
+    for attempt, wait in enumerate(retry_waits):
+        if wait:
+            print(f"  Gemini models busy or rate-limited; retrying in {wait}s")
+            time.sleep(wait)
+        retryable_failure = False
+        for key_index, (key, models) in enumerate(model_lists):
+            if key_index and attempt == 0:
+                print(f"  retrying festival research with backup Gemini API key {key_index}")
+            for model in models:
+                request = {
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {"temperature": 0.3},
                 }
-                for source in video_sources[:5]
-            ]
-            result["sources"] = transcript_sources + [
-                source if source.get("kind") == "web_research"
-                else {**source, "kind": "grounded_web"}
-                for source in result["sources"]
-            ]
-            method = "pre-researched web sources" if web_research else "Google Search grounding"
-            print(f"  festival research generated with {model} using {method} ({len(result['sources'])} sources)")
-            return result
+                if web_research:
+                    request["generationConfig"]["responseMimeType"] = "application/json"
+                else:
+                    request["tools"] = [{"googleSearch": {}}]
+                try:
+                    response = requests.post(
+                        f"{BASE}/models/{model}:generateContent",
+                        params={"key": key},
+                        json=request,
+                        timeout=300,
+                    )
+                except requests.RequestException as exc:
+                    errors.append(f"{model}: {type(exc).__name__}")
+                    retryable_failure = True
+                    continue
+                if response.status_code != 200:
+                    detail = _api_error_detail(response)
+                    suffix = f" ({detail})" if detail else ""
+                    errors.append(f"{model}: HTTP {response.status_code}{suffix}")
+                    retryable_failure = retryable_failure or response.status_code in (
+                        408, 429, 500, 502, 503, 504,
+                    )
+                    continue
+                try:
+                    payload = response.json()
+                    if web_research:
+                        result = {
+                            "research": _extract_script(payload),
+                            "sources": web_research["sources"],
+                            "search_queries": web_research["search_queries"],
+                            "research_method": "provided_web_research",
+                        }
+                    else:
+                        result = extract_grounded_research(payload)
+                except (KeyError, IndexError, TypeError, ValueError) as exc:
+                    errors.append(f"{model}: invalid response ({type(exc).__name__})")
+                    continue
+                if not web_research and len(result["sources"]) < 2:
+                    errors.append(f"{model}: fewer than two usable Google Search citations")
+                    continue
+                transcript_sources = [
+                    {
+                        "title": source["title"],
+                        "url": source["url"],
+                        "channel": source["channel"],
+                        "channel_id": source["channel_id"],
+                        "video_id": source["video_id"],
+                        "language": source["language"],
+                        "transcript_word_count": source["transcript_word_count"],
+                        "kind": "video_transcript",
+                    }
+                    for source in video_sources[:5]
+                ]
+                result["sources"] = transcript_sources + [
+                    source if source.get("kind") == "web_research"
+                    else {**source, "kind": "grounded_web"}
+                    for source in result["sources"]
+                ]
+                method = "pre-researched web sources" if web_research else "Google Search grounding"
+                print(f"  festival research generated with {model} using {method} ({len(result['sources'])} sources)")
+                return result
+        if not retryable_failure:
+            break
     hint = ""
     if errors and all("HTTP 429" in error for error in errors):
         hint = (" | Gemini quota exhausted (Google Search grounding has its own small quota). "
