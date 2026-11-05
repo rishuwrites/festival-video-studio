@@ -6,7 +6,10 @@ built from pages that were actually retrieved instead of from model memory.
 Search providers (first one that works wins):
   1. Brave Search API   - when BRAVE_API_KEY is set
   2. DuckDuckGo HTML    - no key needed
+  3. Bing HTML          - no key needed
 """
+import base64
+import binascii
 import os
 import re
 from html.parser import HTMLParser
@@ -19,6 +22,7 @@ import config as S
 USER_AGENT = "Mozilla/5.0 (compatible; FestivalVideoStudio/1.0; +https://github.com/rishuwrites/festival-video-studio)"
 BRAVE_URL = "https://api.search.brave.com/res/v1/web/search"
 DDG_URL = "https://html.duckduckgo.com/html/"
+BING_URL = "https://www.bing.com/search"
 MAX_SITES = 7
 MAX_PER_DOMAIN = 1
 MAX_PAGE_CHARS = 3500
@@ -79,6 +83,40 @@ class _TextExtractor(HTMLParser):
                 self.parts.append(text)
 
 
+class _BingResultParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.results = []
+        self._in_result = False
+        self._in_heading = False
+        self._anchor = None
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == "li" and "b_algo" in attrs.get("class", "").split():
+            self._in_result = True
+        elif self._in_result and tag == "h2":
+            self._in_heading = True
+        elif self._in_result and self._in_heading and tag == "a":
+            self._anchor = {"url": attrs.get("href", ""), "title": []}
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self._anchor:
+            title = re.sub(r"\s+", " ", "".join(self._anchor["title"])).strip()
+            url = _bing_destination(self._anchor["url"])
+            if title and _usable(url):
+                self.results.append({"title": title, "url": url})
+            self._anchor = None
+        elif tag == "h2":
+            self._in_heading = False
+        elif tag == "li" and self._in_result:
+            self._in_result = False
+
+    def handle_data(self, data):
+        if self._anchor:
+            self._anchor["title"].append(data)
+
+
 def extract_text(html_text):
     parser = _TextExtractor()
     try:
@@ -98,7 +136,7 @@ def _usable(url):
     if parsed.scheme != "https" or not parsed.netloc:
         return False
     domain = _domain(url)
-    return not any(blocked in domain for blocked in BLOCKED_DOMAINS)
+    return not any(blocked in domain for blocked in (*BLOCKED_DOMAINS, "bing.com", "duckduckgo.com"))
 
 
 def _brave_search(query):
@@ -132,9 +170,35 @@ def _ddg_search(query):
     return results
 
 
+def _bing_destination(url):
+    parsed = urlparse(url)
+    encoded = parse_qs(parsed.query).get("u", [""])[0] if parsed.hostname == "www.bing.com" else ""
+    if not encoded.startswith("a1"):
+        return url
+    try:
+        value = encoded[2:]
+        value += "=" * (-len(value) % 4)
+        return base64.b64decode(value, altchars=b"-_", validate=True).decode("utf-8")
+    except (binascii.Error, UnicodeDecodeError, ValueError):
+        return ""
+
+
+def _bing_search(query):
+    response = requests.get(
+        BING_URL,
+        params={"q": query, "setlang": "en", "cc": "IN"},
+        headers={"User-Agent": USER_AGENT},
+        timeout=30,
+    )
+    response.raise_for_status()
+    parser = _BingResultParser()
+    parser.feed(response.text)
+    return parser.results
+
+
 def search(query):
     """Return [{'title', 'url'}] from the first provider that answers."""
-    for provider in (_brave_search, _ddg_search):
+    for provider in (_brave_search, _ddg_search, _bing_search):
         try:
             results = provider(query)
         except requests.RequestException as exc:
