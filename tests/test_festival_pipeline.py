@@ -78,6 +78,7 @@ class GroundedFestivalResearchTests(unittest.TestCase):
                 {"name": "models/gemini-3.1-flash-lite", "supportedGenerationMethods": ["generateContent"]},
                 {"name": "models/gemini-3.5-flash", "supportedGenerationMethods": ["generateContent"]},
                 {"name": "models/gemini-2.5-flash", "supportedGenerationMethods": ["generateContent"]},
+                {"name": "models/gemini-3.8-flash-lite-tts", "supportedGenerationMethods": ["generateContent"]},
                 {"name": "models/gemini-omni-1.1-flash", "supportedGenerationMethods": ["generateContent"]},
                 {"name": "models/gemini-4-flash-preview", "supportedGenerationMethods": ["generateContent"]},
                 {"name": "models/gemini-3-flash-exp", "supportedGenerationMethods": ["generateContent"]},
@@ -99,6 +100,30 @@ class GroundedFestivalResearchTests(unittest.TestCase):
             "gemini-4-flash-preview",
         ])
         self.assertNotIn("gemini-2.5-flash", models)
+        self.assertNotIn("gemini-3.8-flash-lite-tts", models)
+
+    def test_stops_model_fallback_for_project_billing_denial(self):
+        response = mock.Mock(status_code=403)
+        response.json.return_value = {
+            "error": {
+                "status": "PERMISSION_DENIED",
+                "message": (
+                    "The Gemini API free tier is not available for this project. "
+                    "Please set up billing."
+                ),
+            },
+        }
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}, clear=True), \
+                mock.patch.object(gemini, "list_models", return_value=[
+                    "gemini-test", "gemini-fallback",
+                ]), \
+                mock.patch.object(gemini.requests, "post", return_value=response) as post, \
+                mock.patch.object(gemini.time, "sleep") as sleep:
+            with self.assertRaisesRegex(RuntimeError, "enable billing for that project"):
+                gemini.research_festival("छठ पूजा", "2026", "India", video_sources=[])
+
+        post.assert_called_once()
+        sleep.assert_not_called()
 
     def test_extracts_unique_https_sources_and_search_queries(self):
         response = {

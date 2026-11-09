@@ -67,7 +67,7 @@ def list_models(key):
             and model.get("name", "").split("/")[-1] != "gemini-2.5-flash"
             and not any(
                 part in model.get("name", "").lower()
-                for part in ("image", "audio", "live", "exp", "omni", "robotics", "computer")
+                for part in ("image", "audio", "live", "exp", "omni", "robotics", "computer", "tts")
             )
         }
         candidates.extend(sorted(
@@ -120,6 +120,18 @@ def _api_error_detail(response):
     message = str(error.get("message", "")).strip()
     detail = ": ".join(value for value in (status, message) if value)
     return detail[:300]
+
+
+def _is_project_billing_error(status_code, detail):
+    detail = detail.lower()
+    return status_code == 403 and any(
+        phrase in detail
+        for phrase in (
+            "free tier is not available for this project",
+            "project-unavailable",
+            "set up billing",
+        )
+    )
 
 
 def _parse_web_research(value):
@@ -238,12 +250,15 @@ def research_festival(topic, date="", location="India", video_sources=None, web_
     errors = []
     model_lists = [(key, list_models(key)[:8]) for key in keys]
     retry_waits = (0, 30, 60, 120)
+    billing_blocked_keys = set()
     for attempt, wait in enumerate(retry_waits):
         if wait:
             print(f"  Gemini models busy or rate-limited; retrying in {wait}s")
             time.sleep(wait)
         retryable_failure = False
         for key_index, (key, models) in enumerate(model_lists):
+            if key_index in billing_blocked_keys:
+                continue
             if key_index and attempt == 0:
                 print(f"  retrying festival research with backup Gemini API key {key_index}")
             for model in models:
@@ -270,6 +285,13 @@ def research_festival(topic, date="", location="India", video_sources=None, web_
                     detail = _api_error_detail(response)
                     suffix = f" ({detail})" if detail else ""
                     errors.append(f"{model}: HTTP {response.status_code}{suffix}")
+                    if _is_project_billing_error(response.status_code, detail):
+                        billing_blocked_keys.add(key_index)
+                        print(
+                            f"  Gemini API key {key_index + 1} project is not eligible "
+                            "for the free tier; skipping its remaining model attempts"
+                        )
+                        break
                     retryable_failure = retryable_failure or response.status_code in (
                         408, 429, 500, 502, 503, 504,
                     )
@@ -315,12 +337,18 @@ def research_festival(topic, date="", location="India", video_sources=None, web_
                     "provided_web_research" if web_research else "gemini_google_search_grounded"
                 )
                 return result
-        if not retryable_failure:
+        if not retryable_failure or len(billing_blocked_keys) == len(keys):
             break
     hint = ""
     if errors and all("HTTP 429" in error for error in errors):
         hint = (" | Gemini Google Search grounding quota may be exhausted; "
                 "check the API project's quota and billing or wait for the quota reset.")
+    elif any(_is_project_billing_error(403, error) for error in errors):
+        hint = (
+            " | The Google Cloud project for at least one API key is not eligible "
+            "for Gemini's free tier; enable billing for that project in Google AI Studio "
+            "or use a key from a project with Gemini API access."
+        )
     raise RuntimeError("Gemini festival research failed: " + "; ".join(errors[-4:]) + hint)
 
 
