@@ -64,6 +64,7 @@ def list_models(key):
             for model in payload.get("models", [])
             if "generateContent" in model.get("supportedGenerationMethods", [])
             and "flash" in model.get("name", "").lower()
+            and model.get("name", "").split("/")[-1] != "gemini-2.5-flash"
             and not any(
                 part in model.get("name", "").lower()
                 for part in ("image", "audio", "live", "exp", "omni", "robotics", "computer")

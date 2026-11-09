@@ -77,6 +77,7 @@ class GroundedFestivalResearchTests(unittest.TestCase):
             "models": [
                 {"name": "models/gemini-3.1-flash-lite", "supportedGenerationMethods": ["generateContent"]},
                 {"name": "models/gemini-3.5-flash", "supportedGenerationMethods": ["generateContent"]},
+                {"name": "models/gemini-2.5-flash", "supportedGenerationMethods": ["generateContent"]},
                 {"name": "models/gemini-omni-1.1-flash", "supportedGenerationMethods": ["generateContent"]},
                 {"name": "models/gemini-4-flash-preview", "supportedGenerationMethods": ["generateContent"]},
                 {"name": "models/gemini-3-flash-exp", "supportedGenerationMethods": ["generateContent"]},
