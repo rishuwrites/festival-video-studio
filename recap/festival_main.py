@@ -13,8 +13,6 @@ import gemini
 import images
 import render
 import voice
-import web_search
-from festival_sources import find_transcribed_videos
 from youtube_upload import scheduled_datetime, upload_scheduled
 
 
@@ -124,26 +122,6 @@ def _overlay_for_scene(scene, sources):
     return {**overlay, "source": domain}
 
 
-def _collect_web_research(topic, date, scope):
-    """Web search -> open websites of several types -> Gemini research notes.
-
-    Returns a web_research dict, or None to fall back to Gemini's own Google Search grounding.
-    """
-    flag = os.getenv("FESTIVAL_WEB_SEARCH", "true").strip().lower()
-    if flag in ("0", "false", "no", "off"):
-        return None
-    if os.getenv("FESTIVAL_RESEARCH_CONTEXT", "").strip():
-        return None  # an explicit research_context input always wins
-    print("Searching the web for festival websites of several types")
-    try:
-        collected = web_search.collect_pages(topic, date, scope)
-        return gemini.research_notes(topic, date, scope, collected)
-    except Exception as exc:
-        print(f"  web search research unavailable ({type(exc).__name__}: {exc}); "
-              "falling back to Google Search grounding")
-        return None
-
-
 def _safe_slug(text):
     slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
     if not slug:
@@ -165,10 +143,13 @@ def _make_description(topic, date, scope, research, sources):
     )
 
 
-def _research_mode(grounded, video_sources):
-    if grounded.get("research_method") == "provided_web_research":
-        return "video_transcripts_and_web_research" if video_sources else "web_research_only"
-    return "video_transcripts_and_grounded_web" if video_sources else "grounded_web_only"
+def _research_mode(grounded):
+    return grounded.get("research_method") or "gemini_google_search_grounded"
+
+
+def _research_with_gemini(topic, date, scope):
+    print("Researching the festival and writing the script through Gemini API Google Search grounding")
+    return gemini.research_festival(topic, date, scope, video_sources=[])
 
 
 def _scene_image_count(duration):
@@ -193,18 +174,6 @@ def _shot_prompt(scene, shot_index, shot_count):
     )
 
 
-def _collect_video_research_sources(topic, date, scope):
-    transcript_research = os.getenv("FESTIVAL_TRANSCRIPT_RESEARCH", "true").strip().lower()
-    if transcript_research in ("0", "false", "no", "off"):
-        if os.getenv("FESTIVAL_RESEARCH_CONTEXT", "").strip():
-            print("Video transcript research disabled; using supplied web research and plain Gemini generation")
-        else:
-            print("Video transcript research disabled; using Google Search-grounded research")
-        return []
-    print("Finding five distinct channels with accessible public captions")
-    return find_transcribed_videos(topic, date, scope)
-
-
 def generate_video(
     topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None,
     publish_date="", publish_time="", upload=False,
@@ -214,18 +183,7 @@ def generate_video(
     if upload:
         scheduled_datetime(publish_date, publish_time)
     scope = scope.strip() or S.DEFAULT_SCOPE
-    video_sources = _collect_video_research_sources(topic.strip(), date.strip(), scope)
-    web_research = (
-        os.getenv("FESTIVAL_RESEARCH_CONTEXT", "").strip()
-        or _collect_web_research(topic.strip(), date.strip(), scope)
-    )
-    grounded = gemini.research_festival(
-        topic.strip(),
-        date.strip(),
-        scope,
-        video_sources=video_sources,
-        web_research=web_research or None,
-    )
+    grounded = _research_with_gemini(topic.strip(), date.strip(), scope)
     research = validate_research(grounded)
 
     output_dir = output_dir or os.path.join(S.BASE, "output")
@@ -243,7 +201,7 @@ def generate_video(
         "topic": topic,
         "date": date,
         "coverage_scope": scope,
-        "research_mode": _research_mode(grounded, video_sources),
+        "research_mode": _research_mode(grounded),
         "research_summary": research["research_summary"],
         "key_facts": research["key_facts"],
         "search_queries": grounded.get("search_queries", []),
@@ -395,7 +353,7 @@ def generate_video(
         "video_sources_analyzed": len([
             source for source in grounded["sources"] if source.get("kind") == "video_transcript"
         ]),
-        "research_mode": _research_mode(grounded, video_sources),
+        "research_mode": _research_mode(grounded),
         "narration_seconds": round(total),
         "video": os.path.basename(video_path),
         "thumbnail": os.path.basename(thumb_path),

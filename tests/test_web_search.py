@@ -80,21 +80,6 @@ class WebSearchTests(unittest.TestCase):
         parsed = gemini._parse_web_research(result)
         self.assertEqual(len(parsed["sources"]), 2)
 
-    def test_web_search_failure_falls_back_to_grounding(self):
-        with mock.patch.dict(os.environ, {}, clear=True), \
-                mock.patch.object(festival_main.web_search, "collect_pages", side_effect=RuntimeError("down")):
-            self.assertIsNone(festival_main._collect_web_research("x", "", "India"))
-
-    def test_disabled_or_explicit_context_skips_web_search(self):
-        with mock.patch.dict(os.environ, {"FESTIVAL_WEB_SEARCH": "false"}), \
-                mock.patch.object(festival_main.web_search, "collect_pages") as collect:
-            self.assertIsNone(festival_main._collect_web_research("x", "", "India"))
-            collect.assert_not_called()
-        with mock.patch.dict(os.environ, {"FESTIVAL_RESEARCH_CONTEXT": "{}"}), \
-                mock.patch.object(festival_main.web_search, "collect_pages") as collect:
-            self.assertIsNone(festival_main._collect_web_research("x", "", "India"))
-            collect.assert_not_called()
-
     def test_overlay_cleaning_and_source_domain(self):
         self.assertIsNone(festival_main._clean_overlay({"text": ""}))
         overlay = festival_main._clean_overlay({"label": "a b c d", "text": " ".join(["शब्द"] * 30), "source_title": "A"})

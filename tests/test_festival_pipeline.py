@@ -143,6 +143,7 @@ class GroundedFestivalResearchTests(unittest.TestCase):
             )
 
         self.assertEqual(len(result["sources"]), 7)
+        self.assertEqual(result["research_method"], "gemini_google_search_grounded")
         self.assertEqual(len([s for s in result["sources"] if s["kind"] == "video_transcript"]), 5)
         request = post.call_args.kwargs["json"]
         self.assertEqual(request["tools"], [{"googleSearch": {}}])
@@ -216,7 +217,11 @@ class GroundedFestivalResearchTests(unittest.TestCase):
                 mock.patch.object(gemini.requests, "post", return_value=response) as post:
             result = gemini.research_festival("छठ पूजा", "2026", DEFAULT_SCOPE, video_sources=[])
 
-        prompt = post.call_args.kwargs["json"]["contents"][0]["parts"][0]["text"]
+        request = post.call_args.kwargs["json"]
+        prompt = request["contents"][0]["parts"][0]["text"]
+        self.assertEqual(request["tools"], [{"googleSearch": {}}])
+        self.assertIn("one Gemini API request", prompt)
+        self.assertIn("do not search or fetch pages with a separate browser", prompt)
         self.assertIn("If no transcripts are supplied, do not claim or imply that video transcripts were analyzed", prompt)
         self.assertNotIn("Transcript text", prompt)
         self.assertEqual(len(result["sources"]), 2)
@@ -401,23 +406,15 @@ class RelatedVideoTranscriptTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "found 1"):
                 festival_sources.find_transcribed_videos("दीवाली", "2026", "India")
 
-    def test_web_only_mode_skips_youtube_search_and_caption_requests(self):
-        with mock.patch.dict(os.environ, {"FESTIVAL_TRANSCRIPT_RESEARCH": "false"}), \
-                mock.patch.object(festival_main, "find_transcribed_videos") as find_videos:
-            sources = festival_main._collect_video_research_sources("छठ पूजा", "2026", DEFAULT_SCOPE)
+    def test_pipeline_research_uses_gemini_without_external_context_or_transcripts(self):
+        expected = {"research": {}, "sources": [], "search_queries": []}
+        with mock.patch.object(
+            festival_main.gemini, "research_festival", return_value=expected,
+        ) as research:
+            result = festival_main._research_with_gemini("छठ पूजा", "2026", DEFAULT_SCOPE)
 
-        self.assertEqual(sources, [])
-        find_videos.assert_not_called()
-
-    def test_transcript_research_remains_enabled_by_default(self):
-        with mock.patch.dict(os.environ, {}, clear=True), \
-                mock.patch.object(
-                    festival_main, "find_transcribed_videos", return_value=video_source_inputs(),
-                ) as find_videos:
-            sources = festival_main._collect_video_research_sources("छठ पूजा", "2026", DEFAULT_SCOPE)
-
-        self.assertEqual(len(sources), 5)
-        find_videos.assert_called_once_with("छठ पूजा", "2026", DEFAULT_SCOPE)
+        self.assertIs(result, expected)
+        research.assert_called_once_with("छठ पूजा", "2026", DEFAULT_SCOPE, video_sources=[])
 
     def test_existing_oauth_secrets_authorize_youtube_search(self):
         oauth_response = mock.Mock(status_code=200)
@@ -474,11 +471,11 @@ class RelatedVideoTranscriptTests(unittest.TestCase):
 
 
 class FestivalValidationTests(unittest.TestCase):
-    def test_scene_image_count_keeps_shots_within_eight_seconds(self):
+    def test_scene_image_count_keeps_shots_within_five_seconds(self):
         self.assertEqual(festival_main._scene_image_count(1), 1)
-        self.assertEqual(festival_main._scene_image_count(8), 1)
-        self.assertEqual(festival_main._scene_image_count(8.1), 2)
-        self.assertEqual(festival_main._scene_image_count(24), 3)
+        self.assertEqual(festival_main._scene_image_count(5), 1)
+        self.assertEqual(festival_main._scene_image_count(5.1), 2)
+        self.assertEqual(festival_main._scene_image_count(15), 3)
 
     def test_shot_prompts_request_distinct_compositions_for_same_scene(self):
         scene = {"visual_prompt": "A family lighting diyas"}
