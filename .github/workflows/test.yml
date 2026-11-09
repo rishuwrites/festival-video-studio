@@ -1,0 +1,32 @@
+name: Generate Free AI Image
+
+on:
+  workflow_dispatch: # Allows you to trigger it manually from the "Actions" tab
+    inputs:
+      prompt:
+        description: 'What image do you want to generate?'
+        required: true
+        default: 'a futuristic cyber city under a neon sky'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create safe prompt for URL
+        id: encode_prompt
+        run: |
+          # URL-encode the prompt text so it can safely be sent over HTTP
+          ENCODED_PROMPT=$(echo "${{ github.event.inputs.prompt }}" | jq -s -R -r @uri)
+          echo "encoded=$ENCODED_PROMPT" >> $GITHUB_OUTPUT
+
+      - name: Fetch Image from Free API
+        run: |
+          # Calls the free Pollinations API using Flux/Stable Diffusion backends
+          curl -L -o generated_art.jpg "https://pollinations.ai{{ steps.encode_prompt.outputs.encoded }}?width=1024&height=1024&seed=42"
+
+      - name: Upload Generated Image
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-generated-image
+          path: generated_art.jpg
