@@ -7,7 +7,7 @@ import requests
 
 
 BASE = "https://generativelanguage.googleapis.com/v1beta"
-MODEL = os.getenv("GEMINI_MODEL") or "gemini-flash-latest"
+MODEL = os.getenv("GEMINI_MODEL") or "gemini-3.8-flash"
 
 FESTIVAL_PROMPT = """Use the Google Search tool provided by the Gemini API to research the requested Hindu festival/observance, then write an original Hindi video script based on that research. Perform the research and script generation in this one Gemini API request; do not search or fetch pages with a separate browser or external search client. Search for current, reputable sources before drafting; do not rely on memory alone.
 
@@ -50,7 +50,7 @@ The source videos and their public captions follow. This section may be empty. U
 
 
 def list_models(key):
-    candidates = [MODEL, "gemini-flash-latest"]
+    candidates = [MODEL, "gemini-3.8-flash", "gemini-flash-latest"]
     try:
         response = requests.get(
             f"{BASE}/models",
@@ -83,7 +83,6 @@ def list_models(key):
         ))
     except requests.RequestException:
         pass
-    candidates.append("gemini-2.5-flash")
     return list(dict.fromkeys(name for name in candidates if name))
 
 

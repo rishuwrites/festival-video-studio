@@ -86,17 +86,18 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         }
         response.raise_for_status.return_value = None
 
-        with mock.patch.object(gemini, "MODEL", "gemini-flash-latest"), \
+        with mock.patch.object(gemini, "MODEL", "gemini-3.8-flash"), \
                 mock.patch.object(gemini.requests, "get", return_value=response):
             models = gemini.list_models("test-key")
 
         self.assertEqual(models, [
+            "gemini-3.8-flash",
             "gemini-flash-latest",
             "gemini-3.5-flash",
             "gemini-3.1-flash-lite",
             "gemini-4-flash-preview",
-            "gemini-2.5-flash",
         ])
+        self.assertNotIn("gemini-2.5-flash", models)
 
     def test_extracts_unique_https_sources_and_search_queries(self):
         response = {
