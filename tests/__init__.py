@@ -1,0 +1,1 @@
+"""Festival studio test suite."""

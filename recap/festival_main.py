@@ -149,6 +149,13 @@ def _research_mode(grounded):
 
 
 def _research_with_gemini(topic, date, scope):
+    research_context = os.getenv("FESTIVAL_RESEARCH_CONTEXT", "").strip()
+    if research_context:
+        print("Researching the festival from the sourced calendar context")
+        return gemini.research_festival(
+            topic, date, scope, video_sources=[], web_research=research_context,
+        )
+
     print("Researching the festival and writing the script through Gemini API Google Search grounding")
     try:
         return gemini.research_festival(topic, date, scope, video_sources=[])

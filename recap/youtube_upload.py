@@ -193,6 +193,7 @@ def upload_scheduled(video_path, metadata_path, publish_date, publish_time, now=
             "defaultAudioLanguage": "hi",
         },
         "status": {
+            # YouTube requires scheduled uploads to be private; it makes them public at publishAt.
             "privacyStatus": "private",
             "publishAt": publish_at.isoformat(timespec="seconds"),
             "selfDeclaredMadeForKids": False,
@@ -207,5 +208,5 @@ def upload_scheduled(video_path, metadata_path, publish_date, publish_time, now=
         "video_id": video_id,
         "url": f"https://www.youtube.com/watch?v={video_id}",
         "publish_at_ist": publish_at.strftime("%Y-%m-%d %H:%M %Z"),
-        "status": "scheduled_private",
+        "status": "scheduled_public",
     }

@@ -446,6 +446,25 @@ class RelatedVideoTranscriptTests(unittest.TestCase):
         self.assertIs(result, expected)
         research.assert_called_once_with("छठ पूजा", "2026", DEFAULT_SCOPE, video_sources=[])
 
+    def test_pipeline_uses_calendar_research_context_when_present(self):
+        expected = {"research": {}, "sources": [], "search_queries": []}
+        context = json.dumps({
+            "notes": "Observed on the selected date according to the cited calendar.",
+            "sources": [
+                {"title": "Source one", "url": "https://example.org/one"},
+                {"title": "Source two", "url": "https://example.org/two"},
+            ],
+        })
+        with mock.patch.dict(os.environ, {"FESTIVAL_RESEARCH_CONTEXT": context}), mock.patch.object(
+            festival_main.gemini, "research_festival", return_value=expected,
+        ) as research:
+            result = festival_main._research_with_gemini("Festival", "2026-11-11", DEFAULT_SCOPE)
+
+        self.assertIs(result, expected)
+        research.assert_called_once_with(
+            "Festival", "2026-11-11", DEFAULT_SCOPE, video_sources=[], web_research=context,
+        )
+
     def test_pipeline_falls_back_to_key_free_web_research_when_grounding_quota_is_exhausted(self):
         expected = {"research": {}, "sources": [], "search_queries": []}
         collected = {

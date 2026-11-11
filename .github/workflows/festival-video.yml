@@ -27,11 +27,16 @@ on:
         type: string
         required: false
         default: ""
+      research_context:
+        description: Pre-researched, sourced JSON calendar notes (set by the daily scheduler)
+        type: string
+        required: false
+        default: ""
       upload:
-        description: Upload to YouTube as a private scheduled video
+        description: Upload and schedule the video for public release
         type: boolean
         required: true
-        default: true
+        default: false
 
 permissions:
   contents: read
@@ -51,6 +56,7 @@ jobs:
       FESTIVAL_SCOPE: ${{ inputs.scope || 'India (nationwide, with focus on Uttar Pradesh and Bihar)' }}
       FESTIVAL_PUBLISH_DATE: ${{ inputs.publish_date }}
       FESTIVAL_PUBLISH_TIME: ${{ inputs.publish_time }}
+      FESTIVAL_RESEARCH_CONTEXT: ${{ inputs.research_context }}
       YOUTUBE_UPLOAD: ${{ inputs.upload }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_API_KEY1: ${{ secrets.GEMINI_API_KEY1 }}
@@ -77,7 +83,7 @@ jobs:
           python -c "import PIL.features; assert PIL.features.check('raqm'), 'Pillow RAQM support is required for Hindi text rendering'"
           python -c "import sys; sys.path.insert(0, 'recap'); import render; print('Using Devanagari font:', render.find_font())"
 
-      - name: Research and render preview
+      - name: Research and render video
         run: python recap/festival_main.py
 
       - uses: actions/upload-artifact@v4

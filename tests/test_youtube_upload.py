@@ -65,7 +65,7 @@ class ScheduledUploadTests(unittest.TestCase):
         }), encoding="utf-8")
         return str(video_path), str(metadata_path)
 
-    def test_uploads_resumably_as_private_with_selected_ist_publish_time(self):
+    def test_schedules_public_release_at_selected_ist_publish_time(self):
         publish_date, publish_time = future_schedule()
         initiated = mock.Mock(status_code=200)
         initiated.headers = {"Location": "https://www.googleapis.com/upload/youtube/v3/videos?upload_id=test"}
@@ -83,9 +83,10 @@ class ScheduledUploadTests(unittest.TestCase):
                 )
 
         self.assertEqual(result["video_id"], "video123")
-        self.assertEqual(result["status"], "scheduled_private")
+        self.assertEqual(result["status"], "scheduled_public")
         self.assertEqual(result["publish_at_ist"].endswith("IST"), True)
         payload = post.call_args.kwargs["json"]
+        # YouTube requires privacyStatus=private while a future publishAt is set.
         self.assertEqual(payload["status"]["privacyStatus"], "private")
         self.assertTrue(payload["status"]["publishAt"].endswith("+05:30"))
         self.assertEqual(put.call_args.kwargs["headers"]["Content-Range"], "bytes 0-18/19")
