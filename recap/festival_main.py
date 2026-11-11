@@ -13,6 +13,7 @@ import gemini
 import images
 import render
 import voice
+import web_search
 from youtube_upload import scheduled_datetime, upload_scheduled
 
 
@@ -149,7 +150,30 @@ def _research_mode(grounded):
 
 def _research_with_gemini(topic, date, scope):
     print("Researching the festival and writing the script through Gemini API Google Search grounding")
-    return gemini.research_festival(topic, date, scope, video_sources=[])
+    try:
+        return gemini.research_festival(topic, date, scope, video_sources=[])
+    except RuntimeError as exc:
+        message = str(exc).lower()
+        if "http 429" not in message and "free tier" not in message:
+            raise
+
+        print("  Gemini Search grounding is unavailable; trying key-free web search with standard Gemini generation")
+        collected = web_search.collect_pages(topic, date, scope)
+        pages = collected.get("pages") or []
+        if len(pages) < 2:
+            raise RuntimeError(
+                "Gemini Search grounding is quota-limited and key-free web search found fewer than two usable sources"
+            ) from exc
+        context = {
+            "notes": "\n\n".join(
+                f"[{page['title']}]\n{page['text']}" for page in pages
+            )[:12000],
+            "sources": [{"title": page["title"], "url": page["url"]} for page in pages],
+            "search_queries": collected.get("search_queries", []),
+        }
+        return gemini.research_festival(
+            topic, date, scope, video_sources=[], web_research=context,
+        )
 
 
 def _scene_image_count(duration):

@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "recap"))
 import festival_main
 import gemini
 import festival_sources
+import web_search
 
 
 DEFAULT_SCOPE = "India (nationwide, with focus on Uttar Pradesh and Bihar)"
@@ -247,8 +248,8 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         request = post.call_args.kwargs["json"]
         prompt = request["contents"][0]["parts"][0]["text"]
         self.assertEqual(request["tools"], [{"googleSearch": {}}])
-        self.assertIn("one Gemini API request", prompt)
-        self.assertIn("do not search or fetch pages with a separate browser", prompt)
+        self.assertIn("use the Google Search tool provided by the Gemini API in this request", prompt)
+        self.assertIn("Base factual claims only on supplied web research or Gemini Google Search results", prompt)
         self.assertIn("If no transcripts are supplied, do not claim or imply that video transcripts were analyzed", prompt)
         self.assertNotIn("Transcript text", prompt)
         self.assertEqual(len(result["sources"]), 2)
@@ -281,12 +282,14 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         }
         with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}), \
                 mock.patch.object(gemini, "list_models", return_value=["gemini-test"]), \
-                mock.patch.object(gemini.time, "sleep"), \
-                mock.patch.object(gemini.requests, "post", return_value=response):
+                mock.patch.object(gemini.time, "sleep") as sleep, \
+                mock.patch.object(gemini.requests, "post", return_value=response) as post:
             with self.assertRaisesRegex(
                 RuntimeError, "RESOURCE_EXHAUSTED: You exceeded your current quota",
             ):
                 gemini.research_festival("दिवाली", "2026", "India", video_sources=[])
+        post.assert_called_once()
+        sleep.assert_not_called()
 
     def test_retries_with_backup_key_after_primary_quota_exhaustion(self):
         quota_response = mock.Mock(status_code=429)
@@ -442,6 +445,37 @@ class RelatedVideoTranscriptTests(unittest.TestCase):
 
         self.assertIs(result, expected)
         research.assert_called_once_with("छठ पूजा", "2026", DEFAULT_SCOPE, video_sources=[])
+
+    def test_pipeline_falls_back_to_key_free_web_research_when_grounding_quota_is_exhausted(self):
+        expected = {"research": {}, "sources": [], "search_queries": []}
+        collected = {
+            "pages": [
+                {"title": "Panchang", "url": "https://example.org/panchang", "text": "Date and tithi."},
+                {"title": "Traditions", "url": "https://example.org/traditions", "text": "Regional customs."},
+            ],
+            "search_queries": ["Chhath Puja date", "Chhath Puja traditions"],
+        }
+        with mock.patch.object(
+            festival_main.gemini,
+            "research_festival",
+            side_effect=[RuntimeError("HTTP 429 RESOURCE_EXHAUSTED"), expected],
+        ) as research, mock.patch.object(
+            web_search, "collect_pages", return_value=collected,
+        ) as collect:
+            result = festival_main._research_with_gemini("छठ पूजा", "2026", DEFAULT_SCOPE)
+
+        self.assertIs(result, expected)
+        collect.assert_called_once_with("छठ पूजा", "2026", DEFAULT_SCOPE)
+        fallback_call = research.call_args_list[1]
+        self.assertEqual(fallback_call.args[:3], ("छठ पूजा", "2026", DEFAULT_SCOPE))
+        self.assertEqual(fallback_call.kwargs["video_sources"], [])
+        self.assertEqual(
+            fallback_call.kwargs["web_research"]["sources"],
+            [
+                {"title": "Panchang", "url": "https://example.org/panchang"},
+                {"title": "Traditions", "url": "https://example.org/traditions"},
+            ],
+        )
 
     def test_existing_oauth_secrets_authorize_youtube_search(self):
         oauth_response = mock.Mock(status_code=200)
