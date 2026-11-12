@@ -10,7 +10,7 @@ Create original Hindi festival explainers with research notes, original illustra
 - Requires at least two grounded web citations and records all source links in a research report.
 - Generates an original 9–12 chapter Hindi script from Gemini-grounded research; no source-video captions are collected.
 - Verifies the synthesized narration lasts at least six minutes before rendering.
-- Produces an MP4, thumbnail, metadata JSON, and a research JSON report.
+- Produces an MP4, a 1280×720 thumbnail with a prominent topic-specific Hindi headline, metadata JSON, and a research JSON report.
 - Generates a new composed illustration for at least every five seconds of narration, with slow pan/zoom, animated voice waveform, word-highlighted captions, and a moving progress line.
 - Can schedule a video for **public release on YouTube**; YouTube holds future-scheduled uploads privately until the publish time.
 
@@ -34,7 +34,7 @@ YouTube uploads use your OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_
 
 ## Daily calendar-driven publishing
 
-The researched calendar at `data/india-festival-video-calendar-2026.json` contains one sourced video brief for every date from November 11 through December 31, 2026. Major festival dates use festival-specific topics; other dates are clearly identified as cultural/ritual explainers rather than being presented as festival days. The daily Google Apps Script reads that date's brief and dispatches GitHub Actions around 02:05 IST, targeting public release at 09:00 IST the same day. Apps Script time triggers run near the selected minute, not at an exact second; the script skips dispatch after 08:00 IST to avoid scheduling a video that may not be ready.
+The researched calendar at `data/india-festival-video-calendar-2026.json` contains one sourced video brief for every date from November 11 through December 31, 2026. The daily Google Apps Script runs near 02:05 IST and checks the featured observance three days ahead. It dispatches only entries with a named festival (not evergreen culture topics), passes the observance date to the workflow, and schedules public release at 09:00 IST two days before that date. This gives the workflow about a day to research, render, and upload before publication. Apps Script triggers run near the selected minute, not at an exact second; the script skips dispatch after 08:00 IST.
 
 To enable the daily trigger:
 
@@ -43,7 +43,7 @@ To enable the daily trigger:
 3. Run `setupDailyTrigger()` once and authorize the requested permissions. Check the Apps Script **Executions** page for dispatch errors.
 4. Ensure the repository has `GEMINI_API_KEY`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` Actions secrets. The YouTube refresh token needs `youtube.upload` and `youtube.readonly` scopes.
 
-The workflow receives the selected calendar topic and researched source notes, writes the script, renders a video, and uploads it with a 09:00 IST `publishAt`. YouTube requires a scheduled video to be uploaded as private; YouTube automatically changes it to public at the scheduled time. Configure the channel's default upload settings and audience/restrictions in YouTube Studio as needed.
+The workflow receives the festival date, its calendar topic, and researched source notes, writes the script, renders a video and thumbnail, and uploads it with a 09:00 IST `publishAt` two days before the observance. The thumbnail displays Gemini's short Hindi thumbnail headline in a high-contrast, outlined panel; the generated artwork is prompted to leave negative space for that text. YouTube requires a scheduled video to be uploaded as private; YouTube automatically changes it to public at the scheduled time. Configure the channel's default upload settings and audience/restrictions in YouTube Studio as needed.
 
 ## GitHub Actions
 

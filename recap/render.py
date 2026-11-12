@@ -307,31 +307,64 @@ def concat(files, tmp, out, music=None, total=0, emotion="tense", audio_bitrate=
 
 def thumbnail(img, hook, tag_text, bottom_text, out):
     hook, tag_text, bottom_text = deva(hook), deva(tag_text), deva(bottom_text)
-    im = Image.open(img).convert("RGB"); r = max(1280 / im.width, 720 / im.height)
-    im = im.resize((int(im.width * r) + 1, int(im.height * r) + 1)); l, t = (im.width - 1280) // 2, (im.height - 720) // 2
+    width, height = 1280, 720
+    im = Image.open(img).convert("RGB"); r = max(width / im.width, height / im.height)
+    im = im.resize((int(im.width * r) + 1, int(im.height * r) + 1)); l, t = (im.width - width) // 2, (im.height - height) // 2
     im = im.crop((l, t, l + 1280, t + 720))
-    # Boost color vibrance, contrast, and sharpness for higher mobile click-through rate
     im = ImageEnhance.Color(im).enhance(1.25)
     im = ImageEnhance.Contrast(im).enhance(1.15)
-    im = ImageEnhance.Sharpness(im).enhance(1.15)
-    d = ImageDraw.Draw(im, "RGBA")
-    for y in range(280, 720): d.line([(0, y), (1280, y)], fill=(0, 0, 0, int(235 * (y - 280) / 440)))
-    for y in range(0, 120): d.line([(0, y), (1280, y)], fill=(0, 0, 0, int(130 * (1 - y / 120))))
-    # High-impact hook text with drop shadow + thick black stroke
-    f = font(118); ls = wrap(d, hook, f, 1200)[:2]; y0 = 555 - len(ls) * 128
-    for i, line in enumerate(ls):
-        yy = y0 + i * 128
-        d.text((44, yy + 5), line, font=f, fill=(0, 0, 0, 230), stroke_width=8, stroke_fill=(0, 0, 0, 230))
-        d.text((40, yy), line, font=f, fill=(255, 228, 0), stroke_width=7, stroke_fill=(0, 0, 0))
-    # Top-left show badge
-    f2 = font(52); w = int(d.textlength(tag_text, font=f2)) + 50
-    d.rounded_rectangle((30, 26, 30 + w, 98), 16, fill=(210, 0, 20, 248)); d.text((55, 29), tag_text, font=f2, fill=(255, 255, 255))
-    # Top-right shock badge ("महा-ट्विस्ट!")
-    twist_txt = "महा-ट्विस्ट!"
-    wt = int(d.textlength(twist_txt, font=f2)) + 46
-    d.rounded_rectangle((1280 - wt - 30, 26, 1250, 98), 16, fill=(255, 195, 0, 248))
-    d.text((1280 - wt - 7, 29), twist_txt, font=f2, fill=(15, 15, 15))
-    # Bottom-right episode & date badge
-    f3 = font(46); w3 = int(d.textlength(bottom_text, font=f3)) + 40
-    d.rounded_rectangle((1280 - w3 - 30, 648, 1250, 704), 12, fill=(255, 255, 255, 240)); d.text((1280 - w3 - 10, 647), bottom_text, font=f3, fill=(20, 20, 20))
-    im.convert("RGB").save(out, quality=90)
+    im = ImageEnhance.Sharpness(im).enhance(1.15).convert("RGBA")
+
+    shadow = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    shadow_draw = ImageDraw.Draw(shadow)
+    shadow_draw.rounded_rectangle((35, 356, 880, 682), 30, fill=(0, 0, 0, 185))
+    im = Image.alpha_composite(im, shadow.filter(ImageFilter.GaussianBlur(18)))
+
+    overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    d = ImageDraw.Draw(overlay)
+    d.rounded_rectangle(
+        (42, 350, 870, 670), 28,
+        fill=(10, 17, 29, 222), outline=(255, 190, 55, 235), width=3,
+    )
+    d.rounded_rectangle((42, 350, 58, 670), 8, fill=(255, 180, 35, 255))
+
+    tag_font = font(36)
+    tag_width = int(d.textlength(tag_text, font=tag_font)) + 44
+    d.rounded_rectangle((58, 32, 58 + tag_width, 91), 18, fill=(190, 35, 24, 245))
+    d.text((80, 38), tag_text, font=tag_font, fill=(255, 255, 255))
+
+    date_font = font(30)
+    date_width = int(d.textlength(bottom_text, font=date_font)) + 38
+    date_left = width - date_width - 38
+    d.rounded_rectangle(
+        (date_left, 34, width - 38, 88), 16, fill=(10, 17, 29, 218),
+        outline=(255, 255, 255, 190), width=2,
+    )
+    d.text((date_left + 19, 42), bottom_text, font=date_font, fill=(255, 255, 255))
+
+    text_left, text_width = 88, 738
+    headline_font = font(58)
+    lines = [hook]
+    for size in range(90, 42, -4):
+        headline_font = font(size)
+        lines = wrap(d, hook, headline_font, text_width)
+        if len(lines) <= 2 and all(
+            d.textlength(line, font=headline_font) <= text_width for line in lines
+        ):
+            break
+    line_height = size + 22
+    total_height = len(lines) * line_height
+    y = 510 - total_height // 2
+    for line in lines:
+        d.text(
+            (text_left + 3, y + 5), line, font=headline_font,
+            fill=(0, 0, 0, 240), stroke_width=5, stroke_fill=(0, 0, 0, 240),
+        )
+        d.text(
+            (text_left, y), line, font=headline_font, fill=(255, 242, 205),
+            stroke_width=2, stroke_fill=(18, 22, 32, 255),
+        )
+        y += line_height
+
+    im = Image.alpha_composite(im, overlay)
+    im.convert("RGB").save(out, quality=92)

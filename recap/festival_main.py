@@ -353,8 +353,8 @@ def generate_video(
         thumbnail_prompt = (
             f"Create an original 16:9 YouTube explainer thumbnail illustration about {topic}. "
             f"Scene inspiration: {scenes[0]['visual_prompt']}. "
-            "Culturally respectful Indian festival imagery, strong clear composition, "
-            "bright cinematic lighting, open lower third for Hindi overlay text. "
+            "Culturally respectful Indian festival imagery, one expressive focal subject placed on the right, "
+            "bright cinematic lighting, uncluttered darker negative space on the left for a large Hindi headline. "
             "Do not draw text, letters, logos, or a watermark."
         )
         thumbnail_art = os.path.join(tmp, "thumbnail_art.jpg")

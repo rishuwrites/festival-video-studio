@@ -8,7 +8,7 @@ on:
         type: string
         required: true
       date:
-        description: Optional date/year, for example 2026
+        description: Festival observance date/year, for example 2026-11-15
         type: string
         required: false
         default: ""
@@ -18,7 +18,7 @@ on:
         required: false
         default: India (nationwide, with focus on Uttar Pradesh and Bihar)
       publish_date:
-        description: YouTube scheduled publish date (YYYY-MM-DD, India Standard Time)
+        description: YouTube public release date (YYYY-MM-DD IST; daily scheduler sets this two days before the festival)
         type: string
         required: false
         default: ""
@@ -28,7 +28,7 @@ on:
         required: false
         default: ""
       research_context:
-        description: Pre-researched, sourced JSON calendar notes (set by the daily scheduler)
+        description: Pre-researched, sourced JSON calendar notes (set three days before the festival by the scheduler)
         type: string
         required: false
         default: ""

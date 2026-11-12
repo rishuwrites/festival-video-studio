@@ -7,10 +7,10 @@
  *    allowed to dispatch workflows in rishuwrites/festival-video-studio.
  * 3. Run setupDailyTrigger() once and authorize the requested permissions.
  *
- * The trigger runs near 02:05 Asia/Kolkata. It reads today's brief from the
- * repository calendar and dispatches a video scheduled for public release at
- * 09:00 IST. YouTube requires future-scheduled uploads to be private until
- * publishAt; YouTube makes them public at that time.
+ * The trigger runs near 02:05 Asia/Kolkata. It prepares the observance three
+ * days ahead and schedules public release at 09:00 IST, two days before it.
+ * YouTube requires future-scheduled uploads to be private until publishAt;
+ * YouTube makes them public at that time.
  */
 
 const OWNER = "rishuwrites";
@@ -19,6 +19,8 @@ const BRANCH = "main";
 const WORKFLOW = "festival-video.yml";
 const TIME_ZONE = "Asia/Kolkata";
 const PUBLISH_TIME = "09:00";
+const GENERATION_LEAD_DAYS = 3;
+const PUBLISH_LEAD_DAYS = 2;
 const CALENDAR_URL =
   "https://raw.githubusercontent.com/rishuwrites/festival-video-studio/main/data/india-festival-video-calendar-2026.json";
 
@@ -47,9 +49,11 @@ function dispatchTodaysFestivalVideo() {
   try {
     const now = new Date();
     const today = Utilities.formatDate(now, TIME_ZONE, "yyyy-MM-dd");
-    const nowTime = Utilities.formatDate(now, TIME_ZONE, "HH:mm");
-    if (nowTime >= "08:00") {
-      throw new Error("Too late to safely generate and schedule today's 09:00 IST video.");
+    const publishDate = shiftDate(today, GENERATION_LEAD_DAYS - PUBLISH_LEAD_DAYS);
+    const festivalDate = shiftDate(today, GENERATION_LEAD_DAYS);
+    const publishAt = new Date(publishDate + "T" + PUBLISH_TIME + ":00+05:30");
+    if (publishAt.getTime() <= now.getTime() + 15 * 60 * 1000) {
+      throw new Error("Too late to safely schedule the video for " + publishDate + " " + PUBLISH_TIME + " IST.");
     }
 
     const properties = PropertiesService.getScriptProperties();
@@ -64,32 +68,37 @@ function dispatchTodaysFestivalVideo() {
       throw new Error("Could not read festival calendar (HTTP " + response.getResponseCode() + ").");
     }
     const calendar = JSON.parse(response.getContentText());
-    if (today < calendar.start_date || today > calendar.end_date) {
-      Logger.log("No calendar coverage for " + today + "; skipping dispatch.");
+    if (festivalDate < calendar.start_date || festivalDate > calendar.end_date) {
+      Logger.log("No calendar coverage for festival date " + festivalDate + "; skipping dispatch.");
       return;
     }
-    const entry = (calendar.entries || []).find(item => item.date === today);
+    const entry = (calendar.entries || []).find(item => item.date === festivalDate);
     if (!entry) {
-      throw new Error("No video brief exists for " + today + " in the festival calendar.");
+      throw new Error("No video brief exists for " + festivalDate + " in the festival calendar.");
     }
-    const monthSource = today.slice(5, 7) === "11" ? "drik_november" : "drik_december";
+    if (!entry.festival) {
+      Logger.log("No featured festival on " + festivalDate + "; skipping evergreen topic.");
+      return;
+    }
+    const monthSource = festivalDate.slice(5, 7) === "11" ? "drik_november" : "drik_december";
     const sourceIds = Array.from(new Set([...(entry.source_ids || []), monthSource]));
     const sources = sourceIds
       .map(sourceId => calendar.sources && calendar.sources[sourceId])
       .filter(source => source && source.title && source.url);
     if (!entry.topic || !entry.research_notes || !Array.isArray(entry.panchang_events) || sources.length < 2) {
-      throw new Error("Today's calendar brief needs a topic, notes, event list, and at least two sources.");
+      throw new Error("The " + festivalDate + " calendar brief needs a topic, notes, event list, and at least two sources.");
     }
 
     const result = dispatchWorkflow({
       topic: entry.topic,
-      date: today,
+      date: festivalDate,
       scope: entry.scope || calendar.default_scope,
-      publish_date: today,
+      publish_date: publishDate,
       publish_time: PUBLISH_TIME,
       research_context: JSON.stringify({
         notes: [
-          entry.festival ? "Scheduled observance: " + entry.festival : "Evergreen cultural topic; not a claim that a festival occurs today.",
+          "Scheduled observance: " + entry.festival,
+          "Festival date: " + festivalDate + "; planned public release: " + publishDate + " (two days before the observance).",
           entry.date_confidence ? "Date confidence: " + entry.date_confidence : "",
           entry.panchang_events.length
             ? "Other observances on this date in the monthly Panchang listing (keep distinct and identify regional scope): " + entry.panchang_events.join("; ")
@@ -104,10 +113,19 @@ function dispatchTodaysFestivalVideo() {
 
     properties.setProperty(dispatchKey, result);
     properties.setProperty("LAST_DISPATCH", today + " " + entry.topic + " [" + result + "]");
-    Logger.log("Dispatched today's video: " + entry.topic + " (run " + result + ")");
+    Logger.log(
+      "Dispatched " + entry.topic + " for festival date " + festivalDate +
+      ", public release " + publishDate + " at " + PUBLISH_TIME + " IST (run " + result + ")"
+    );
   } finally {
     lock.releaseLock();
   }
+}
+
+function shiftDate(isoDate, days) {
+  const date = new Date(isoDate + "T00:00:00Z");
+  date.setUTCDate(date.getUTCDate() + days);
+  return Utilities.formatDate(date, "UTC", "yyyy-MM-dd");
 }
 
 function dispatchWorkflow(inputs) {
