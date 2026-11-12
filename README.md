@@ -47,7 +47,7 @@ To enable the daily trigger:
 
 The workflow receives the festival date, its calendar topic, and researched source notes, writes the script, renders a video and thumbnail, and uploads it with a 09:00 IST `publishAt` two days before the observance. The thumbnail displays Gemini's short Hindi thumbnail headline in a high-contrast, outlined panel; the generated artwork is prompted to leave negative space for that text. YouTube requires a scheduled video to be uploaded as private; YouTube automatically changes it to public at the scheduled time. Configure the channel's default upload settings and audience/restrictions in YouTube Studio as needed.
 
-Video metadata includes the festival/topic and supported year in the title when they fit naturally, a Hindi description with the summary, chapters, regional caveats, search phrases, and cited source links, plus deduplicated Hindi and English tags and a small set of hashtags. Channel-wide description and keywords are separate from per-video tags. To set them once, run **Update YouTube channel branding** from the Actions tab with the proposed description/keywords and check **confirm**. The workflow preserves existing channel branding fields while updating only the description and keywords. Its OAuth refresh token must include `https://www.googleapis.com/auth/youtube.force-ssl`; if the current token lacks this scope, reauthorize YouTube OAuth and replace `YT_REFRESH_TOKEN` before running the action.
+Video metadata includes the festival/topic and supported year in the title when they fit naturally, a Hindi description with the summary, chapters, regional caveats, search phrases, and cited source links, plus deduplicated Hindi and English tags and a small set of relevant hashtags.
 
 ## GitHub Actions
 
