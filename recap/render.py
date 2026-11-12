@@ -1,16 +1,27 @@
 import functools, glob, math, os, random, subprocess
-from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance, features
 from latin import deva
 import config as S
 W, H, FPS = S.W, S.H, S.FPS
 
 def find_font():
     windows_fonts = os.path.join(os.environ.get("WINDIR", r"C:\Windows"), "Fonts")
-    for pat in ["/usr/share/fonts/**/NotoSansDevanagari-Bold.ttf", "/usr/share/fonts/**/NotoSansDevanagari*Bold*.ttf",
-                "/usr/share/fonts/**/Mukta*Bold*.ttf", "/usr/share/fonts/**/*Devanagari*.ttf",
-                os.path.join(windows_fonts, "Nirmala*.ttf"), os.path.join(windows_fonts, "*Devanagari*.ttf")]:
-        f = glob.glob(pat, recursive=True)
-        if f: return f[0]
+    patterns = [
+        "/usr/share/fonts/**/NotoSansDevanagari-ExtraBold.ttf",
+        "/usr/share/fonts/**/NotoSansDevanagari-Bold.ttf",
+        "/usr/share/fonts/**/NotoSansDevanagari*Bold*.ttf",
+        "/usr/share/fonts/**/Mukta*Bold*.ttf",
+        os.path.join(windows_fonts, "NirmalaB.ttf"),
+        os.path.join(windows_fonts, "Nirmala*Bold*.ttf"),
+        os.path.join(windows_fonts, "*Devanagari*Bold*.ttf"),
+        "/usr/share/fonts/**/*Devanagari*.ttf",
+        os.path.join(windows_fonts, "Nirmala.ttf"),
+        os.path.join(windows_fonts, "*Devanagari*.ttf"),
+    ]
+    for pattern in patterns:
+        paths = sorted(glob.glob(pattern, recursive=True))
+        if paths:
+            return paths[0]
     raise SystemExit("No Devanagari font found (apt install fonts-noto-core)")
 
 def wrap(draw, text, f, maxw):
@@ -24,7 +35,13 @@ def wrap(draw, text, f, maxw):
 @functools.lru_cache(None)
 def _fp(): return find_font()
 @functools.lru_cache(None)
-def font(size): return ImageFont.truetype(_fp(), size, layout_engine=ImageFont.Layout.RAQM)
+def font(size):
+    if not features.check("raqm"):
+        raise RuntimeError(
+            "Pillow was built without RAQM; install a Pillow build with libraqm support "
+            "to render correctly shaped Devanagari text."
+        )
+    return ImageFont.truetype(_fp(), size, layout_engine=ImageFont.Layout.RAQM)
 _d = ImageDraw.Draw(Image.new("RGB", (8, 8)))
 
 def cover(img, out):

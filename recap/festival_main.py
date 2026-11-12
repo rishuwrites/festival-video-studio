@@ -123,6 +123,11 @@ def _overlay_for_scene(scene, sources):
     return {**overlay, "source": domain}
 
 
+def _thumbnail_badge(research):
+    words = " ".join(str(research.get("headline", "")).split()).split()
+    return " ".join(words[:2]) or "पूरी जानकारी"
+
+
 def _safe_slug(text):
     slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
     if not slug:
@@ -131,17 +136,85 @@ def _safe_slug(text):
 
 
 def _make_description(topic, date, scope, research, sources):
-    date_line = f"Requested date/year: {date}\n" if date else ""
-    source_lines = "\n".join(f"- {source['title']}: {source['url']}" for source in sources[:8])
-    return (
-        f"{research['headline']}\n\n"
-        f"{research['research_summary']}\n\n"
-        f"Topic: {topic}\n{date_line}Coverage: {scope}\n\n"
-        "Dates and customs can vary by panchang and regional tradition. "
-        "Exact muhurta timings are city-specific; check a local panchang before relying on them.\n\n"
-        f"Research sources:\n{source_lines}\n\n"
-        "#Festival #Hindi #IndianCulture"
+    date_line = f"तिथि/वर्ष: {date}\n" if date else ""
+    chapters = [
+        str(scene.get("title", "")).strip()
+        for scene in research.get("scenes", [])
+        if str(scene.get("title", "")).strip()
+    ]
+    source_lines = "\n".join(
+        f"- {source['title']}: {source['url']}" for source in sources[:10]
     )
+    keywords = _video_tags(topic, date, research)
+    hashtag_candidates = [topic, *keywords[:2]]
+    hashtags = []
+    for phrase in hashtag_candidates:
+        hashtag = re.sub(r"[^\w]", "", phrase, flags=re.UNICODE)
+        if hashtag and hashtag.casefold() not in {tag.casefold() for tag in hashtags}:
+            hashtags.append(hashtag)
+        if len(hashtags) == 3:
+            break
+    title = _video_title(topic, date, research["headline"])
+    description_parts = [
+        title,
+        research["research_summary"].strip(),
+        f"इस हिंदी वीडियो में {topic} की तिथि, महत्व, प्रमुख परंपराओं और अलग-अलग क्षेत्रों में प्रचलित रीति-रिवाजों की स्रोत-आधारित जानकारी दी गई है।",
+        "इस वीडियो में: " + " • ".join(chapters[:12]) if chapters else "",
+        f"विषय: {topic}",
+        date_line.rstrip(),
+        f"क्षेत्र: {scope}",
+        "पंचांग की तिथियां और मुहूर्त स्थान तथा परंपरा के अनुसार बदल सकते हैं। अपने शहर के विश्वसनीय पंचांग से पुष्टि करें।",
+        "वीडियो उपयोगी लगे तो इसे साझा करें और ऐसे ही स्रोत-आधारित हिंदी सांस्कृतिक वीडियो के लिए चैनल को सब्सक्राइब करें।",
+        f"मुख्य खोजशब्द: {', '.join(keywords[:12])}",
+        f"स्रोत और आगे पढ़ें:\n{source_lines}" if source_lines else "",
+        " ".join(f"#{tag}" for tag in hashtags),
+    ]
+    return "\n\n".join(part for part in description_parts if part)[:5000]
+
+
+def _video_title(topic, date, headline):
+    title = " ".join(str(headline).split())
+    year_match = re.search(r"\b(?:19|20)\d{2}\b", date or "")
+    year = year_match.group(0) if year_match else ""
+    suffix_parts = [value for value in (topic, year) if value and value.casefold() not in title.casefold()]
+    suffix = " | " + " ".join(suffix_parts) if suffix_parts else ""
+    if len(title) + len(suffix) > 100 and year and year not in title:
+        suffix = f" | {year}"
+    if len(title) + len(suffix) > 100:
+        suffix = ""
+    title += suffix
+    return title[:100].rstrip()
+
+
+def _video_tags(topic, date, research):
+    year_match = re.search(r"\b(?:19|20)\d{2}\b", date or "")
+    year = year_match.group(0) if year_match else ""
+    candidates = [
+        topic,
+        f"{topic} {year}" if year else "",
+        f"{topic} date {year}" if year else "",
+        f"{topic} in Hindi",
+        "festival in India",
+        "Indian culture",
+        "हिंदी में त्योहार",
+        "भारतीय त्योहार",
+        *research.get("keywords", []),
+    ]
+    tags = []
+    seen = set()
+    used_chars = 0
+    for value in candidates:
+        tag = " ".join(str(value).split()).strip(" ,")
+        key = tag.casefold()
+        if not tag or key in seen or len(tags) >= 20:
+            continue
+        separator_chars = 1 if tags else 0
+        if used_chars + separator_chars + len(tag) > 500:
+            continue
+        tags.append(tag)
+        seen.add(key)
+        used_chars += separator_chars + len(tag)
+    return tags
 
 
 def _research_mode(grounded):
@@ -363,15 +436,16 @@ def generate_video(
         render.thumbnail(
             thumbnail_art,
             research["thumbnail_text"],
-            "पर्व विशेष",
+            _thumbnail_badge(research),
             f"भारत | {date or 'जानकारी'}",
             thumb_path,
         )
 
     description = _make_description(topic, date, scope, research, grounded["sources"])
-    keywords = [str(keyword) for keyword in research.get("keywords", []) if str(keyword).strip()]
+    keywords = _video_tags(topic, date, research)
+    video_title = _video_title(topic, date, research["headline"])
     metadata = {
-        "title": research["headline"],
+        "title": video_title,
         "description": description,
         "tags": keywords[:20],
         "topic": topic,

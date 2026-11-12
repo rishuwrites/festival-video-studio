@@ -11,6 +11,8 @@ Create original Hindi festival explainers with research notes, original illustra
 - Generates an original 9–12 chapter Hindi script from Gemini-grounded research; no source-video captions are collected.
 - Verifies the synthesized narration lasts at least six minutes before rendering.
 - Produces an MP4, a 1280×720 thumbnail with a prominent topic-specific Hindi headline, metadata JSON, and a research JSON report.
+- Uses a bold Devanagari font with Pillow RAQM shaping for thumbnails; rendering stops with a clear error if correct Hindi shaping is unavailable.
+- Builds searchable, source-aware video titles, descriptions, Hindi/English tags, chapter summaries, and relevant hashtags without exceeding YouTube metadata limits.
 - Generates a new composed illustration for at least every five seconds of narration, with slow pan/zoom, animated voice waveform, word-highlighted captions, and a moving progress line.
 - Can schedule a video for **public release on YouTube**; YouTube holds future-scheduled uploads privately until the publish time.
 
@@ -44,6 +46,8 @@ To enable the daily trigger:
 4. Ensure the repository has `GEMINI_API_KEY`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` Actions secrets. The YouTube refresh token needs `youtube.upload` and `youtube.readonly` scopes.
 
 The workflow receives the festival date, its calendar topic, and researched source notes, writes the script, renders a video and thumbnail, and uploads it with a 09:00 IST `publishAt` two days before the observance. The thumbnail displays Gemini's short Hindi thumbnail headline in a high-contrast, outlined panel; the generated artwork is prompted to leave negative space for that text. YouTube requires a scheduled video to be uploaded as private; YouTube automatically changes it to public at the scheduled time. Configure the channel's default upload settings and audience/restrictions in YouTube Studio as needed.
+
+Video metadata includes the festival/topic and supported year in the title when they fit naturally, a Hindi description with the summary, chapters, regional caveats, search phrases, and cited source links, plus deduplicated Hindi and English tags and a small set of hashtags. Channel-wide description and keywords are separate from per-video tags. To set them once, run **Update YouTube channel branding** from the Actions tab with the proposed description/keywords and check **confirm**. The workflow preserves existing channel branding fields while updating only the description and keywords. Its OAuth refresh token must include `https://www.googleapis.com/auth/youtube.force-ssl`; if the current token lacks this scope, reauthorize YouTube OAuth and replace `YT_REFRESH_TOKEN` before running the action.
 
 ## GitHub Actions
 

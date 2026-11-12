@@ -103,6 +103,56 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         self.assertNotIn("gemini-2.5-flash", models)
         self.assertNotIn("gemini-3.8-flash-lite-tts", models)
 
+class VideoMetadataTests(unittest.TestCase):
+    def test_thumbnail_badge_uses_the_subject_in_the_hindi_headline(self):
+        self.assertEqual(
+            festival_main._thumbnail_badge({
+                "headline": "छठ पूजा 2026: तिथि और अर्घ्य की जानकारी",
+            }),
+            "छठ पूजा",
+        )
+
+    def test_seo_title_includes_topic_and_year_when_space_allows(self):
+        title = festival_main._video_title(
+            "Chhath Puja", "2026-11-15", "छठ पूजा कब है? तिथि और अर्घ्य की जानकारी",
+        )
+
+        self.assertIn("Chhath Puja", title)
+        self.assertIn("2026", title)
+        self.assertLessEqual(len(title), 100)
+
+    def test_video_tags_prioritize_exact_topic_and_stay_within_youtube_limits(self):
+        tags = festival_main._video_tags("Chhath Puja", "2026-11-15", {
+            "keywords": ["छठ पूजा", "Chhath Puja", "छठ पूजा"],
+        })
+
+        self.assertEqual(tags[0], "Chhath Puja")
+        self.assertIn("Chhath Puja 2026", tags)
+        self.assertLessEqual(len(tags), 20)
+        self.assertLessEqual(sum(map(len, tags)) + len(tags) - 1, 500)
+        self.assertEqual(len({tag.casefold() for tag in tags}), len(tags))
+
+    def test_description_includes_chapters_sources_search_terms_and_hashtags(self):
+        research = {
+            "headline": "छठ पूजा 2026: तिथि और परंपराएँ",
+            "research_summary": "छठ पूजा की परंपराओं का स्रोत-आधारित परिचय।",
+            "keywords": ["Chhath Puja 2026", "छठ पूजा की तिथि"],
+            "scenes": [{"title": "संध्या अर्घ्य"}, {"title": "उषा अर्घ्य"}],
+        }
+        description = festival_main._make_description(
+            "Chhath Puja", "2026-11-15", "भारत", research, [
+                {"title": "Calendar source", "url": "https://example.org/calendar"},
+            ],
+        )
+
+        self.assertIn("संध्या अर्घ्य", description)
+        self.assertIn("https://example.org/calendar", description)
+        self.assertIn("Chhath Puja 2026", description)
+        self.assertIn("#ChhathPuja", description)
+        self.assertLessEqual(len(description), 5000)
+
+
+class GroundedFestivalResearchTests(unittest.TestCase):
     def test_stops_model_fallback_for_project_billing_denial(self):
         response = mock.Mock(status_code=403)
         response.json.return_value = {
