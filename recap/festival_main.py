@@ -9,6 +9,7 @@ import tempfile
 from urllib.parse import urlparse
 
 import config as S
+import facebook_upload
 import gemini
 import images
 import render
@@ -278,11 +279,11 @@ def _shot_prompt(scene, shot_index, shot_count):
 
 def generate_video(
     topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None,
-    publish_date="", publish_time="", upload=False,
+    publish_date="", publish_time="", upload=False, facebook_upload_enabled=False,
 ):
     if not topic.strip():
         raise ValueError("A festival topic is required")
-    if upload:
+    if upload or facebook_upload_enabled:
         scheduled_datetime(publish_date, publish_time)
     scope = scope.strip() or S.DEFAULT_SCOPE
     grounded = _research_with_gemini(topic.strip(), date.strip(), scope)
@@ -462,6 +463,7 @@ def generate_video(
         "video": os.path.basename(video_path),
         "thumbnail": os.path.basename(thumb_path),
         "upload_status": "not_uploaded_review_required",
+        "facebook_status": "not_uploaded_review_required",
     }
     with open(metadata_path, "w", encoding="utf-8") as file:
         json.dump(metadata, file, ensure_ascii=False, indent=2)
@@ -483,17 +485,41 @@ def generate_video(
         with open(metadata_path, "w", encoding="utf-8") as file:
             json.dump(metadata, file, ensure_ascii=False, indent=2)
         print(f"  YouTube scheduled: {youtube_result['url']} at {youtube_result['publish_at_ist']}")
+    if facebook_upload_enabled:
+        print(f"  scheduling Facebook Page video for {publish_date} {publish_time} IST")
+        facebook_result = facebook_upload.upload_scheduled(
+            video_path,
+            video_title,
+            description,
+            publish_date,
+            publish_time,
+        )
+        metadata.update({
+            "facebook_status": facebook_result["status"],
+            "facebook_video_id": facebook_result["video_id"],
+            "facebook_url": facebook_result["url"],
+            "facebook_publish_at_ist": facebook_result["publish_at_ist"],
+        })
+        with open(metadata_path, "w", encoding="utf-8") as file:
+            json.dump(metadata, file, ensure_ascii=False, indent=2)
+        print(
+            f"  Facebook Page video scheduled: {facebook_result['url']} "
+            f"at {facebook_result['publish_at_ist']}"
+        )
 
     print(f"  rendered preview: {video_path}")
     print(f"  research report: {research_path}")
     if not upload:
         print("  YouTube upload is disabled; review the claims, dates, source links, and local timings")
+    if not facebook_upload_enabled:
+        print("  Facebook upload is disabled")
     return {
         "video": video_path,
         "thumbnail": thumb_path,
         "metadata": metadata_path,
         "research": research_path,
         "youtube": metadata.get("youtube_url", ""),
+        "facebook": metadata.get("facebook_url", ""),
     }
 
 
@@ -517,13 +543,19 @@ def main():
         default=os.getenv("YOUTUBE_UPLOAD", "").strip().lower() in ("1", "true", "yes", "on"),
         help="Upload as a private video scheduled for the selected date and time",
     )
+    parser.add_argument(
+        "--facebook-upload",
+        action="store_true",
+        default=os.getenv("FACEBOOK_UPLOAD", "").strip().lower() in ("1", "true", "yes", "on"),
+        help="Upload to the configured Facebook Page for the selected publish date and time",
+    )
     args = parser.parse_args()
     if not args.topic.strip():
         parser.error("--topic or FESTIVAL_TOPIC is required")
     try:
         generate_video(
             args.topic, args.date, args.scope, args.output_dir or None,
-            args.publish_date, args.publish_time, args.upload,
+            args.publish_date, args.publish_time, args.upload, args.facebook_upload,
         )
     except Exception as exc:
         raise SystemExit(f"Festival video generation failed: {type(exc).__name__}: {exc}") from exc

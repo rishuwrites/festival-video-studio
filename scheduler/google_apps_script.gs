@@ -108,7 +108,8 @@ function dispatchTodaysFestivalVideo() {
         sources: sources,
         search_queries: entry.search_queries || []
       }),
-      upload: "true"
+      upload: "true",
+      facebook_upload: "true"
     });
 
     properties.setProperty(dispatchKey, result);

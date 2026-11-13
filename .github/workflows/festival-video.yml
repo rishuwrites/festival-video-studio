@@ -33,7 +33,12 @@ on:
         required: false
         default: ""
       upload:
-        description: Upload and schedule the video for public release
+        description: Upload and schedule the video for public release on YouTube
+        type: boolean
+        required: true
+        default: false
+      facebook_upload:
+        description: Upload and schedule the video for public release on the configured Facebook Page
         type: boolean
         required: true
         default: false
@@ -58,12 +63,18 @@ jobs:
       FESTIVAL_PUBLISH_TIME: ${{ inputs.publish_time }}
       FESTIVAL_RESEARCH_CONTEXT: ${{ inputs.research_context }}
       YOUTUBE_UPLOAD: ${{ inputs.upload }}
+      FACEBOOK_UPLOAD: ${{ inputs.facebook_upload }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_API_KEY1: ${{ secrets.GEMINI_API_KEY1 }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
       YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
       YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
       YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID || vars.FACEBOOK_PAGE_ID }}
+      FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN }}
+      META_APP_ID: ${{ vars.META_APP_ID }}
+      META_USER_ACCESS_TOKEN: ${{ secrets.META_USER_ACCESS_TOKEN }}
+      META_GRAPH_API_VERSION: ${{ vars.META_GRAPH_API_VERSION || 'v27.0' }}
       HF_FLUX_SPACE: ${{ vars.HF_FLUX_SPACE || 'https://black-forest-labs-flux-1-schnell.hf.space' }}
       POLLINATIONS_TOKEN: ${{ secrets.POLLINATIONS_TOKEN }}
     steps:

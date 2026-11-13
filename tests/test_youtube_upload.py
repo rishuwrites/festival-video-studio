@@ -187,6 +187,18 @@ class ScheduledUploadTests(unittest.TestCase):
 
         research.assert_not_called()
 
+    def test_invalid_facebook_schedule_is_rejected_before_research_or_rendering(self):
+        with mock.patch.object(festival_main, "_research_with_gemini") as research:
+            with self.assertRaisesRegex(ValueError, "15 minutes"):
+                festival_main.generate_video(
+                    "Festival",
+                    publish_date="2020-01-01",
+                    publish_time="00:00",
+                    facebook_upload_enabled=True,
+                )
+
+        research.assert_not_called()
+
     def test_reports_oauth_scope_issue_without_disclosing_token(self):
         response = mock.Mock(status_code=403)
         response.json.return_value = {"error": {"errors": [{"reason": "insufficientPermissions"}]}}
