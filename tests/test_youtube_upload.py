@@ -74,12 +74,16 @@ class ScheduledUploadTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as folder:
             video_path, metadata_path = self.make_inputs(folder)
+            thumbnail_path = str(Path(folder) / "thumbnail.jpg")
+            Path(thumbnail_path).write_bytes(b"jpeg")
             with mock.patch.object(youtube_upload, "oauth_access_token", return_value="token"), \
                     mock.patch.object(youtube_upload, "_existing_upload", return_value=None), \
                     mock.patch.object(youtube_upload.requests, "post", return_value=initiated) as post, \
-                    mock.patch.object(youtube_upload.requests, "put", return_value=uploaded) as put:
+                    mock.patch.object(youtube_upload.requests, "put", return_value=uploaded) as put, \
+                    mock.patch.object(youtube_upload, "_set_video_thumbnail") as set_thumbnail:
                 result = youtube_upload.upload_scheduled(
                     video_path, metadata_path, publish_date, publish_time,
+                    thumbnail_path=thumbnail_path,
                 )
 
         self.assertEqual(result["video_id"], "video123")
@@ -91,6 +95,33 @@ class ScheduledUploadTests(unittest.TestCase):
         self.assertTrue(payload["status"]["publishAt"].endswith("+05:30"))
         self.assertEqual(put.call_args.kwargs["headers"]["Content-Range"], "bytes 0-18/19")
         self.assertEqual(put.call_args.args[0], initiated.headers["Location"])
+        set_thumbnail.assert_called_once_with("token", "video123", thumbnail_path)
+
+    def test_sets_existing_video_thumbnail_with_oauth(self):
+        response = mock.Mock(status_code=200)
+        with tempfile.TemporaryDirectory() as folder:
+            thumbnail_path = str(Path(folder) / "thumbnail.jpg")
+            Path(thumbnail_path).write_bytes(b"jpeg")
+            with mock.patch.object(youtube_upload, "oauth_access_token", return_value="token"), \
+                    mock.patch.object(youtube_upload.requests, "post", return_value=response) as post:
+                youtube_upload.set_video_thumbnail("video123", thumbnail_path)
+
+        self.assertEqual(post.call_args.args[0], youtube_upload.THUMBNAIL_UPLOAD_URL)
+        self.assertEqual(post.call_args.kwargs["params"], {"videoId": "video123"})
+        self.assertEqual(post.call_args.kwargs["headers"]["Content-Type"], "image/jpeg")
+
+    def test_rejects_missing_thumbnail_before_uploading_video(self):
+        publish_date, publish_time = future_schedule()
+        with tempfile.TemporaryDirectory() as folder:
+            video_path, metadata_path = self.make_inputs(folder)
+            with mock.patch.object(youtube_upload, "oauth_access_token") as oauth:
+                with self.assertRaisesRegex(FileNotFoundError, "Thumbnail file"):
+                    youtube_upload.upload_scheduled(
+                        video_path, metadata_path, publish_date, publish_time,
+                        thumbnail_path=str(Path(folder) / "missing.jpg"),
+                    )
+
+        oauth.assert_not_called()
 
     def test_normalizes_tags_before_sending_youtube_metadata(self):
         publish_date, publish_time = future_schedule()

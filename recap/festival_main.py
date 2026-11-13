@@ -457,7 +457,10 @@ def generate_video(
         if not publish_date or not publish_time:
             raise ValueError("Scheduled upload requires a publish date and time in IST")
         print(f"  scheduling YouTube upload for {publish_date} {publish_time} IST")
-        youtube_result = upload_scheduled(video_path, metadata_path, publish_date, publish_time)
+        youtube_result = upload_scheduled(
+            video_path, metadata_path, publish_date, publish_time,
+            thumbnail_path=thumb_path,
+        )
         metadata.update({
             "upload_status": youtube_result["status"],
             "youtube_video_id": youtube_result["video_id"],

@@ -12,6 +12,7 @@ from festival_sources import oauth_access_token
 
 YOUTUBE_API = "https://www.googleapis.com/youtube/v3"
 UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos"
+THUMBNAIL_UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/thumbnails/set"
 TIMEZONE = ZoneInfo("Asia/Kolkata")
 CHUNK_SIZE = 8 * 1024 * 1024
 MAX_TAG_LENGTH = 30
@@ -189,9 +190,41 @@ def _upload_chunks(upload_url, access_token, video_path):
     raise RuntimeError("YouTube ended the upload without returning a video ID")
 
 
-def upload_scheduled(video_path, metadata_path, publish_date, publish_time, now=None):
+def _set_video_thumbnail(access_token, video_id, thumbnail_path):
+    if not os.path.isfile(thumbnail_path):
+        raise FileNotFoundError(f"Thumbnail file does not exist: {thumbnail_path}")
+    try:
+        with open(thumbnail_path, "rb") as thumbnail:
+            response = requests.post(
+                THUMBNAIL_UPLOAD_URL,
+                params={"videoId": video_id},
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "image/jpeg",
+                },
+                data=thumbnail,
+                timeout=120,
+            )
+    except requests.RequestException as exc:
+        raise RuntimeError(
+            f"YouTube thumbnail upload failed for video {video_id}: {type(exc).__name__}"
+        ) from exc
+    _check_response(response, "thumbnail upload")
+
+
+def set_video_thumbnail(video_id, thumbnail_path):
+    if not video_id:
+        raise ValueError("YouTube video ID is required to set a thumbnail")
+    _set_video_thumbnail(oauth_access_token(), video_id, thumbnail_path)
+
+
+def upload_scheduled(
+    video_path, metadata_path, publish_date, publish_time, now=None, thumbnail_path=None,
+):
     if not os.path.isfile(video_path):
         raise FileNotFoundError(f"Generated video file does not exist: {video_path}")
+    if thumbnail_path and not os.path.isfile(thumbnail_path):
+        raise FileNotFoundError(f"Thumbnail file does not exist: {thumbnail_path}")
     publish_at = scheduled_datetime(publish_date, publish_time, now=now)
     with open(metadata_path, "r", encoding="utf-8") as file:
         details = json.load(file)
@@ -233,6 +266,8 @@ def upload_scheduled(video_path, metadata_path, publish_date, publish_time, now=
     video_id = result.get("id")
     if not video_id:
         raise RuntimeError("YouTube accepted the upload but returned no video ID; verify YouTube Studio")
+    if thumbnail_path:
+        _set_video_thumbnail(access_token, video_id, thumbnail_path)
     return {
         "video_id": video_id,
         "url": f"https://www.youtube.com/watch?v={video_id}",

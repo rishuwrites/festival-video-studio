@@ -1,0 +1,37 @@
+name: Update scheduled video thumbnail
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_id:
+        description: YouTube video ID to update
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  update-thumbnail:
+    runs-on: ubuntu-24.04
+    env:
+      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install upload dependency
+        run: python -m pip install requests
+
+      - name: Set custom thumbnail
+        env:
+          VIDEO_ID: ${{ inputs.video_id }}
+        run: >-
+          python recap/set_video_thumbnail.py
+          --video-id "$VIDEO_ID"
+          --thumbnail data/chhath-puja-usha-arghya-2026-thumbnail.jpg
