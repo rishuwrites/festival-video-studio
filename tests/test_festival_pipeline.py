@@ -132,6 +132,16 @@ class VideoMetadataTests(unittest.TestCase):
         self.assertLessEqual(sum(map(len, tags)) + len(tags) - 1, 500)
         self.assertEqual(len({tag.casefold() for tag in tags}), len(tags))
 
+    def test_video_tags_trim_long_topics_to_youtube_tag_limits(self):
+        tags = festival_main._video_tags(
+            "Chhath Puja Usha Arghya: the morning offering and conclusion",
+            "2026-11-16",
+            {"keywords": ["Usha Arghya, the morning offering"]},
+        )
+
+        self.assertEqual(tags[0], "Chhath Puja Usha Arghya")
+        self.assertTrue(all(len(tag) <= 30 and "," not in tag for tag in tags))
+
     def test_description_includes_chapters_sources_search_terms_and_hashtags(self):
         research = {
             "headline": "छठ पूजा 2026: तिथि और परंपराएँ",

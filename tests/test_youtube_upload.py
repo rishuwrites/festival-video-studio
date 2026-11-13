@@ -92,6 +92,34 @@ class ScheduledUploadTests(unittest.TestCase):
         self.assertEqual(put.call_args.kwargs["headers"]["Content-Range"], "bytes 0-18/19")
         self.assertEqual(put.call_args.args[0], initiated.headers["Location"])
 
+    def test_normalizes_tags_before_sending_youtube_metadata(self):
+        publish_date, publish_time = future_schedule()
+        initiated = mock.Mock(status_code=200)
+        initiated.headers = {"Location": "https://www.googleapis.com/upload/youtube/v3/videos?upload_id=test"}
+        uploaded = mock.Mock(status_code=201)
+        uploaded.json.return_value = {"id": "video123"}
+
+        with tempfile.TemporaryDirectory() as folder:
+            video_path, metadata_path = self.make_inputs(folder)
+            metadata = json.loads(Path(metadata_path).read_text(encoding="utf-8"))
+            metadata["tags"] = [
+                "Chhath Puja Usha Arghya: the morning offering and conclusion",
+                "a tag, with commas",
+                "a tag, with commas",
+            ]
+            Path(metadata_path).write_text(json.dumps(metadata), encoding="utf-8")
+            with mock.patch.object(youtube_upload, "oauth_access_token", return_value="token"), \
+                    mock.patch.object(youtube_upload, "_existing_upload", return_value=None), \
+                    mock.patch.object(youtube_upload.requests, "post", return_value=initiated) as post, \
+                    mock.patch.object(youtube_upload.requests, "put", return_value=uploaded):
+                youtube_upload.upload_scheduled(
+                    video_path, metadata_path, publish_date, publish_time,
+                )
+
+        tags = post.call_args.kwargs["json"]["snippet"]["tags"]
+        self.assertEqual(tags, ["Chhath Puja Usha Arghya", "a tag with commas"])
+        self.assertTrue(all(len(tag) <= 30 and "," not in tag for tag in tags))
+
     def test_prevents_upload_when_same_title_already_exists(self):
         publish_date, publish_time = future_schedule()
         with tempfile.TemporaryDirectory() as folder:

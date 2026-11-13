@@ -14,7 +14,7 @@ import images
 import render
 import voice
 import web_search
-from youtube_upload import scheduled_datetime, upload_scheduled
+from youtube_upload import normalize_youtube_tags, scheduled_datetime, upload_scheduled
 
 
 FESTIVAL_STYLE = (
@@ -200,21 +200,7 @@ def _video_tags(topic, date, research):
         "भारतीय त्योहार",
         *research.get("keywords", []),
     ]
-    tags = []
-    seen = set()
-    used_chars = 0
-    for value in candidates:
-        tag = " ".join(str(value).split()).strip(" ,")
-        key = tag.casefold()
-        if not tag or key in seen or len(tags) >= 20:
-            continue
-        separator_chars = 1 if tags else 0
-        if used_chars + separator_chars + len(tag) > 500:
-            continue
-        tags.append(tag)
-        seen.add(key)
-        used_chars += separator_chars + len(tag)
-    return tags
+    return normalize_youtube_tags(candidates)
 
 
 def _research_mode(grounded):

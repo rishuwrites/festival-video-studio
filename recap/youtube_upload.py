@@ -14,6 +14,9 @@ YOUTUBE_API = "https://www.googleapis.com/youtube/v3"
 UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos"
 TIMEZONE = ZoneInfo("Asia/Kolkata")
 CHUNK_SIZE = 8 * 1024 * 1024
+MAX_TAG_LENGTH = 30
+MAX_TAG_COUNT = 20
+MAX_TAG_TOTAL_LENGTH = 500
 
 
 def scheduled_datetime(publish_date, publish_time, now=None):
@@ -33,6 +36,35 @@ def scheduled_datetime(publish_date, publish_time, now=None):
     if local_time <= current + dt.timedelta(minutes=15):
         raise ValueError("Scheduled publish time must be at least 15 minutes in the future (IST)")
     return local_time
+
+
+def normalize_youtube_tags(values):
+    tags = []
+    seen = set()
+    total_length = 0
+    for value in values:
+        tag = " ".join(str(value).replace(",", " ").split()).strip(" ,")
+        if len(tag) > MAX_TAG_LENGTH:
+            if ":" in tag:
+                tag = tag.split(":", 1)[0].strip()
+        if len(tag) > MAX_TAG_LENGTH:
+            shortened = []
+            for word in tag.split():
+                candidate = " ".join((*shortened, word))
+                if len(candidate) > MAX_TAG_LENGTH:
+                    break
+                shortened.append(word)
+            tag = " ".join(shortened) or tag[:MAX_TAG_LENGTH]
+        tag = tag.rstrip(" ,:-")
+        key = tag.casefold()
+        separator_length = 1 if tags else 0
+        if (not tag or key in seen or len(tags) >= MAX_TAG_COUNT
+                or total_length + separator_length + len(tag) > MAX_TAG_TOTAL_LENGTH):
+            continue
+        tags.append(tag)
+        seen.add(key)
+        total_length += separator_length + len(tag)
+    return tags
 
 
 def _check_response(response, operation):
@@ -165,16 +197,13 @@ def upload_scheduled(video_path, metadata_path, publish_date, publish_time, now=
         details = json.load(file)
     title = str(details.get("title", "")).strip()
     description = str(details.get("description", "")).strip()
-    tags = [str(tag) for tag in details.get("tags", []) if str(tag).strip()]
+    tags = normalize_youtube_tags(details.get("tags", []))
     if not title or not description:
         raise ValueError("Video metadata must include a title and description before upload")
     if len(title) > 100:
         raise ValueError("YouTube video title must be 100 characters or fewer")
     if len(description) > 5000:
         raise ValueError("YouTube video description must be 5,000 characters or fewer")
-    if sum(len(tag) for tag in tags) > 500:
-        raise ValueError("YouTube video tags must not exceed 500 characters total")
-
     access_token = oauth_access_token()
     existing_id = _existing_upload(access_token, title)
     if existing_id:
