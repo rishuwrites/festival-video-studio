@@ -128,6 +128,18 @@ def _thumbnail_badge(research):
     return " ".join(words[:2]) or "पूरी जानकारी"
 
 
+def _thumbnail_date_label(date):
+    month_names = (
+        "जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून",
+        "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर",
+    )
+    try:
+        parsed = dt.date.fromisoformat(date)
+    except (TypeError, ValueError):
+        return f"भारत | {date or 'पर्व विशेष'}"
+    return f"{parsed.day} {month_names[parsed.month - 1]} {parsed.year}"
+
+
 def _safe_slug(text):
     slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
     if not slug:
@@ -410,11 +422,12 @@ def generate_video(
         render.concat(files, tmp, video_path, music, offset, emotion=primary_emotion)
 
         thumbnail_prompt = (
-            f"Create an original 16:9 YouTube explainer thumbnail illustration about {topic}. "
+            f"Create an original 16:9 YouTube thumbnail illustration about {topic}. "
             f"Scene inspiration: {scenes[0]['visual_prompt']}. "
-            "Culturally respectful Indian festival imagery, one expressive focal subject placed on the right, "
-            "bright cinematic lighting, uncluttered darker negative space on the left for a large Hindi headline. "
-            "Do not draw text, letters, logos, or a watermark."
+            "Show a vivid, culturally respectful Indian festival moment with expressive people and meaningful "
+            "ritual objects on the right half, warm golden-hour light, rich colors, and realistic editorial detail. "
+            "Keep the left half visually simple with darker open space for large overlay text. "
+            "The image itself must contain absolutely no text, letters, writing, signs, logos, or watermark."
         )
         thumbnail_art = os.path.join(tmp, "thumbnail_art.jpg")
         if not images.generate_thumbnail(thumbnail_prompt, seed + 1001, thumbnail_art, style=FESTIVAL_STYLE):
@@ -423,7 +436,7 @@ def generate_video(
             thumbnail_art,
             research["thumbnail_text"],
             _thumbnail_badge(research),
-            f"भारत | {date or 'जानकारी'}",
+            _thumbnail_date_label(date),
             thumb_path,
         )
 

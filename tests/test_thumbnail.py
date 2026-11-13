@@ -33,6 +33,20 @@ class ThumbnailRenderingTests(unittest.TestCase):
             with Image.open(first) as one, Image.open(second) as two:
                 self.assertIsNotNone(ImageChops.difference(one, two).getbbox())
 
+    def test_festival_name_is_prominent_in_the_thumbnail(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / "art.jpg"
+            festival = Path(folder) / "festival.jpg"
+            alternate = Path(folder) / "alternate.jpg"
+            Image.new("RGB", (1600, 900), (110, 75, 35)).save(source)
+
+            with mock.patch.object(render, "font", side_effect=lambda size: ImageFont.truetype(render._fp(), size)):
+                render.thumbnail(str(source), "उषा अर्घ्य 2026", "छठ पूजा", "16 नवंबर 2026", str(festival))
+                render.thumbnail(str(source), "उषा अर्घ्य 2026", "दिवाली", "16 नवंबर 2026", str(alternate))
+
+            with Image.open(festival) as one, Image.open(alternate) as two:
+                self.assertIsNotNone(ImageChops.difference(one, two).getbbox())
+
     def test_font_requires_raqm_for_correct_devanagari_shaping(self):
         render.font.cache_clear()
         with mock.patch.object(render.features, "check", return_value=False):

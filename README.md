@@ -10,7 +10,7 @@ Create original Hindi festival explainers with research notes, original illustra
 - Requires at least two grounded web citations and records all source links in a research report.
 - Generates an original 9–12 chapter Hindi script from Gemini-grounded research; no source-video captions are collected.
 - Verifies the synthesized narration lasts at least six minutes before rendering.
-- Produces an MP4, a 1280×720 thumbnail with a prominent topic-specific Hindi headline, metadata JSON, and a research JSON report.
+- Produces an MP4, a 1280×720 thumbnail with a prominent Hindi festival name, high-contrast outlined headline, contextual art on the right, and a date badge, plus metadata JSON and a research JSON report.
 - Uses a bold Devanagari font with Pillow RAQM shaping for thumbnails; rendering stops with a clear error if correct Hindi shaping is unavailable.
 - Builds searchable, source-aware video titles, descriptions, Hindi/English tags, chapter summaries, and relevant hashtags without exceeding YouTube metadata limits.
 - Generates a new composed illustration for at least every five seconds of narration, with slow pan/zoom, animated voice waveform, word-highlighted captions, and a moving progress line.

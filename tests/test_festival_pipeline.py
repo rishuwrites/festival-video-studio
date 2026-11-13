@@ -104,6 +104,12 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         self.assertNotIn("gemini-3.8-flash-lite-tts", models)
 
 class VideoMetadataTests(unittest.TestCase):
+    def test_thumbnail_date_uses_a_readable_hindi_month(self):
+        self.assertEqual(
+            festival_main._thumbnail_date_label("2026-11-16"),
+            "16 नवंबर 2026",
+        )
+
     def test_thumbnail_badge_uses_the_subject_in_the_hindi_headline(self):
         self.assertEqual(
             festival_main._thumbnail_badge({

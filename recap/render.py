@@ -1,5 +1,5 @@
 import functools, glob, math, os, random, subprocess
-from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance, features
+from PIL import Image, ImageDraw, ImageFont, ImageEnhance, features
 from latin import deva
 import config as S
 W, H, FPS = S.W, S.H, S.FPS
@@ -332,56 +332,70 @@ def thumbnail(img, hook, tag_text, bottom_text, out):
     im = ImageEnhance.Contrast(im).enhance(1.15)
     im = ImageEnhance.Sharpness(im).enhance(1.15).convert("RGBA")
 
-    shadow = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    shadow_draw = ImageDraw.Draw(shadow)
-    shadow_draw.rounded_rectangle((35, 356, 880, 682), 30, fill=(0, 0, 0, 185))
-    im = Image.alpha_composite(im, shadow.filter(ImageFilter.GaussianBlur(18)))
+    shade = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    shade_draw = ImageDraw.Draw(shade)
+    for x in range(900):
+        alpha = int(205 * (1 - x / 900) ** 1.3)
+        shade_draw.line((x, 0, x, height), fill=(7, 10, 18, alpha))
+    im = Image.alpha_composite(im, shade)
+    d = ImageDraw.Draw(im)
+    text_left, text_width = 54, 700
 
-    overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    d = ImageDraw.Draw(overlay)
-    d.rounded_rectangle(
-        (42, 350, 870, 670), 28,
-        fill=(10, 17, 29, 222), outline=(255, 190, 55, 235), width=3,
+    def fit_lines(text, max_size, min_size, max_lines, max_height):
+        for size in range(max_size, min_size - 1, -2):
+            text_font = font(size)
+            lines = wrap(d, text, text_font, text_width)
+            line_height = int(size * 1.2)
+            if (len(lines) <= max_lines and len(lines) * line_height <= max_height
+                    and all(d.textlength(line, font=text_font) <= text_width for line in lines)):
+                return text_font, lines, line_height
+        text_font = font(min_size)
+        lines = wrap(d, text, text_font, text_width)[:max_lines]
+        return text_font, lines, int(min_size * 1.2)
+
+    title_font, title_lines, title_line_height = fit_lines(
+        tag_text or "पर्व विशेष", 92, 56, 2, 174,
     )
-    d.rounded_rectangle((42, 350, 58, 670), 8, fill=(255, 180, 35, 255))
-
-    tag_font = font(36)
-    tag_width = int(d.textlength(tag_text, font=tag_font)) + 44
-    d.rounded_rectangle((58, 32, 58 + tag_width, 91), 18, fill=(190, 35, 24, 245))
-    d.text((80, 38), tag_text, font=tag_font, fill=(255, 255, 255))
-
-    date_font = font(30)
-    date_width = int(d.textlength(bottom_text, font=date_font)) + 38
-    date_left = width - date_width - 38
-    d.rounded_rectangle(
-        (date_left, 34, width - 38, 88), 16, fill=(10, 17, 29, 218),
-        outline=(255, 255, 255, 190), width=2,
-    )
-    d.text((date_left + 19, 42), bottom_text, font=date_font, fill=(255, 255, 255))
-
-    text_left, text_width = 88, 738
-    headline_font = font(58)
-    lines = [hook]
-    for size in range(90, 42, -4):
-        headline_font = font(size)
-        lines = wrap(d, hook, headline_font, text_width)
-        if len(lines) <= 2 and all(
-            d.textlength(line, font=headline_font) <= text_width for line in lines
-        ):
-            break
-    line_height = size + 22
-    total_height = len(lines) * line_height
-    y = 510 - total_height // 2
-    for line in lines:
+    y = 62
+    for line in title_lines:
         d.text(
-            (text_left + 3, y + 5), line, font=headline_font,
-            fill=(0, 0, 0, 240), stroke_width=5, stroke_fill=(0, 0, 0, 240),
+            (text_left + 4, y + 6), line, font=title_font, fill=(0, 0, 0),
+            stroke_width=7, stroke_fill=(0, 0, 0),
         )
         d.text(
-            (text_left, y), line, font=headline_font, fill=(255, 242, 205),
-            stroke_width=2, stroke_fill=(18, 22, 32, 255),
+            (text_left, y), line, font=title_font, fill=(255, 220, 0),
+            stroke_width=4, stroke_fill=(12, 12, 12),
         )
-        y += line_height
+        y += title_line_height
 
-    im = Image.alpha_composite(im, overlay)
+    rule_y = y + 8
+    d.rounded_rectangle((text_left, rule_y, text_left + 150, rule_y + 8), 4, fill=(255, 205, 0))
+    hook_y = rule_y + 30
+    footer_y = 620
+    hook_font, hook_lines, hook_line_height = fit_lines(
+        hook, 78, 46, 3, footer_y - hook_y - 14,
+    )
+    for index, line in enumerate(hook_lines):
+        d.text(
+            (text_left + 4, hook_y + 6), line, font=hook_font, fill=(0, 0, 0),
+            stroke_width=7, stroke_fill=(0, 0, 0),
+        )
+        d.text(
+            (text_left, hook_y), line, font=hook_font,
+            fill=(255, 220, 0) if index % 2 else (255, 255, 255),
+            stroke_width=4, stroke_fill=(12, 12, 12),
+        )
+        hook_y += hook_line_height
+
+    date_font, date_lines, _ = fit_lines(bottom_text, 34, 24, 1, 52)
+    date_width = int(d.textlength(date_lines[0], font=date_font)) + 46
+    d.rounded_rectangle(
+        (text_left - 6, footer_y, text_left + date_width, footer_y + 58),
+        18, fill=(30, 23, 8, 238), outline=(255, 255, 255, 235), width=3,
+    )
+    d.text(
+        (text_left + 17, footer_y + 8), date_lines[0], font=date_font,
+        fill=(255, 225, 0), stroke_width=1, stroke_fill=(0, 0, 0),
+    )
+
     im.convert("RGB").save(out, quality=92)
