@@ -1,14 +1,12 @@
 import datetime as dt
 import os
 import re
-import time
 
 import requests
 
 from youtube_upload import scheduled_datetime
 
 
-GRAPH_API = "https://graph.facebook.com"
 VIDEO_GRAPH_API = "https://graph-video.facebook.com"
 GRAPH_API_VERSION = os.getenv("META_GRAPH_API_VERSION") or "v27.0"
 
@@ -49,76 +47,9 @@ def _response_body(response, secrets, operation, *, uncertain_on_server_error=Fa
     return payload
 
 
-def _get_offset(session_id, user_token, version):
-    response = requests.get(
-        f"{GRAPH_API}/{version}/{session_id}",
-        headers={"Authorization": f"OAuth {user_token}"},
-        timeout=(15, 60),
-    )
-    payload = _response_body(response, (user_token,), "upload status lookup")
-    try:
-        offset = int(payload["file_offset"])
-    except (KeyError, TypeError, ValueError) as exc:
-        raise FacebookPublishError("Facebook upload status omitted a valid file offset") from exc
-    return offset
-
-
-def _upload_file(session_id, video_path, user_token, version, size):
-    offset = 0
-    for attempt in range(4):
-        try:
-            with open(video_path, "rb") as video:
-                video.seek(offset)
-                response = requests.post(
-                    f"{GRAPH_API}/{version}/{session_id}",
-                    headers={
-                        "Authorization": f"OAuth {user_token}",
-                        "file_offset": str(offset),
-                        "Content-Type": "application/octet-stream",
-                    },
-                    data=video,
-                    timeout=(30, 1800),
-                )
-            payload = _response_body(response, (user_token,), "file upload")
-            handle = payload.get("h")
-            if not isinstance(handle, str) or not handle:
-                raise FacebookPublishError("Facebook upload completed without a video handle")
-            return handle
-        except (FacebookPublishError, requests.Timeout, requests.ConnectionError) as exc:
-            if isinstance(exc, FacebookPublishError) and exc.args and "HTTP " in exc.args[0]:
-                match = re.search(r"\(HTTP (\d+)\)", exc.args[0])
-                if match and int(match.group(1)) not in (408, 429) and int(match.group(1)) < 500:
-                    raise
-            try:
-                offset = _get_offset(session_id, user_token, version)
-            except (FacebookPublishError, requests.Timeout, requests.ConnectionError) as status_error:
-                if attempt == 3:
-                    raise FacebookPublishError(
-                        "Could not verify Facebook upload progress after a network error",
-                        uncertain=True,
-                    ) from status_error
-                time.sleep(2 ** attempt)
-                continue
-            if offset >= size:
-                raise FacebookPublishError(
-                    "Facebook received the full video but did not return its handle",
-                    uncertain=True,
-                ) from exc
-            if not 0 <= offset < size:
-                raise FacebookPublishError("Facebook returned an invalid upload offset") from exc
-            if attempt == 3:
-                raise FacebookPublishError(
-                    f"Facebook upload did not complete; verified offset {offset} of {size}",
-                ) from exc
-            time.sleep(2 ** attempt)
-    raise FacebookPublishError("Facebook resumable upload exhausted its retries")
-
-
 def upload_scheduled(video_path, title, description, publish_date, publish_time, now=None):
     page_id = os.getenv("FACEBOOK_PAGE_ID", "").strip()
     page_token = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN", "").strip()
-    app_id = os.getenv("META_APP_ID", "").strip()
-    user_token = os.getenv("META_USER_ACCESS_TOKEN", "").strip()
     version = os.getenv("META_GRAPH_API_VERSION") or GRAPH_API_VERSION
     if not re.fullmatch(r"v\d+\.\d+", version):
         raise ValueError("META_GRAPH_API_VERSION must use a version such as v27.0")
@@ -126,8 +57,6 @@ def upload_scheduled(video_path, title, description, publish_date, publish_time,
         name for name, value in (
             ("FACEBOOK_PAGE_ID", page_id),
             ("FACEBOOK_PAGE_ACCESS_TOKEN", page_token),
-            ("META_APP_ID", app_id),
-            ("META_USER_ACCESS_TOKEN", user_token),
         ) if not value
     ]
     if missing:
@@ -144,37 +73,92 @@ def upload_scheduled(video_path, title, description, publish_date, publish_time,
         raise ValueError("Facebook scheduled publish time must be within 180 days")
 
     size = os.path.getsize(video_path)
-    secrets = (page_token, user_token)
+    secrets = (page_token,)
+    endpoint = f"{VIDEO_GRAPH_API}/{version}/{page_id}/videos"
     try:
         response = requests.post(
-            f"{GRAPH_API}/{version}/{app_id}/uploads",
-            params={
-                "file_name": os.path.basename(video_path),
-                "file_length": str(size),
-                "file_type": "video/mp4",
-                "access_token": user_token,
+            endpoint,
+            data={
+                "upload_phase": "start",
+                "file_size": str(size),
+                "access_token": page_token,
             },
             timeout=(15, 60),
         )
     except requests.RequestException as exc:
         raise FacebookPublishError(
-            "Facebook upload-session creation failed; verify Page uploads before retrying",
+            "Facebook upload start failed; check the Page before retrying",
             uncertain=True,
         ) from exc
-    payload = _response_body(response, secrets, "upload-session creation")
-    session_id = payload.get("id")
-    if not isinstance(session_id, str) or not session_id.startswith("upload:"):
-        raise FacebookPublishError("Meta did not return a valid resumable upload session")
+    payload = _response_body(response, secrets, "upload start")
+    session_id = payload.get("upload_session_id")
+    video_id = payload.get("video_id")
+    if not isinstance(session_id, str) or not session_id or not video_id:
+        raise FacebookPublishError("Meta did not return a valid Page video upload session")
+    try:
+        start_offset = int(payload.get("start_offset", 0))
+        end_offset = int(payload.get("end_offset", size))
+    except (TypeError, ValueError) as exc:
+        raise FacebookPublishError("Facebook upload start returned invalid file offsets") from exc
+    if (
+        not 0 <= start_offset <= end_offset <= size
+        or (start_offset < size and start_offset == end_offset)
+    ):
+        raise FacebookPublishError("Facebook upload start returned invalid file offsets")
 
-    handle = _upload_file(session_id, video_path, user_token, version, size)
+    with open(video_path, "rb") as video:
+        while start_offset < end_offset:
+            video.seek(start_offset)
+            chunk = video.read(end_offset - start_offset)
+            if not chunk:
+                raise FacebookPublishError("Facebook upload could not read the next video chunk")
+            try:
+                response = requests.post(
+                    endpoint,
+                    data={
+                        "upload_phase": "transfer",
+                        "upload_session_id": session_id,
+                        "start_offset": str(start_offset),
+                        "access_token": page_token,
+                    },
+                    files={
+                        "video_file_chunk": (
+                            "chunk.mp4",
+                            chunk,
+                            "application/octet-stream",
+                        ),
+                    },
+                    timeout=(30, 1800),
+                )
+            except requests.RequestException as exc:
+                raise FacebookPublishError(
+                    "Facebook video chunk transfer failed; check the Page before retrying",
+                    uncertain=True,
+                ) from exc
+            payload = _response_body(response, secrets, "video chunk transfer")
+            try:
+                next_start_offset = int(payload.get("start_offset", size))
+                next_end_offset = int(payload.get("end_offset", size))
+            except (TypeError, ValueError) as exc:
+                raise FacebookPublishError(
+                    "Facebook chunk transfer returned invalid file offsets",
+                ) from exc
+            if (
+                not start_offset < next_start_offset <= next_end_offset <= size
+                or (next_start_offset < size and next_start_offset == next_end_offset)
+            ):
+                raise FacebookPublishError("Facebook chunk transfer returned invalid file offsets")
+            start_offset, end_offset = next_start_offset, next_end_offset
+
     try:
         response = requests.post(
-            f"{VIDEO_GRAPH_API}/{version}/{page_id}/videos",
+            endpoint,
             data={
+                "upload_phase": "finish",
+                "upload_session_id": session_id,
                 "access_token": page_token,
-                "title": title,
+                "title": title[:250],
                 "description": description,
-                "fbuploader_video_file_chunk": handle,
                 "published": "false",
                 "scheduled_publish_time": str(int(publish_at.timestamp())),
             },
@@ -182,18 +166,12 @@ def upload_scheduled(video_path, title, description, publish_date, publish_time,
         )
     except requests.RequestException as exc:
         raise FacebookPublishError(
-            "Facebook publish request failed; check the Page for an existing scheduled video before retrying",
+            "Facebook upload finish failed; check the Page for an existing scheduled video before retrying",
             uncertain=True,
         ) from exc
-    payload = _response_body(
-        response, secrets, "scheduled publish", uncertain_on_server_error=True,
+    _response_body(
+        response, secrets, "upload finish", uncertain_on_server_error=True,
     )
-    video_id = payload.get("id")
-    if not video_id:
-        raise FacebookPublishError(
-            "Facebook accepted the request without returning a video ID; check the Page before retrying",
-            uncertain=True,
-        )
     return {
         "video_id": str(video_id),
         "url": f"https://www.facebook.com/{page_id}/videos/{video_id}",
