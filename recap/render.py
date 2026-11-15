@@ -340,6 +340,13 @@ def thumbnail(img, hook, tag_text, bottom_text, out):
     im = Image.alpha_composite(im, shade)
     d = ImageDraw.Draw(im)
     text_left, text_width = 54, 700
+    d.rounded_rectangle(
+        (30, 28, 820, 692),
+        radius=28,
+        fill=(8, 12, 22, 255),
+        outline=(255, 205, 0, 235),
+        width=3,
+    )
 
     def fit_lines(text, max_size, min_size, max_lines, max_height):
         for size in range(max_size, min_size - 1, -2):

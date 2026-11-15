@@ -47,6 +47,29 @@ class ThumbnailRenderingTests(unittest.TestCase):
             with Image.open(festival) as one, Image.open(alternate) as two:
                 self.assertIsNotNone(ImageChops.difference(one, two).getbbox())
 
+    def test_opaque_text_panel_hides_letters_in_generated_artwork(self):
+        with tempfile.TemporaryDirectory() as folder:
+            clean_source = Path(folder) / "clean.jpg"
+            lettered_source = Path(folder) / "lettered.jpg"
+            clean_output = Path(folder) / "clean-thumbnail.jpg"
+            lettered_output = Path(folder) / "lettered-thumbnail.jpg"
+            background = Image.new("RGB", (1600, 900), (42, 95, 125))
+            background.save(clean_source)
+            lettered = background.copy()
+            ImageDraw.Draw(lettered).text(
+                (80, 120), "FESTIVAL", font=ImageFont.load_default(), fill=(255, 255, 255),
+            )
+            lettered.save(lettered_source)
+
+            with mock.patch.object(render, "font", side_effect=lambda size: ImageFont.truetype(render._fp(), size)):
+                render.thumbnail(str(clean_source), "पर्व कब है?", "पर्व का नाम", "भारत | 2026", str(clean_output))
+                render.thumbnail(str(lettered_source), "पर्व कब है?", "पर्व का नाम", "भारत | 2026", str(lettered_output))
+
+            with Image.open(clean_output) as clean, Image.open(lettered_output) as lettered:
+                clean_panel = clean.crop((40, 40, 800, 680))
+                lettered_panel = lettered.crop((40, 40, 800, 680))
+                self.assertIsNone(ImageChops.difference(clean_panel, lettered_panel).getbbox())
+
     def test_font_requires_raqm_for_correct_devanagari_shaping(self):
         render.font.cache_clear()
         with mock.patch.object(render.features, "check", return_value=False):
