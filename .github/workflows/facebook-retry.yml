@@ -1,0 +1,60 @@
+name: Retry Facebook Page video
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Actions run ID containing the already-uploaded YouTube video
+        type: string
+        required: true
+        default: "43638759171"
+      youtube_video_id:
+        description: YouTube ID to verify against the source artifact
+        type: string
+        required: true
+        default: "cPzhKtL3__o"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  facebook:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID || vars.FACEBOOK_PAGE_ID }}
+      FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN }}
+      META_GRAPH_API_VERSION: ${{ vars.META_GRAPH_API_VERSION || 'v27.0' }}
+      FACEBOOK_RETRY_ARTIFACT_DIR: source
+      FACEBOOK_RETRY_YOUTUBE_VIDEO_ID: ${{ inputs.youtube_video_id }}
+      FACEBOOK_RETRY_THUMBNAIL_PATH: assets/facebook/akshaya-navami-jagaddhatri-2026.jpg
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Download original festival video artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: festival-video-${{ inputs.source_run_id }}
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+          path: source/
+
+      - name: Schedule the existing video on Facebook
+        run: python recap/facebook_retry.py
+
+      - name: Save retry metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: facebook-retry-${{ github.run_id }}
+          path: source/*.json
+          retention-days: 7
+          if-no-files-found: ignore

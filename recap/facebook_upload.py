@@ -1,6 +1,7 @@
 import datetime as dt
 import os
 import re
+from contextlib import nullcontext
 
 import requests
 
@@ -47,7 +48,15 @@ def _response_body(response, secrets, operation, *, uncertain_on_server_error=Fa
     return payload
 
 
-def upload_scheduled(video_path, title, description, publish_date, publish_time, now=None):
+def upload_scheduled(
+    video_path,
+    title,
+    description,
+    publish_date,
+    publish_time,
+    now=None,
+    thumbnail_path=None,
+):
     page_id = os.getenv("FACEBOOK_PAGE_ID", "").strip()
     page_token = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN", "").strip()
     version = os.getenv("META_GRAPH_API_VERSION") or GRAPH_API_VERSION
@@ -65,6 +74,10 @@ def upload_scheduled(video_path, title, description, publish_date, publish_time,
         )
     if not os.path.isfile(video_path) or os.path.getsize(video_path) == 0:
         raise FileNotFoundError(f"Facebook video file is missing or empty: {video_path}")
+    if thumbnail_path and (
+        not os.path.isfile(thumbnail_path) or os.path.getsize(thumbnail_path) == 0
+    ):
+        raise FileNotFoundError(f"Facebook thumbnail is missing or empty: {thumbnail_path}")
     publish_at = scheduled_datetime(publish_date, publish_time, now=now)
     current = now or dt.datetime.now(publish_at.tzinfo)
     if current.tzinfo is None:
@@ -150,25 +163,41 @@ def upload_scheduled(video_path, title, description, publish_date, publish_time,
                 raise FacebookPublishError("Facebook chunk transfer returned invalid file offsets")
             start_offset, end_offset = next_start_offset, next_end_offset
 
-    try:
-        response = requests.post(
-            endpoint,
-            data={
-                "upload_phase": "finish",
-                "upload_session_id": session_id,
-                "access_token": page_token,
-                "title": title[:250],
-                "description": description,
-                "published": "false",
-                "scheduled_publish_time": str(int(publish_at.timestamp())),
-            },
-            timeout=(15, 180),
+    finish_data = {
+        "upload_phase": "finish",
+        "upload_session_id": session_id,
+        "access_token": page_token,
+        "title": title[:250],
+        "description": description,
+        "published": "false",
+        "scheduled_publish_time": str(int(publish_at.timestamp())),
+    }
+    thumbnail_context = (
+        open(thumbnail_path, "rb") if thumbnail_path else nullcontext()
+    )
+    with thumbnail_context as thumbnail_file:
+        finish_files = (
+            {
+                "thumb": (
+                    os.path.basename(thumbnail_path),
+                    thumbnail_file,
+                    "image/jpeg",
+                ),
+            }
+            if thumbnail_file else None
         )
-    except requests.RequestException as exc:
-        raise FacebookPublishError(
-            "Facebook upload finish failed; check the Page for an existing scheduled video before retrying",
-            uncertain=True,
-        ) from exc
+        try:
+            response = requests.post(
+                endpoint,
+                data=finish_data,
+                files=finish_files,
+                timeout=(15, 180),
+            )
+        except requests.RequestException as exc:
+            raise FacebookPublishError(
+                "Facebook upload finish failed; check the Page for an existing scheduled video before retrying",
+                uncertain=True,
+            ) from exc
     _response_body(
         response, secrets, "upload finish", uncertain_on_server_error=True,
     )

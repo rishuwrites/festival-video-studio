@@ -493,6 +493,7 @@ def generate_video(
             description,
             publish_date,
             publish_time,
+            thumbnail_path=thumb_path,
         )
         metadata.update({
             "facebook_status": facebook_result["status"],

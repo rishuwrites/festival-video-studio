@@ -57,6 +57,8 @@ Add `GEMINI_API_KEY` and `GEMINI_API_KEY1` (optional backup) plus the existing Y
 
 To apply the checked-in Chhath Puja thumbnail to an already-uploaded video, run **Update scheduled video thumbnail** and provide its YouTube video ID. New video uploads attach their generated thumbnail automatically.
 
+To retry a failed Facebook upload without regenerating or re-uploading to YouTube, run **Retry Facebook Page video** with the source Actions run ID and YouTube video ID. It downloads the original video and metadata, preserves the original title, description, and scheduled time, and attaches `assets/facebook/akshaya-navami-jagaddhatri-2026.jpg`.
+
 On HTTP 429 `RESOURCE_EXHAUSTED`, check the Gemini API quota and billing for the Google Cloud projects behind both configured keys; adding another key from the same project may not add quota. On HTTP 403 stating that the Gemini API free tier is unavailable for the project, enable billing for the Google Cloud project associated with that key or use a key from a project that has Gemini API access. A different Gmail address alone does not guarantee a separate eligible API project or free-tier quota.
 
 ## Tests

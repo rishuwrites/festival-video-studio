@@ -50,7 +50,9 @@ class FacebookScheduledUploadTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "festival.mp4"
+            thumbnail_path = Path(folder) / "facebook-thumbnail.jpg"
             path.write_bytes(video)
+            thumbnail_path.write_bytes(b"jpeg-thumbnail")
             with mock.patch.object(
                 facebook_upload.requests, "post",
                 side_effect=[start, uploaded, published],
@@ -62,6 +64,7 @@ class FacebookScheduledUploadTests(unittest.TestCase):
                     "2027-01-15",
                     "18:30",
                     now=datetime(2027, 1, 15, 10, 0, tzinfo=IST),
+                    thumbnail_path=str(thumbnail_path),
                 )
 
         self.assertEqual(result, {
@@ -107,6 +110,11 @@ class FacebookScheduledUploadTests(unittest.TestCase):
             finish["data"]["scheduled_publish_time"],
             str(int(publish_at.timestamp())),
         )
+        self.assertEqual(
+            finish["files"]["thumb"][0],
+            "facebook-thumbnail.jpg",
+        )
+        self.assertEqual(finish["files"]["thumb"][2], "image/jpeg")
 
     def test_page_token_is_the_only_facebook_upload_credential_required(self):
         responses = [
