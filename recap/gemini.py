@@ -206,7 +206,10 @@ def _api_keys():
     ))
 
 
-def research_festival(topic, date="", location="India", video_sources=None, web_research=None):
+def research_festival(
+    topic, date="", location="India", video_sources=None, web_research=None,
+    script_length_feedback="",
+):
     keys = _api_keys()
     if not keys:
         raise RuntimeError("GEMINI_API_KEY or GEMINI_API_KEY1 is required for festival research")
@@ -251,6 +254,12 @@ def research_festival(topic, date="", location="India", video_sources=None, web_
                 ensure_ascii=False,
             )
             + "\n</web_research_data>"
+        )
+    if script_length_feedback:
+        prompt += (
+            "\n\nSCRIPT LENGTH CORRECTION:\n"
+            + script_length_feedback.strip()
+            + "\nKeep the same JSON schema, cite only the supplied sources, and do not add unsupported facts or filler."
         )
     errors = []
     model_lists = [(key, list_models(key)[:8]) for key in keys]

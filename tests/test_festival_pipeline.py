@@ -271,6 +271,7 @@ class GroundedFestivalResearchTests(unittest.TestCase):
                 mock.patch.object(gemini.requests, "post", return_value=response) as post:
             result = gemini.research_festival(
                 "धनतेरस", "2026", DEFAULT_SCOPE, video_sources=[], web_research=context,
+                script_length_feedback="Write at least 1,100 spoken words.",
             )
 
         request = post.call_args.kwargs["json"]
@@ -278,6 +279,7 @@ class GroundedFestivalResearchTests(unittest.TestCase):
         self.assertNotIn("tools", request)
         self.assertEqual(request["generationConfig"]["responseMimeType"], "application/json")
         self.assertIn("New Delhi observes Dhanteras on November 6, 2026.", prompt)
+        self.assertIn("Write at least 1,100 spoken words.", prompt)
         self.assertEqual(result["research"]["headline"], "धनतेरस")
         self.assertEqual(result["research"]["thumbnail_text"], "धनतेरस कब और कैसे मनाएं")
         self.assertEqual(result["research_method"], "provided_web_research")
@@ -697,6 +699,26 @@ class FestivalValidationTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "at least 800 words"):
             festival_main.validate_research(result)
+
+    def test_retries_a_short_script_with_a_length_correction(self):
+        short = festival_research(scene_count=9)
+        for scene in short["research"]["scenes"]:
+            scene["narration"] = "छोटा पाठ।"
+        adequate = festival_research(scene_count=9)
+
+        with mock.patch.object(
+            festival_main,
+            "_research_with_gemini",
+            side_effect=[short, adequate],
+        ) as research:
+            grounded, validated = festival_main._research_and_validate(
+                "छठ पूजा", "2026-11-19", DEFAULT_SCOPE,
+            )
+
+        self.assertIs(grounded, adequate)
+        self.assertIs(validated, adequate["research"])
+        self.assertEqual(research.call_count, 2)
+        self.assertIn("1,100", research.call_args.kwargs["script_length_feedback"])
 
     def test_requires_actual_synthesized_audio_of_at_least_six_minutes(self):
         with self.assertRaisesRegex(ValueError, "at least 360 seconds"):

@@ -25,6 +25,12 @@ FESTIVAL_STYLE = (
 )
 VALID_EMOTIONS = set(S.EMOTION_COLORS)
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
+MIN_NARRATION_WORDS = 800
+NARRATION_LENGTH_RETRIES = 2
+
+
+class NarrationLengthError(ValueError):
+    pass
 
 
 def validate_narration_duration(seconds):
@@ -88,8 +94,10 @@ def validate_research(result):
         if parsed_url.scheme != "https" or not parsed_url.netloc:
             raise ValueError("Festival sources must include a title and an HTTPS URL")
     total_words = len(" ".join([research["hook"]] + [scene["narration"] for scene in scenes]).split())
-    if total_words < 800:
-        raise ValueError(f"Festival narration needs at least 800 words for a six-minute target; got {total_words}")
+    if total_words < MIN_NARRATION_WORDS:
+        raise NarrationLengthError(
+            f"Festival narration needs at least {MIN_NARRATION_WORDS} words for a six-minute target; got {total_words}"
+        )
     available_titles = {source["title"] for source in sources}
     for fact in research["key_facts"]:
         if not set(fact["source_titles"]).intersection(available_titles):
@@ -220,17 +228,25 @@ def _research_mode(grounded):
     return grounded.get("research_method") or "gemini_google_search_grounded"
 
 
-def _research_with_gemini(topic, date, scope):
+def _research_with_gemini(topic, date, scope, script_length_feedback=""):
     research_context = os.getenv("FESTIVAL_RESEARCH_CONTEXT", "").strip()
+    length_feedback = (
+        {"script_length_feedback": script_length_feedback}
+        if script_length_feedback else {}
+    )
     if research_context:
         print("Researching the festival from the sourced calendar context")
         return gemini.research_festival(
             topic, date, scope, video_sources=[], web_research=research_context,
+            **length_feedback,
         )
 
     print("Researching the festival and writing the script through Gemini API Google Search grounding")
     try:
-        return gemini.research_festival(topic, date, scope, video_sources=[])
+        return gemini.research_festival(
+            topic, date, scope, video_sources=[],
+            **length_feedback,
+        )
     except RuntimeError as exc:
         message = str(exc).lower()
         if "http 429" not in message and "free tier" not in message:
@@ -252,7 +268,34 @@ def _research_with_gemini(topic, date, scope):
         }
         return gemini.research_festival(
             topic, date, scope, video_sources=[], web_research=context,
+            **length_feedback,
         )
+
+
+def _research_and_validate(topic, date, scope):
+    grounded = _research_with_gemini(topic, date, scope)
+    for attempt in range(NARRATION_LENGTH_RETRIES + 1):
+        try:
+            return grounded, validate_research(grounded)
+        except NarrationLengthError:
+            if attempt >= NARRATION_LENGTH_RETRIES:
+                raise
+            print(
+                f"  narration is below {MIN_NARRATION_WORDS} words; "
+                f"requesting a longer sourced draft ({attempt + 1}/{NARRATION_LENGTH_RETRIES})"
+            )
+            grounded = _research_with_gemini(
+                topic,
+                date,
+                scope,
+                script_length_feedback=(
+                    "The previous draft was below the required 800 spoken-word minimum. "
+                    "Write at least 1,100 spoken Hindi words across the hook and scene narration "
+                    "(aim for 1,100-1,200 words), then verify the count before returning the JSON. "
+                    "Expand factual explanations, customs, regional distinctions, and source-supported "
+                    "caveats rather than repeating points."
+                ),
+            )
 
 
 def _scene_image_count(duration):
@@ -286,8 +329,7 @@ def generate_video(
     if upload or facebook_upload_enabled:
         scheduled_datetime(publish_date, publish_time)
     scope = scope.strip() or S.DEFAULT_SCOPE
-    grounded = _research_with_gemini(topic.strip(), date.strip(), scope)
-    research = validate_research(grounded)
+    grounded, research = _research_and_validate(topic.strip(), date.strip(), scope)
 
     output_dir = output_dir or os.path.join(S.BASE, "output")
     os.makedirs(output_dir, exist_ok=True)
