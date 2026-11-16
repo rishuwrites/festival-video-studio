@@ -7,8 +7,8 @@
  *    allowed to dispatch workflows in rishuwrites/festival-video-studio.
  * 3. Run setupDailyTrigger() once and authorize the requested permissions.
  *
- * The trigger runs near 02:05 Asia/Kolkata. It prepares the observance three
- * days ahead and schedules public release at 09:00 IST, two days before it.
+ * The trigger runs near 02:05 Asia/Kolkata. It prepares the calendar topic
+ * three days ahead and schedules public release at 09:00 IST, one day ahead.
  * YouTube requires future-scheduled uploads to be private until publishAt;
  * YouTube makes them public at that time.
  */
@@ -76,10 +76,6 @@ function dispatchTodaysFestivalVideo() {
     if (!entry) {
       throw new Error("No video brief exists for " + festivalDate + " in the festival calendar.");
     }
-    if (!entry.festival) {
-      Logger.log("No featured festival on " + festivalDate + "; skipping evergreen topic.");
-      return;
-    }
     const monthSource = festivalDate.slice(5, 7) === "11" ? "drik_november" : "drik_december";
     const sourceIds = Array.from(new Set([...(entry.source_ids || []), monthSource]));
     const sources = sourceIds
@@ -97,8 +93,10 @@ function dispatchTodaysFestivalVideo() {
       publish_time: PUBLISH_TIME,
       research_context: JSON.stringify({
         notes: [
-          "Scheduled observance: " + entry.festival,
-          "Festival date: " + festivalDate + "; planned public release: " + publishDate + " (two days before the observance).",
+          entry.festival
+            ? "Scheduled observance: " + entry.festival
+            : "Evergreen calendar topic: " + entry.topic,
+          "Calendar target date: " + festivalDate + "; planned public release: " + publishDate + " (two days before the target date).",
           entry.date_confidence ? "Date confidence: " + entry.date_confidence : "",
           entry.panchang_events.length
             ? "Other observances on this date in the monthly Panchang listing (keep distinct and identify regional scope): " + entry.panchang_events.join("; ")
@@ -115,7 +113,7 @@ function dispatchTodaysFestivalVideo() {
     properties.setProperty(dispatchKey, result);
     properties.setProperty("LAST_DISPATCH", today + " " + entry.topic + " [" + result + "]");
     Logger.log(
-      "Dispatched " + entry.topic + " for festival date " + festivalDate +
+      "Dispatched " + entry.topic + " for calendar date " + festivalDate +
       ", public release " + publishDate + " at " + PUBLISH_TIME + " IST (run " + result + ")"
     );
   } finally {
