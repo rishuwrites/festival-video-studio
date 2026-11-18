@@ -36,7 +36,11 @@ YouTube uploads use your OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_
 
 ## Daily 10-video long-form publishing
 
-The `daily-batch.yml` workflow plans ten **16:9 long-form videos** for one calendar date, renders jobs with `fail-fast: false` and at most three concurrent jobs, and merges each result back into the calendar. No Shorts or vertical videos are produced. The scheduled run starts at 12:00 UTC and selects tomorrow's date in Asia/Kolkata; manual dispatch accepts an optional `YYYY-MM-DD` date.
+The `daily-batch.yml` workflow plans ten total **16:9 long-form video slots** per calendar date. When the legacy Apps Script has a video for that release date, it owns the 09:00 IST slot and the batch renders the other nine slots. The batch never renders the legacy slot. If no legacy entry exists, the batch fills all ten slots. Batch jobs use `fail-fast: false` and at most three concurrent renders; no Shorts or vertical videos are produced.
+
+The batch workflow is manual-only (`workflow_dispatch`); its GitHub `schedule:` trigger stays commented out. The Apps Script dispatches the batch for a publish date two days ahead and continues dispatching the existing legacy video for the next day's 09:00 release. The two workflows share a publishing concurrency group to avoid overlapping uploads.
+
+`config/channel_focus.json` sets a minimum 80% core festival/culture share, a maximum of one astrology-category video per day, and at most two rashi-encyclopedia episodes per ISO week. The builder fails with a clear error if the planned active topics exceed those limits. Festival and vrat topics without verified dates, and topics duplicated against nearby legacy briefs, are replaced with distinct evergreen core-culture topics, keeping all ten daily slots active.
 
 The calendar covers November 18 through December 31, 2026. Seed owner-editable data and the distinct topic pool with:
 
@@ -46,7 +50,7 @@ python calendar\seed_templates.py
 
 Before building the calendar:
 
-1. In `data\festival_dates_2026.json`, verify each date against Drik Panchang, enter the date and source URL, and change only confirmed entries to `"verified": true`. The initial candidate dates are deliberately unverified; the builder never schedules those entries. Add the date-specific Ekadashi, Pradosh, Sankashti Chaturthi, Purnima, and Amavasya occurrences from a trusted source.
+1. In `data\festival_dates_2026.json`, verify each date against independent published sources, enter the dates and URLs, and change only confirmed entries to `"verified": true`. The initial candidate dates are deliberately unverified. Add the date-specific Ekadashi, Pradosh, Sankashti Chaturthi, Purnima, and Amavasya occurrences from a trusted source.
 2. Fill every date in `data\panchang_2026_11_18_to_12_31.csv` with the source-provided `tithi`, `paksha`, `nakshatra`, `moon_rashi`, `rahu_kaal_start`, `rahu_kaal_end`, and `sunrise`. Include the source's city in `source_location` and an HTTPS `source_url` for the daily video because sunrise and Rahu Kaal are location-specific. Do not infer missing values.
 3. Generate and commit the files once the source data is complete:
 
@@ -54,25 +58,29 @@ Before building the calendar:
 python calendar\build_calendar.py --from 2026-11-18 --to 2026-12-31
 ```
 
-The builder creates `calendar\content_calendar.csv`, `calendar\content_calendar.json`, and `calendar\CALENDAR.md`. It stops on missing daily panchang values, schedules festival/vrat topics only for verified dates, and substitutes evergreen non-festival topics when no verified event fits. A festival less than two days away at the beginning of the range is marked `late_prepublish` and assigned to the earliest calendar date. `PRE_PUBLISH_DAYS_MIN` and `PRE_PUBLISH_DAYS_MAX` may be set to 2 or 3 (in order). The existing YouTube scheduler still rejects publish times less than 15 minutes in the future.
+The builder creates `calendar\content_calendar.csv`, `calendar\content_calendar.json`, and `calendar\CALENDAR.md`. It stops on missing daily panchang values, schedules festival/vrat topics only for verified dates, and substitutes evergreen core-culture topics when no verified event fits or a topic conflicts with a nearby legacy brief. A festival less than two days away at the beginning of the range is marked `late_prepublish` and assigned to the earliest calendar date. `PRE_PUBLISH_DAYS_MIN` and `PRE_PUBLISH_DAYS_MAX` may be set to 2 or 3 (in order). The existing YouTube scheduler still rejects publish times less than 15 minutes in the future.
 
 The 06:00 daily panchang/rashifal script reads only the supplied panchang row and `data\rashifal_rules.json`; predictions are fixed, non-certain interpretations, with a disclaimer in the video description. Rashi episodes use the fixed chapter template and the content is framed as traditional astrology. The generated evergreen topic pool contains at least 300 distinct bilingual topics. Rebuilding the calendar retains completed video statuses and IDs.
 
-Set `GEMINI_API_KEY`, optional `GEMINI_API_KEY1`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. The batch attempts all 10 planned videos through the YouTube API by default (`MAX_API_UPLOADS_PER_DAY=10`). YouTube's default 10,000-unit daily quota allows roughly six video inserts at 1,600 units each, so quota failures are expected unless the project has more quota. Failed YouTube uploads are saved to Google Drive when the video, thumbnail, and metadata were generated; failures before those files exist are marked `skipped`.
+Set `GEMINI_API_KEY`, optional `GEMINI_API_KEY1`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. Every planned video tries YouTube API upload. YouTube's default 10,000-unit daily quota may be enough for only about six video inserts at 1,600 units each, so some attempts may fail from quota exhaustion. Each failed YouTube upload is saved to Google Drive when the video, thumbnail, and metadata exist; failures before those files exist are marked `skipped`. The planner does not reserve Drive-only slots in advance.
+
+When `FACEBOOK_PAGE_ID` and `FACEBOOK_PAGE_ACCESS_TOKEN` are configured, batch videos are also scheduled to the Facebook Page, including videos whose YouTube upload fails and is saved to Drive. Facebook publishing uses its own credentials and does not consume YouTube API quota. If one platform succeeds and another fails, the calendar result records each platform's ID/link and the failed platform detail; the video is also retained in Drive for recovery.
 
 ### Daily-batch troubleshooting
 
 - Gemini HTTP 429: the runner already backs off and rotates `GEMINI_API_KEY` / `GEMINI_API_KEY1`. Confirm both keys have usable quota; two keys from one exhausted Cloud project may share the same limit.
-- YouTube `quotaExceeded` or `uploadLimitExceeded`: `run_one.py` does not retry these responses. Generated video files are saved to Drive; wait for quota reset, then run `python recap\retry_failed_uploads.py --calendar calendar\content_calendar.json`. Set the `MAX_API_UPLOADS_PER_DAY` repository variable below 10 only if you intentionally want fewer YouTube API attempts.
+- YouTube `quotaExceeded` or `uploadLimitExceeded`: `run_one.py` does not retry these responses. Generated video files are saved to Drive; wait for quota reset, then run `python recap\retry_failed_uploads.py --calendar calendar\content_calendar.json`. All ten daily videos attempt YouTube; the batch does not reserve Drive-only slots in advance.
 - Google Drive HTTP 403: the existing refresh token likely lacks `drive.file`. Regenerate the token with `python tools\get_refresh_token.py`, enable Drive API in the same project, and replace the Actions secret.
 
 The existing YouTube refresh token does not gain Drive permission automatically. Enable Google Drive API in the same Google Cloud project, then run `python tools\get_refresh_token.py` locally with `YT_CLIENT_ID` and `YT_CLIENT_SECRET` set. Copy its output into the `YT_REFRESH_TOKEN` Actions secret. The OAuth consent screen should be **In production**: tokens from an app left in **Testing** may expire after seven days (otherwise regenerate weekly). The refreshed grant includes `youtube.upload`, `youtube.readonly`, and `drive.file`. To retry saved videos after quota resets, run `python recap\retry_failed_uploads.py --calendar calendar\content_calendar.json`.
 
-The older `scheduler\google_apps_script.gs` and `data\india-festival-video-calendar-2026.json` remain a separate single-video dispatch path; they are not used by the 10-video batch workflow.
+For Facebook cross-posting from the batch workflow, set `FACEBOOK_PAGE_ACCESS_TOKEN` as an Actions secret and `FACEBOOK_PAGE_ID` as a secret or repository variable. The Page token needs permission to publish Page videos (`pages_manage_posts`).
+
+The Apps Script is the daily orchestrator: it dispatches the legacy single-video workflow and the 10-slot batch workflow, and the batch excludes the legacy-managed 09:00 slot. GitHub cron remains disabled.
 
 ## Legacy single-video calendar publishing
 
-The researched calendar at `data/india-festival-video-calendar-2026.json` contains one sourced video brief for every date from November 11 through December 31, 2026, including evergreen culture topics. The daily Google Apps Script runs near 02:05 IST and checks the calendar entry three days ahead. It dispatches any entry with a complete topic brief and at least two valid sources, whether it names a festival or is evergreen, and schedules public release at 09:00 IST two days before the calendar target date. This gives the workflow about a day to research, render, and upload before publication. Apps Script triggers run near the selected minute, not at an exact second; the script rejects a release time that is less than 15 minutes away.
+The researched calendar at `data/india-festival-video-calendar-2026.json` contains one sourced video brief for every date from November 11 through December 31, 2026, including evergreen culture topics. The daily Google Apps Script runs near 02:05 IST. It dispatches the batch for two days ahead and the legacy video for the next day's 09:00 IST release; both workflows share a concurrency group. The legacy workflow uses its existing source-validation logic and schedules publication two days before its calendar target date. Apps Script triggers run near the selected minute, not at an exact second; the script rejects a legacy release time that is less than 15 minutes away.
 
 To enable the daily trigger:
 
@@ -81,9 +89,11 @@ To enable the daily trigger:
 3. Run `setupDailyTrigger()` once and authorize the requested permissions. Check the Apps Script **Executions** page for dispatch errors.
 4. Ensure the repository has `GEMINI_API_KEY`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` Actions secrets. The YouTube refresh token needs `youtube.upload` and `youtube.readonly` scopes. To schedule the same video on Facebook, add `FACEBOOK_PAGE_ACCESS_TOKEN` as an Actions secret and `FACEBOOK_PAGE_ID` as an Actions variable (the page ID can also be a secret). The Page token must have Page publishing access and the app must have the required Page publishing permission (`pages_manage_posts`). Facebook uses the Page-token resumable video-upload flow and does not require `META_APP_ID` or `META_USER_ACCESS_TOKEN`.
 
-To manually rerun a calendar entry that was skipped by an older Apps Script version, replace the project code with the current `scheduler/google_apps_script.gs`, then select and run `dispatchTodaysFestivalVideo()` from the Apps Script editor. A prior skip does not mark the day as dispatched; after a successful dispatch, the script records the day to prevent duplicate workflow runs.
+To manually rerun today's dispatch, replace the project code with the current `scheduler/google_apps_script.gs`, then select and run `dispatchTodaysFestivalVideo()` from the Apps Script editor. Legacy and batch dispatches are tracked separately in Script Properties, so a failed batch dispatch can be retried without dispatching the legacy video twice.
 
 The workflow receives the calendar target date, topic, and researched source notes, writes the script, renders a video and thumbnail, uploads the custom thumbnail to YouTube, and can schedule YouTube and Facebook Page publication at 09:00 IST two days before the target date. If the generated narration is under 800 words, it requests up to two longer drafts using the same research context; synthesized audio must still pass the six-minute minimum. YouTube and Facebook uploads have separate controls so a failed platform can be retried without attempting a duplicate upload to the other. YouTube requires scheduled videos to be private until its publish time. Facebook uses Meta's resumable video-upload API and a scheduled Page video post. Configure channel defaults and audience/restrictions in YouTube Studio as needed.
+
+The legacy workflow attempts the YouTube upload before using Drive. If an enabled platform upload fails after rendering, it saves the generated video, thumbnail, and metadata to Google Drive and reports the Drive link. If both uploads succeed, no Drive copy is made.
 
 Video metadata includes the festival/topic and supported year in the title when they fit naturally, a Hindi description with the summary, chapters, regional caveats, search phrases, and cited source links, plus deduplicated Hindi and English tags and a small set of relevant hashtags.
 

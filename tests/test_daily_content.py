@@ -85,6 +85,23 @@ class RashifalRulesTests(unittest.TestCase):
             with self.assertRaisesRegex(rashifal.RashifalDataError, "missing"):
                 rashifal.build_daily_content("2026-11-18", panchang_path=path)
 
+    def test_panchang_content_meets_rendering_contract_without_or_with_rashifal(self):
+        panchang = rashifal.build_panchang_content(
+            "2026-11-18",
+            include_rashifal=False,
+        )
+        panchang_with_rashifal = rashifal.build_panchang_content(
+            "2026-11-18",
+            include_rashifal=True,
+        )
+
+        self.assertIn("नवमी", panchang["research"]["hook"])
+        self.assertGreaterEqual(panchang["word_count"], 800)
+        self.assertEqual(len(panchang["research"]["scenes"]), 9)
+        self.assertEqual(len(panchang_with_rashifal["research"]["scenes"]), 10)
+        festival_main._validate_prepared_bundle(panchang)
+        festival_main._validate_prepared_bundle(panchang_with_rashifal)
+
 
 class RashiEncyclopediaTests(unittest.TestCase):
     def test_all_rashis_use_the_same_chapter_template_and_long_form_script(self):

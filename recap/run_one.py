@@ -50,6 +50,10 @@ def _quota_error(error):
     return "uploadlimitexceeded" in message or "quotaexceeded" in message
 
 
+def _enabled(value):
+    return str(value or "").strip().casefold() in {"1", "true", "yes", "on"}
+
+
 def _video_files(output_dir):
     output_dir = Path(output_dir)
     videos = sorted(output_dir.glob("*.mp4"), key=lambda path: path.stat().st_mtime, reverse=True)
@@ -72,11 +76,14 @@ def _write_result(result_dir, result):
 
 def _prepared_content(content_type, topic, publish_date, festival_date):
     if content_type == "daily_panchang_rashifal":
-        return rashifal.build_daily_content(publish_date)
-    if (
-        content_type in {"rashi_encyclopedia", "rashi_encyclopedia_or_festival"}
-        and not festival_date
-    ):
+        return rashifal.build_panchang_content(
+            publish_date, include_rashifal=True,
+        )
+    if content_type == "tithi_and_dates":
+        return rashifal.build_panchang_content(
+            publish_date, include_rashifal=False,
+        )
+    if content_type == "rashi_encyclopedia" and not festival_date:
         rashi_name = topic.split(":", 1)[0].removesuffix(" राशि").strip()
         return rashi_encyclopedia.build_rashi_content(rashi_name)
     return None
@@ -88,6 +95,8 @@ def run_one(env=None):
     if not topic:
         raise ValueError("TOPIC is required")
     content_type = env.get("CONTENT_TYPE", "").strip()
+    if content_type == "legacy_daily" or env.get("SOURCE", "").strip() == "legacy":
+        raise ValueError("Legacy daily videos are managed by Apps Script, not recap/run_one.py")
     publish_date = env.get("PUBLISH_DATE", "").strip()
     publish_time = env.get("PUBLISH_TIME", "").strip()
     calendar_date = env.get("CALENDAR_DATE", publish_date).strip()
@@ -100,9 +109,10 @@ def run_one(env=None):
         raise ValueError("PUBLISH_TIME must use 24-hour HH:MM IST")
     if slot not in range(1, 11):
         raise ValueError("SLOT must be from 1 through 10")
-    scope, facebook_upload = _extra_options(
+    scope, facebook_option = _extra_options(
         env.get("EXTRA_ARGS", "[]"), env.get("FESTIVAL_SCOPE", "").strip(),
     )
+    facebook_upload = facebook_option or _enabled(env.get("FACEBOOK_UPLOAD"))
     output_dir = Path(env.get("OUTPUT_DIR", OUTPUT_ROOT / f"{calendar_date}_slot_{slot}"))
     result_dir = Path(env.get("RESULTS_DIR", RESULTS_ROOT))
     allowed = env.get("UPLOAD_ALLOWED", "false").strip().casefold() in {"1", "true", "yes"}
@@ -133,6 +143,7 @@ def run_one(env=None):
                 title_max_length=69,
                 title_suffix=f"{publish_date} Slot {slot}",
                 festival_tradition=festival_tradition,
+                continue_on_upload_errors=facebook_upload,
             )
             break
         except Exception as exc:
@@ -146,14 +157,39 @@ def run_one(env=None):
     print(f"Gemini requests used for this video: {gemini_requests}")
     if generated:
         metadata = json.loads(Path(generated["metadata"]).read_text(encoding="utf-8"))
-        if allowed and generated.get("youtube"):
+        if allowed and (generated.get("youtube") or generated.get("facebook")):
+            drive_link = ""
+            upload_errors = generated.get("upload_errors", {})
+            if upload_errors:
+                try:
+                    drive = save_to_drive(
+                        generated["video"],
+                        generated["thumbnail"],
+                        generated["metadata"],
+                        slot,
+                        "partial_upload_failure",
+                        publish_date=publish_date,
+                        publish_time=publish_time,
+                        calendar_date=calendar_date,
+                    )
+                    drive_link = drive["drive_link"]
+                except (DriveFallbackError, OSError, ValueError, RuntimeError) as exc:
+                    upload_errors["drive"] = f"{type(exc).__name__}: {exc}"
             result = {
                 "date": calendar_date,
                 "slot": slot,
                 "status": "scheduled",
                 "youtube_video_id": metadata.get("youtube_video_id", ""),
-                "drive_link": "",
-                "notes": f"Gemini requests: {gemini_requests}",
+                "drive_link": drive_link,
+                "facebook_video_id": metadata.get("facebook_video_id", ""),
+                "facebook_link": metadata.get("facebook_url", ""),
+                "notes": "; ".join([
+                    f"Gemini requests: {gemini_requests}",
+                    *[
+                        f"{platform} upload failed: {detail}"
+                        for platform, detail in upload_errors.items()
+                    ],
+                ]),
             }
             _write_result(result_dir, result)
             return result
@@ -180,10 +216,25 @@ def run_one(env=None):
             result = {
                 "date": calendar_date,
                 "slot": slot,
-                "status": "failed_saved_to_drive",
+                "status": (
+                    "scheduled"
+                    if generated and (
+                        metadata.get("youtube_video_id") or metadata.get("facebook_video_id")
+                    )
+                    else "failed_saved_to_drive"
+                ),
                 "youtube_video_id": "",
                 "drive_link": drive["drive_link"],
-                "notes": f"{reason}; Gemini requests: {gemini_requests}",
+                "facebook_video_id": metadata.get("facebook_video_id", "") if generated else "",
+                "facebook_link": metadata.get("facebook_url", "") if generated else "",
+                "notes": "; ".join([
+                    reason,
+                    f"Gemini requests: {gemini_requests}",
+                    *[
+                        f"{platform} upload failed: {detail}"
+                        for platform, detail in (generated.get("upload_errors", {}) if generated else {}).items()
+                    ],
+                ]),
             }
             _write_result(result_dir, result)
             return result
@@ -195,6 +246,10 @@ def run_one(env=None):
     notes = [
         f"Gemini requests: {gemini_requests}",
         str(last_error) if last_error else "YouTube upload was reserved by the daily quota budget",
+        *[
+            f"{platform} upload failed: {detail}"
+            for platform, detail in (generated.get("upload_errors", {}) if generated else {}).items()
+        ],
         fallback_error,
     ]
     result = {
@@ -203,6 +258,8 @@ def run_one(env=None):
         "status": "skipped",
         "youtube_video_id": "",
         "drive_link": "",
+        "facebook_video_id": "",
+        "facebook_link": "",
         "notes": "; ".join(note for note in notes if note),
     }
     _write_result(result_dir, result)

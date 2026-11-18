@@ -5,6 +5,7 @@ import csv
 import datetime as dt
 import json
 import os
+import re
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -12,18 +13,27 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 CALENDAR_DIR = ROOT / "calendar"
 SLOTS_PATH = ROOT / "config" / "slots.json"
+CHANNEL_FOCUS_PATH = ROOT / "config" / "channel_focus.json"
 TOPIC_POOL_PATH = CALENDAR_DIR / "topic_pool.json"
+LEGACY_CALENDAR_PATH = ROOT / "data" / "india-festival-video-calendar-2026.json"
 FESTIVAL_DATES_PATH = ROOT / "data" / "festival_dates_2026.json"
 PANCHANG_PATH = ROOT / "data" / "panchang_2026_11_18_to_12_31.csv"
 OUTPUT_JSON = CALENDAR_DIR / "content_calendar.json"
 CALENDAR_FIELDS = [
-    "date", "slot", "publish_time_ist", "type", "topic_hi", "topic_en",
+    "date", "slot", "publish_time_ist", "type", "source", "channel_category",
+    "topic_hi", "topic_en",
     "festival_date", "festival_tradition", "thumbnail_text_hi", "thumbnail_color",
-    "thumbnail_symbol", "status", "youtube_video_id", "drive_link", "notes",
+    "thumbnail_symbol", "status", "youtube_video_id", "drive_link",
+    "facebook_video_id", "facebook_link", "notes",
 ]
 ALLOWED_STATUSES = {
     "planned", "generated", "scheduled", "uploaded",
     "failed_saved_to_drive", "skipped", "blocked_unverified",
+    "blocked_duplicate", "legacy_managed",
+}
+ACTIVE_STATUSES = {
+    "planned", "legacy_managed", "generated", "scheduled",
+    "uploaded", "failed_saved_to_drive",
 }
 PANCHARANG_REQUIRED = (
     "tithi", "paksha", "nakshatra", "moon_rashi", "rahu_kaal_start",
@@ -161,6 +171,57 @@ def _read_festivals(path):
     return valid, unverified
 
 
+def _read_legacy_calendar(path):
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    entries = payload.get("entries")
+    if not isinstance(entries, list):
+        raise CalendarBuildError("Legacy calendar must contain an entries list")
+    result = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise CalendarBuildError("Every legacy calendar entry must be an object")
+        try:
+            target_date = dt.date.fromisoformat(str(entry.get("date", "")))
+        except ValueError as exc:
+            raise CalendarBuildError(
+                f"Invalid date in legacy calendar entry: {entry.get('date')!r}"
+            ) from exc
+        topic = str(entry.get("topic", "")).strip()
+        if not topic:
+            raise CalendarBuildError(f"Legacy calendar entry {target_date} has no topic")
+        if target_date.isoformat() in result:
+            raise CalendarBuildError(f"Duplicate legacy calendar entry for {target_date}")
+        result[target_date.isoformat()] = entry
+    return result
+
+
+def _read_channel_focus(path):
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    for key in ("core_categories", "astrology_categories"):
+        values = payload.get(key)
+        if not isinstance(values, list) or not values or not all(
+            isinstance(value, str) and value for value in values
+        ):
+            raise CalendarBuildError(f"channel_focus.json must define a non-empty {key} list")
+    if set(payload["core_categories"]) & set(payload["astrology_categories"]):
+        raise CalendarBuildError("Channel core and astrology categories must not overlap")
+    try:
+        minimum = float(payload["min_core_share"])
+        max_astrology = int(payload["max_astrology_per_day"])
+        max_rashi = int(payload["rashi_encyclopedia_max_per_week"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise CalendarBuildError("Channel focus limits must be numeric") from exc
+    if not 0 < minimum <= 1 or max_astrology < 0 or max_rashi < 0:
+        raise CalendarBuildError("Channel focus limits are outside their valid range")
+    return {
+        "core_categories": set(payload["core_categories"]),
+        "astrology_categories": set(payload["astrology_categories"]),
+        "min_core_share": minimum,
+        "max_astrology_per_day": max_astrology,
+        "rashi_encyclopedia_max_per_week": max_rashi,
+    }
+
+
 def _read_topic_pool(path):
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
     topics = payload.get("topics")
@@ -198,12 +259,71 @@ def _previous_rows(path):
     }
 
 
-def _topic_for(topics, topic_type, used, publish_date):
+def _normalized_words(value):
+    return re.sub(r"[^\w]+", " ", str(value or "").casefold()).strip()
+
+
+def _legacy_entries_near(legacy_entries, publish_date, radius=2):
+    publish_day = dt.date.fromisoformat(publish_date)
+    nearby = []
+    for entry in legacy_entries.values():
+        target_day = dt.date.fromisoformat(entry["date"])
+        legacy_release_day = target_day - dt.timedelta(days=2)
+        if abs((legacy_release_day - publish_day).days) <= radius:
+            nearby.append(entry)
+    return nearby
+
+
+def _duplicates_legacy(topic, legacy_entries):
+    candidate_title = _normalized_words(
+        f"{topic.get('topic_hi', '')} {topic.get('topic_en', '')}"
+    )
+    candidate_festival = _normalized_words(topic.get("festival_key", ""))
+    candidate_words = set(candidate_title.split())
+    stop_words = {"a", "an", "and", "for", "in", "of", "the", "to", "with"}
+    candidate_words -= stop_words
+    for entry in legacy_entries:
+        legacy_text = _normalized_words(
+            " ".join([
+                entry.get("topic", ""),
+                str(entry.get("festival") or ""),
+                " ".join(entry.get("panchang_events", [])),
+            ])
+        )
+        if not legacy_text:
+            continue
+        if candidate_title == legacy_text or (
+            candidate_title and (candidate_title in legacy_text or legacy_text in candidate_title)
+        ):
+            return True
+        legacy_terms = [
+            _normalized_words(entry.get("festival", "")),
+            *[_normalized_words(event) for event in entry.get("panchang_events", [])],
+        ]
+        if candidate_festival and any(
+            term and (candidate_festival == term or candidate_festival in term or term in candidate_festival)
+            for term in legacy_terms
+        ):
+            return True
+        if any(
+            len(term.split()) >= 2 and (term in candidate_title or candidate_title in term)
+            for term in legacy_terms
+        ):
+            return True
+        legacy_words = set(_normalized_words(entry.get("topic", "")).split()) - stop_words
+        overlap = candidate_words & legacy_words
+        if len(overlap) >= 3 and len(overlap) / min(len(candidate_words), len(legacy_words)) >= 0.75:
+            return True
+    return False
+
+
+def _topic_for(topics, topic_type, used, publish_date, legacy_entries=()):
     for topic in topics:
         if topic.get("type") == topic_type and topic.get("evergreen") is True:
             key = topic["topic_hi"].casefold()
             if (
                 key not in used
+                and not _duplicates_legacy(topic, legacy_entries)
                 and topic.get("earliest_date", "") <= publish_date
                 <= topic.get("latest_date", "9999-12-31")
             ):
@@ -229,7 +349,7 @@ def _verified_events_for(events, publish_date, min_days, max_days, calendar_star
     ]
 
 
-def _event_topic(topics, event, topic_type, used, publish_date):
+def _event_topic(topics, event, topic_type, used, publish_date, legacy_entries=()):
     keys = {event["name_en"].casefold(), event["name_hi"].casefold()}
     for topic in topics:
         if topic.get("type") != topic_type:
@@ -239,13 +359,13 @@ def _event_topic(topics, event, topic_type, used, publish_date):
         if not topic.get("earliest_date", "") <= publish_date <= topic.get("latest_date", "9999-12-31"):
             continue
         title = topic["topic_hi"].casefold()
-        if title not in used:
+        if title not in used and not _duplicates_legacy(topic, legacy_entries):
             used.add(title)
             return topic
     return None
 
 
-def _rashi_topic(topics, rashi_index, topic_type, used, episode=None):
+def _rashi_topic(topics, rashi_index, topic_type, used, episode=None, legacy_entries=()):
     sign_hi, sign_en, color, symbol = RASHIS[rashi_index % len(RASHIS)]
     candidates = [
         item for item in topics
@@ -255,10 +375,38 @@ def _rashi_topic(topics, rashi_index, topic_type, used, episode=None):
     ]
     for topic in candidates:
         key = topic["topic_hi"].casefold()
-        if key not in used:
+        if key not in used and not _duplicates_legacy(topic, legacy_entries):
             used.add(key)
             return topic, sign_hi, sign_en, color, symbol
     raise CalendarBuildError(f"No unused {topic_type} topic for {sign_en}")
+
+
+def _validate_day_focus(day_rows, focus, calendar_date):
+    active = [
+        row for row in day_rows
+        if row["status"] in ACTIVE_STATUSES
+    ]
+    if not active:
+        return
+    core_count = sum(
+        row["type"] in focus["core_categories"] or row["source"] == "legacy"
+        for row in active
+    )
+    core_share = core_count / len(active)
+    if core_share < focus["min_core_share"]:
+        raise CalendarBuildError(
+            f"Channel focus violation on {calendar_date}: core share "
+            f"{core_count}/{len(active)} ({core_share:.0%}) is below "
+            f"{focus['min_core_share']:.0%}"
+        )
+    astrology_count = sum(
+        row["type"] in focus["astrology_categories"] for row in active
+    )
+    if astrology_count > focus["max_astrology_per_day"]:
+        raise CalendarBuildError(
+            f"Channel focus violation on {calendar_date}: {astrology_count} astrology videos "
+            f"exceed the daily maximum of {focus['max_astrology_per_day']}"
+        )
 
 
 def _thumbnail_text(topic):
@@ -269,7 +417,8 @@ def _thumbnail_text(topic):
 
 def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPIC_POOL_PATH,
                festivals_path=FESTIVAL_DATES_PATH, panchang_path=PANCHANG_PATH,
-               previous_path=OUTPUT_JSON):
+               previous_path=OUTPUT_JSON, channel_focus_path=CHANNEL_FOCUS_PATH,
+               legacy_calendar_path=LEGACY_CALENDAR_PATH):
     try:
         start = dt.date.fromisoformat(start_date)
         end = dt.date.fromisoformat(end_date)
@@ -284,6 +433,21 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
         raise CalendarBuildError("config/slots.json must define exactly slots 1 through 10 in order")
     if any(slot.get("format", "long") != "long" for slot in slots):
         raise CalendarBuildError("All daily slots must remain long-form")
+    if len({slot.get("publish_time_ist") for slot in slots}) != 10:
+        raise CalendarBuildError("Every daily slot must have a unique publish time")
+    legacy_slots = [
+        slot for slot in slots
+        if slot.get("source") == "legacy" and slot.get("type") == "legacy_daily"
+    ]
+    if (
+        len(legacy_slots) != 1
+        or legacy_slots[0].get("publish_time_ist") != "09:00"
+        or sum(slot.get("source") == "legacy" for slot in slots) != 1
+        or any(slot.get("source") not in {"legacy", "batch"} for slot in slots)
+    ):
+        raise CalendarBuildError(
+            "config/slots.json must define one legacy_daily slot at 09:00 and batch slots"
+        )
 
     festivals, unverified = _read_festivals(festivals_path)
     if unverified:
@@ -291,11 +455,14 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
         print("\n".join(unverified))
     panchang = _read_panchang(panchang_path, start, end)
     topics = _read_topic_pool(topic_pool_path)
+    focus = _read_channel_focus(channel_focus_path)
+    legacy_entries = _read_legacy_calendar(legacy_calendar_path)
     previous = _previous_rows(previous_path)
     used = set()
     rows = []
     day = start
     rashi_index = 0
+    rashi_counts_by_week = {}
     lead_min = int(os.getenv("PRE_PUBLISH_DAYS_MIN", "2"))
     lead_max = int(os.getenv("PRE_PUBLISH_DAYS_MAX", "3"))
     if lead_min < 2 or lead_max > 3 or lead_min > lead_max:
@@ -304,72 +471,100 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
     while day <= end:
         iso_date = day.isoformat()
         day_rows = []
+        week_key = (day.isocalendar().year, day.isocalendar().week)
+        include_rashi = (
+            day.weekday() in {1, 4}
+            and rashi_counts_by_week.get(week_key, 0)
+            < focus["rashi_encyclopedia_max_per_week"]
+        )
+        legacy_release_target = (day + dt.timedelta(days=2)).isoformat()
+        legacy_entry = legacy_entries.get(legacy_release_target)
+        nearby_legacy = _legacy_entries_near(legacy_entries, iso_date)
         event_candidates = _verified_events_for(
             festivals, iso_date, lead_min, lead_max, start.isoformat(),
         )
         for slot in slots:
             slot_no = int(slot["slot"])
             slot_type = slot["type"]
+            source = slot["source"]
+            row_type = slot_type
+            channel_category = slot_type
             festival_date = ""
             festival_tradition = ""
             note = ""
             status = "planned"
             row_type = slot_type
             color, symbol = "#8B6B9E", "✦"
-            if slot_type == "daily_panchang_rashifal":
-                record = panchang[iso_date]
-                topic_hi = f"आज का पंचांग और बारह राशियाँ: {iso_date}"
-                topic_en = f"Today's Panchang and all 12 rashis: {iso_date}"
+            if slot_type == "legacy_daily":
+                if legacy_entry:
+                    topic_hi = topic_en = legacy_entry["topic"]
+                    source = "legacy"
+                    status = "legacy_managed"
+                    channel_category = "legacy_daily"
+                    note = (
+                        f"Managed by Apps Script; topic comes from legacy target "
+                        f"{legacy_release_target} and releases two days earlier"
+                    )
+                else:
+                    source = "batch"
+                    row_type = "regional_customs"
+                    channel_category = row_type
+                    item = _topic_for(
+                        topics, row_type, used, iso_date, nearby_legacy,
+                    )
+                    topic_hi, topic_en = item["topic_hi"], item["topic_en"]
+                    note = "No legacy calendar entry for this release date; batch fills the slot"
+                thumbnail_text = _thumbnail_text(topic_hi)
+            elif slot_type == "daily_panchang_rashifal":
+                row_type = "tithi_and_dates" if include_rashi else slot_type
+                channel_category = row_type
+                topic_hi = f"आज का पंचांग: तिथि, नक्षत्र और राहु काल ({iso_date})"
+                topic_en = f"Today's panchang: tithi, nakshatra, and Rahu Kaal ({iso_date})"
                 thumbnail_text = "आज का पंचांग"
                 color, symbol = "#406A8E", "☼"
-            elif slot_type == "rashi_encyclopedia":
-                offset = (day - start).days
-                episode = (
-                    "full" if offset < 12 else
-                    ("career", "relationships", "remedies", "beliefs")[(offset - 12) // 12]
-                )
+            elif slot_type == "evergreen_culture" and include_rashi:
                 item, sign_hi, sign_en, color, symbol = _rashi_topic(
-                    topics, rashi_index, slot_type, used, episode=episode,
+                    topics,
+                    rashi_index,
+                    "rashi_encyclopedia",
+                    used,
+                    episode="full",
+                    legacy_entries=nearby_legacy,
                 )
                 rashi_index += 1
-                topic_hi, topic_en = item["topic_hi"], item["topic_en"]
-                thumbnail_text = _thumbnail_text(topic_hi)
-            elif slot_type == "rashi_encyclopedia_or_festival":
-                offset = (day - start).days
-                episode = (
-                    "career" if offset < 12 else
-                    ("relationships", "remedies", "beliefs")[(offset - 12) // 12]
-                )
-                item, sign_hi, sign_en, color, symbol = _rashi_topic(
-                    topics, offset, slot_type, used, episode=episode,
-                )
+                rashi_counts_by_week[week_key] = rashi_counts_by_week.get(week_key, 0) + 1
+                row_type = "rashi_encyclopedia"
+                channel_category = row_type
                 topic_hi, topic_en = item["topic_hi"], item["topic_en"]
                 thumbnail_text = _thumbnail_text(topic_hi)
             elif slot_type in {"festival_explainer", "upcoming_festival"}:
                 selected = None
                 for event in event_candidates:
-                    item = _event_topic(topics, event, slot_type, used, iso_date)
+                    item = _event_topic(
+                        topics, event, slot_type, used, iso_date, nearby_legacy,
+                    )
                     if item:
                         selected = event, item
                         break
                 if not selected:
-                    if event_candidates:
-                        names = ", ".join(event["name_en"] for event in event_candidates)
-                        raise CalendarBuildError(
-                            f"No matching topic for verified festival(s) {names} "
-                            f"on {iso_date}, slot {slot_no}"
-                        )
+                    reason = (
+                        "duplicate legacy topic"
+                        if event_candidates
+                        else "unverified festival topic"
+                    )
                     row_type = (
                         "regional_customs"
                         if slot_type == "festival_explainer"
-                        else "evening_special"
+                        else "story_history"
                     )
-                    item = _topic_for(topics, row_type, used, iso_date)
+                    channel_category = row_type
+                    item = _topic_for(
+                        topics, row_type, used, iso_date, nearby_legacy,
+                    )
                     topic_hi, topic_en = item["topic_hi"], item["topic_en"]
                     thumbnail_text = _thumbnail_text(topic_hi)
                     note = (
-                        "unverified festival topic not scheduled; evergreen "
-                        f"{row_type} substituted"
+                        f"{reason} not scheduled; evergreen {row_type} substituted"
                     )
                 else:
                     event, item = selected
@@ -381,12 +576,12 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                     if lead < lead_min:
                         note = "late_prepublish"
             else:
-                item = _topic_for(topics, slot_type, used, iso_date)
+                item = _topic_for(topics, slot_type, used, iso_date, nearby_legacy)
                 topic_hi, topic_en = item["topic_hi"], item["topic_en"]
                 thumbnail_text = _thumbnail_text(topic_hi)
 
             title_key = topic_hi.casefold()
-            if title_key in used and slot_type == "daily_panchang_rashifal":
+            if status == "legacy_managed" and title_key in used:
                 raise CalendarBuildError(f"Duplicate planned topic: {topic_hi}")
             used.add(title_key)
             row = {
@@ -394,6 +589,8 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                 "slot": slot_no,
                 "publish_time_ist": slot["publish_time_ist"],
                 "type": row_type,
+                "source": source,
+                "channel_category": channel_category,
                 "topic_hi": topic_hi,
                 "topic_en": topic_en,
                 "festival_date": festival_date,
@@ -403,23 +600,36 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                 "status": status,
                 "youtube_video_id": "",
                 "drive_link": "",
+                "facebook_video_id": "",
+                "facebook_link": "",
                 "festival_tradition": festival_tradition,
                 "notes": note,
             }
             old = previous.get((iso_date, slot_no))
-            if status == "planned" and old and old.get("status") in {
+            if status in {"planned", "legacy_managed"} and old and old.get("status") in {
                 "generated", "scheduled", "uploaded", "failed_saved_to_drive",
+                "legacy_managed",
             }:
-                for field in ("status", "youtube_video_id", "drive_link"):
+                for field in (
+                    "status", "youtube_video_id", "drive_link",
+                    "facebook_video_id", "facebook_link",
+                ):
                     row[field] = old.get(field, row[field])
                 row["notes"] = old.get("notes") or note
             day_rows.append(row)
-        if any(day_rows[index]["type"] == day_rows[index - 1]["type"]
-               for index in range(1, len(day_rows))):
-            raise CalendarBuildError(f"Adjacent slots repeat the same content type on {iso_date}")
+        if len(day_rows) != 10:
+            raise CalendarBuildError(f"Expected 10 slots on {iso_date}; found {len(day_rows)}")
+        _validate_day_focus(day_rows, focus, iso_date)
         rows.extend(day_rows)
         day += dt.timedelta(days=1)
 
+    for (year, week), count in rashi_counts_by_week.items():
+        if count > focus["rashi_encyclopedia_max_per_week"]:
+            raise CalendarBuildError(
+                f"Channel focus violation: ISO week {year}-W{week:02} has "
+                f"{count} rashi episodes; maximum is "
+                f"{focus['rashi_encyclopedia_max_per_week']}"
+            )
     return {
         "schema_version": 1,
         "start_date": start.isoformat(),
@@ -435,8 +645,9 @@ def render_markdown(payload):
         "",
         f"Date range: {payload['start_date']} to {payload['end_date']} (Asia/Kolkata)",
         "",
-        "> Festival and vrat videos are scheduled only for verified dates. When no verified "
-        "event fits a festival slot, an evergreen non-festival topic fills it instead.",
+        "> The 09:00 `legacy_daily` slot is owned by Apps Script and is never rendered by the batch. "
+        "Unverified or legacy-duplicate festival topics are replaced with evergreen core-culture "
+        "videos. All ten slots remain active and are checked against the configured channel focus.",
         "",
     ]
     current_date = None
@@ -447,12 +658,13 @@ def render_markdown(payload):
             lines.extend([
                 f"## {current_date}",
                 "",
-                "| Slot | Time IST | Type | Topic | Festival date | Tradition | Status |",
-                "|---:|:---:|---|---|:---:|---|---|",
+                "| Slot | Time IST | Source | Type | Topic | Festival date | Tradition | Status |",
+                "|---:|:---:|---|---|---|:---:|---|---|",
             ])
         topic = row["topic_hi"].replace("|", "\\|")
         lines.append(
-            f"| {row['slot']} | {row['publish_time_ist']} | {row['type']} | {topic} "
+            f"| {row['slot']} | {row['publish_time_ist']} | {row['source']} "
+            f"| {row['type']} | {topic} "
             f"| {row['festival_date']} | {row['festival_tradition']} | {row['status']} |"
         )
         if index + 1 < len(videos) and row["date"] != videos[index + 1]["date"]:
@@ -481,35 +693,71 @@ def build(start_date, end_date, **kwargs):
 def print_summary(payload):
     rows = payload["videos"]
     dates = sorted({row["date"] for row in rows})
-    planned_counts = {
-        date: sum(row["date"] == date and row["status"] == "planned" for row in rows)
-        for date in dates
-    }
-    try:
-        upload_limit = int(os.getenv("MAX_API_UPLOADS_PER_DAY", "10"))
-    except ValueError as exc:
-        raise CalendarBuildError("MAX_API_UPLOADS_PER_DAY must be a non-negative integer") from exc
-    if upload_limit < 0:
-        raise CalendarBuildError("MAX_API_UPLOADS_PER_DAY must be a non-negative integer")
+    focus = _read_channel_focus(CHANNEL_FOCUS_PATH)
     blocked = sum(row["status"] == "blocked_unverified" for row in rows)
-    planned = sum(planned_counts.values())
-    api_uploads = sum(min(count, upload_limit) for count in planned_counts.values())
-    drive_fallback = planned - api_uploads
-    short_days = [
-        f"{date} ({planned_counts[date]})"
-        for date in dates if planned_counts[date] < 10
-    ]
-    print(f"Days: {len(dates)}; slot records: {len(rows)}; planned videos: {planned}")
+    duplicate_blocked = sum(row["status"] == "blocked_duplicate" for row in rows)
+    evergreen_replacements = sum(
+        "not scheduled; evergreen" in row["notes"] for row in rows
+    )
+    batch_planned = sum(
+        row["source"] == "batch" and row["status"] == "planned" for row in rows
+    )
+    legacy_count = sum(row["source"] == "legacy" for row in rows)
+    print(
+        f"Days: {len(dates)}; slot records: {len(rows)}; "
+        f"legacy-managed: {legacy_count}; planned batch videos: {batch_planned}"
+    )
     print(f"Blocked unverified slots: {blocked}")
+    print(f"Blocked due to nearby legacy duplicates: {duplicate_blocked}")
+    active_total = 0
+    core_total = 0
+    astrology_total = 0
+    active_counts = []
+    for calendar_date in dates:
+        day_rows = [row for row in rows if row["date"] == calendar_date]
+        active = [
+            row for row in day_rows
+            if row["status"] in ACTIVE_STATUSES
+        ]
+        legacy_for_day = sum(row["source"] == "legacy" for row in active)
+        api_attempts = len(active)
+        active_counts.append(len(active))
+        active_total += len(active)
+        core_count = sum(
+            row["source"] == "legacy" or row["type"] in focus["core_categories"]
+            for row in active
+        )
+        astrology_count = sum(
+            row["type"] in focus["astrology_categories"] for row in active
+        )
+        core_total += core_count
+        astrology_total += astrology_count
+        mix = {}
+        for row in active:
+            mix[row["type"]] = mix.get(row["type"], 0) + 1
+        print(
+            f"{calendar_date}: videos={len(active)}/10 slots; "
+            f"legacy={legacy_for_day}; core={core_count}/{len(active)}; "
+            f"astrology={astrology_count}; YouTube API attempts={api_attempts}; "
+            "Drive fallback=on failure; "
+            f"mix={mix}"
+        )
+    short_days = [
+        f"{calendar_date} ({active_counts[index]})"
+        for index, calendar_date in enumerate(dates)
+        if active_counts[index] < 10
+    ]
+    core_share = core_total / active_total if active_total else 0
+    astrology_share = astrology_total / active_total if active_total else 0
     print(
-        f"Daily planned videos: {min(planned_counts.values())}-"
-        f"{max(planned_counts.values())}; fewer than 10: "
-        + (", ".join(short_days) if short_days else "none")
+        f"Active video total: {active_total}; core: {core_total} "
+        f"({core_share:.1%}); astrology: {astrology_total} ({astrology_share:.1%})"
     )
     print(
-        f"YouTube API attempts reserved: {api_uploads}; pre-reserved Drive slots: "
-        f"{drive_fallback}; upload failures use Drive fallback when assets exist"
+        f"YouTube API attempts planned: {active_total}; Drive fallback is attempted only "
+        f"after an upload failure; evergreen replacements: {evergreen_replacements}"
     )
+    print("Days below 10 videos: " + (", ".join(short_days) if short_days else "none"))
 
 
 def main():

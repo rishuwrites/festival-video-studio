@@ -8,14 +8,15 @@ on:
         type: string
         required: false
         default: ""
-  schedule:
-    - cron: "0 12 * * *"
+  # Re-enable this schedule only after owner confirmation and credential setup.
+  # schedule:
+  #   - cron: "0 12 * * *"
 
 permissions:
   contents: write
 
 concurrency:
-  group: daily-batch-${{ github.ref }}
+  group: parv-katha-publishing-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
@@ -33,7 +34,6 @@ jobs:
         id: plan
         env:
           REQUESTED_DATE: ${{ github.event.inputs.date || '' }}
-          MAX_API_UPLOADS_PER_DAY: ${{ vars.MAX_API_UPLOADS_PER_DAY || '10' }}
         run: |
           if [ -n "$REQUESTED_DATE" ]; then
             batch_date="$REQUESTED_DATE"
@@ -68,6 +68,7 @@ jobs:
       SLOT: ${{ matrix.video.slot }}
       UPLOAD_ALLOWED: ${{ matrix.video.upload_allowed }}
       EXTRA_ARGS: "[]"
+      FACEBOOK_UPLOAD: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN != '' && (secrets.FACEBOOK_PAGE_ID || vars.FACEBOOK_PAGE_ID) != '' }}
       OUTPUT_DIR: output/${{ matrix.video.date }}_slot_${{ matrix.video.slot }}
       RESULTS_DIR: output/run_results
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -76,6 +77,9 @@ jobs:
       YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
       YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
       YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID || vars.FACEBOOK_PAGE_ID }}
+      FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN }}
+      META_GRAPH_API_VERSION: ${{ vars.META_GRAPH_API_VERSION || 'v27.0' }}
       HF_FLUX_SPACE: ${{ vars.HF_FLUX_SPACE || 'https://black-forest-labs-flux-1-schnell.hf.space' }}
       POLLINATIONS_TOKEN: ${{ secrets.POLLINATIONS_TOKEN }}
     steps:

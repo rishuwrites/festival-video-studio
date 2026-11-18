@@ -47,7 +47,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: festival-video-${{ github.repository }}
+  group: parv-katha-publishing-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
@@ -63,7 +63,7 @@ jobs:
       FESTIVAL_PUBLISH_TIME: ${{ inputs.publish_time }}
       FESTIVAL_RESEARCH_CONTEXT: ${{ inputs.research_context }}
       YOUTUBE_UPLOAD: ${{ inputs.upload }}
-      FACEBOOK_UPLOAD: ${{ inputs.facebook_upload }}
+      FACEBOOK_UPLOAD: ${{ inputs.facebook_upload && secrets.FACEBOOK_PAGE_ACCESS_TOKEN != '' && (secrets.FACEBOOK_PAGE_ID || vars.FACEBOOK_PAGE_ID) != '' }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_API_KEY1: ${{ secrets.GEMINI_API_KEY1 }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}

@@ -333,10 +333,15 @@ def build_topics():
         ))
     for hi, en in VRAT_TOPICS:
         topics.append(_topic("vrat_rules", hi, en))
-    for hi, en in EVENING_TOPICS:
-        topics.append(_topic("evening_special", hi, en))
         topics.append(_topic(
-            "evening_special",
+            "vrat_rules",
+            f"व्रत परंपरा में क्षेत्रीय दृष्टि: {hi}",
+            f"Regional perspective on vrat customs: {en}",
+        ))
+    for hi, en in EVENING_TOPICS:
+        topics.append(_topic("evergreen_culture", hi, en))
+        topics.append(_topic(
+            "evergreen_culture",
             f"सांस्कृतिक चिंतन: {hi}",
             f"Devotional reflection: {en}",
         ))
@@ -371,14 +376,6 @@ def build_topics():
                 rashi_index=index,
                 episode=episode,
             ))
-            topics.append(_topic(
-                "rashi_encyclopedia_or_festival",
-                f"{name_hi} राशि: {angle_hi} की विस्तृत चर्चा",
-                f"{name_en}: an extended guide to {angle_en.lower()}",
-                evergreen=False,
-                rashi_index=index,
-                episode="relationships" if episode == "relationships" else episode,
-            ))
 
     for event in FESTIVALS[:8]:
         name_hi, name_en = event["name_hi"], event["name_en"]
@@ -386,7 +383,7 @@ def build_topics():
             for kind, suffix_hi, suffix_en in (
                 ("festival_explainer", "तिथि, कथा और परंपराएँ", "date, story, and traditions"),
                 ("upcoming_festival", "से पहले जानें: रीति और तैयारी", "customs and preparation to know beforehand"),
-                ("rashi_encyclopedia_or_festival", "क्षेत्रीय परंपराएँ और अर्थ", "regional traditions and meaning"),
+                ("story_history", "क्षेत्रीय परंपराएँ और अर्थ", "regional traditions and meaning"),
             ):
                 topics.append(_topic(
                     kind,

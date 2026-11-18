@@ -16,6 +16,7 @@ import images
 import render
 import voice
 import web_search
+from drive_fallback import save_to_drive
 from youtube_upload import normalize_youtube_tags, scheduled_datetime, upload_scheduled
 
 
@@ -387,6 +388,7 @@ def generate_video(
     topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None,
     publish_date="", publish_time="", upload=False, facebook_upload_enabled=False,
     prepared_bundle=None, title_max_length=100, title_suffix="", festival_tradition="",
+    continue_on_upload_errors=False,
 ):
     if not topic.strip():
         raise ValueError("A festival topic is required")
@@ -609,45 +611,65 @@ def generate_video(
     with open(metadata_path, "w", encoding="utf-8") as file:
         json.dump(metadata, file, ensure_ascii=False, indent=2)
 
+    upload_errors = {}
     if upload:
         if not publish_date or not publish_time:
             raise ValueError("Scheduled upload requires a publish date and time in IST")
         print(f"  scheduling YouTube upload for {publish_date} {publish_time} IST")
-        youtube_result = upload_scheduled(
-            video_path, metadata_path, publish_date, publish_time,
-            thumbnail_path=thumb_path,
-        )
-        metadata.update({
-            "upload_status": youtube_result["status"],
-            "youtube_video_id": youtube_result["video_id"],
-            "youtube_url": youtube_result["url"],
-            "publish_at_ist": youtube_result["publish_at_ist"],
-        })
+        try:
+            youtube_result = upload_scheduled(
+                video_path, metadata_path, publish_date, publish_time,
+                thumbnail_path=thumb_path,
+            )
+            metadata.update({
+                "upload_status": youtube_result["status"],
+                "youtube_video_id": youtube_result["video_id"],
+                "youtube_url": youtube_result["url"],
+                "publish_at_ist": youtube_result["publish_at_ist"],
+            })
+        except (RuntimeError, ValueError, OSError) as exc:
+            if not continue_on_upload_errors:
+                raise
+            upload_errors["youtube"] = f"{type(exc).__name__}: {exc}"
+            metadata["upload_status"] = "failed"
+            metadata["youtube_error"] = upload_errors["youtube"]
         with open(metadata_path, "w", encoding="utf-8") as file:
             json.dump(metadata, file, ensure_ascii=False, indent=2)
-        print(f"  YouTube scheduled: {youtube_result['url']} at {youtube_result['publish_at_ist']}")
+        if metadata.get("youtube_url"):
+            print(
+                f"  YouTube scheduled: {metadata['youtube_url']} "
+                f"at {metadata['publish_at_ist']}"
+            )
     if facebook_upload_enabled:
         print(f"  scheduling Facebook Page video for {publish_date} {publish_time} IST")
-        facebook_result = facebook_upload.upload_scheduled(
-            video_path,
-            video_title,
-            description,
-            publish_date,
-            publish_time,
-            thumbnail_path=thumb_path,
-        )
-        metadata.update({
-            "facebook_status": facebook_result["status"],
-            "facebook_video_id": facebook_result["video_id"],
-            "facebook_url": facebook_result["url"],
-            "facebook_publish_at_ist": facebook_result["publish_at_ist"],
-        })
+        try:
+            facebook_result = facebook_upload.upload_scheduled(
+                video_path,
+                video_title,
+                description,
+                publish_date,
+                publish_time,
+                thumbnail_path=thumb_path,
+            )
+            metadata.update({
+                "facebook_status": facebook_result["status"],
+                "facebook_video_id": facebook_result["video_id"],
+                "facebook_url": facebook_result["url"],
+                "facebook_publish_at_ist": facebook_result["publish_at_ist"],
+            })
+        except (RuntimeError, ValueError, OSError) as exc:
+            if not continue_on_upload_errors:
+                raise
+            upload_errors["facebook"] = f"{type(exc).__name__}: {exc}"
+            metadata["facebook_status"] = "failed"
+            metadata["facebook_error"] = upload_errors["facebook"]
         with open(metadata_path, "w", encoding="utf-8") as file:
             json.dump(metadata, file, ensure_ascii=False, indent=2)
-        print(
-            f"  Facebook Page video scheduled: {facebook_result['url']} "
-            f"at {facebook_result['publish_at_ist']}"
-        )
+        if metadata.get("facebook_url"):
+            print(
+                f"  Facebook Page video scheduled: {metadata['facebook_url']} "
+                f"at {metadata['facebook_publish_at_ist']}"
+            )
 
     print(f"  rendered preview: {video_path}")
     print(f"  research report: {research_path}")
@@ -662,6 +684,7 @@ def generate_video(
         "research": research_path,
         "youtube": metadata.get("youtube_url", ""),
         "facebook": metadata.get("facebook_url", ""),
+        "upload_errors": upload_errors,
     }
 
 
@@ -695,10 +718,23 @@ def main():
     if not args.topic.strip():
         parser.error("--topic or FESTIVAL_TOPIC is required")
     try:
-        generate_video(
+        generated = generate_video(
             args.topic, args.date, args.scope, args.output_dir or None,
             args.publish_date, args.publish_time, args.upload, args.facebook_upload,
+            continue_on_upload_errors=args.upload or args.facebook_upload,
         )
+        if generated.get("upload_errors"):
+            drive = save_to_drive(
+                generated["video"],
+                generated["thumbnail"],
+                generated["metadata"],
+                3,
+                "partial_upload_failure",
+                publish_date=args.publish_date,
+                publish_time=args.publish_time,
+                calendar_date=args.publish_date,
+            )
+            print(f"  upload failure saved to Google Drive: {drive['drive_link']}")
     except Exception as exc:
         raise SystemExit(f"Festival video generation failed: {type(exc).__name__}: {exc}") from exc
 

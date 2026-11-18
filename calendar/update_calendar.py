@@ -19,6 +19,8 @@ def merge_results(calendar_path, result_dir):
         if key not in by_slot:
             raise ValueError(f"Run result does not match a calendar slot: {result_path.name}")
         row = by_slot[key]
+        if row.get("source") == "legacy" or row.get("type") == "legacy_daily":
+            raise ValueError(f"Run result cannot update the Apps Script legacy slot: {result_path.name}")
         status = result.get("status")
         if status not in {"generated", "scheduled", "uploaded", "failed_saved_to_drive", "skipped"}:
             raise ValueError(f"Invalid run status in {result_path.name}: {status!r}")
@@ -27,6 +29,12 @@ def merge_results(calendar_path, result_dir):
             result.get("youtube_video_id") or row.get("youtube_video_id", "")
         )
         row["drive_link"] = result.get("drive_link") or row.get("drive_link", "")
+        row["facebook_video_id"] = (
+            result.get("facebook_video_id") or row.get("facebook_video_id", "")
+        )
+        row["facebook_link"] = (
+            result.get("facebook_link") or row.get("facebook_link", "")
+        )
         details = result.get("notes", "")
         notes = [
             part.strip()
