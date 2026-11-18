@@ -1,0 +1,11 @@
+{
+  "PANCHANG_LOCATION": {
+    "name": "Lucknow, Uttar Pradesh",
+    "latitude": 26.8467,
+    "longitude": 80.9462,
+    "elevation_m": 126,
+    "timezone": "Asia/Kolkata",
+    "drik_geoname_id": "1264733"
+  },
+  "ayanamsa": "Lahiri"
+}
