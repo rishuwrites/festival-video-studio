@@ -158,3 +158,52 @@ class RunOneFallbackTests(unittest.TestCase):
             self.assertEqual(save_mock.call_count, 8)
             self.assertTrue(all(result["status"] == "failed_saved_to_drive" for result in results))
             self.assertTrue(all(not call.kwargs["upload"] for call in generate_mock.call_args_list))
+
+    def test_batch_runner_rejects_legacy_slot_before_rendering(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            env = self._environment(root / "output", root / "results")
+            env["CONTENT_TYPE"] = "legacy_daily"
+            with mock.patch.object(run_one.festival_main, "generate_video") as generate:
+                with self.assertRaisesRegex(ValueError, "managed by Apps Script"):
+                    run_one.run_one(env)
+            generate.assert_not_called()
+
+    def test_facebook_success_is_recorded_when_youtube_fails(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            output_dir = root / "output"
+            results_dir = root / "results"
+            output_dir.mkdir()
+            generated = {
+                "video": str(output_dir / "video.mp4"),
+                "thumbnail": str(output_dir / "video.jpg"),
+                "metadata": str(output_dir / "video.json"),
+                "youtube": "",
+                "facebook": "https://www.facebook.com/page/videos/facebook-id",
+                "upload_errors": {"youtube": "quota exceeded"},
+            }
+            Path(generated["video"]).write_bytes(b"video")
+            Path(generated["thumbnail"]).write_bytes(b"thumbnail")
+            Path(generated["metadata"]).write_text(json.dumps({
+                "facebook_video_id": "facebook-id",
+                "facebook_url": generated["facebook"],
+            }), encoding="utf-8")
+            env = self._environment(output_dir, results_dir)
+            env["FACEBOOK_UPLOAD"] = "true"
+
+            with mock.patch.object(
+                run_one.festival_main, "generate_video", return_value=generated,
+            ) as generate, mock.patch.object(
+                run_one, "save_to_drive",
+                return_value={"drive_link": "https://drive.google.com/file/d/fallback/view"},
+            ) as save:
+                result = run_one.run_one(env)
+
+            self.assertEqual(result["status"], "scheduled")
+            self.assertEqual(result["youtube_video_id"], "")
+            self.assertEqual(result["facebook_video_id"], "facebook-id")
+            self.assertEqual(result["drive_link"], "https://drive.google.com/file/d/fallback/view")
+            self.assertIn("youtube upload failed: quota exceeded", result["notes"])
+            self.assertTrue(generate.call_args.kwargs["facebook_upload_enabled"])
+            self.assertEqual(save.call_args.args[4], "partial_upload_failure")

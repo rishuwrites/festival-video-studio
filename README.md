@@ -36,7 +36,11 @@ YouTube uploads use your OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_
 
 ## Daily 10-video long-form publishing
 
-The `daily-batch.yml` workflow plans ten **16:9 long-form videos** for one calendar date, renders jobs with `fail-fast: false` and at most three concurrent jobs, and merges each result back into the calendar. No Shorts or vertical videos are produced. The scheduled run starts at 12:00 UTC and selects tomorrow's date in Asia/Kolkata; manual dispatch accepts an optional `YYYY-MM-DD` date.
+The `daily-batch.yml` workflow plans ten total **16:9 long-form video slots** per calendar date. When the legacy Apps Script has a video for that release date, it owns the 09:00 IST slot and the batch renders the other nine slots. The batch never renders the legacy slot. If no legacy entry exists, the batch fills all ten slots. Batch jobs use `fail-fast: false` and at most three concurrent renders; no Shorts or vertical videos are produced.
+
+The batch workflow is manual-only (`workflow_dispatch`) until you explicitly enable its schedule. To enable it later, uncomment the `schedule:` trigger in `.github/workflows/daily-batch.yml` after confirming the calendar data and upload credentials. The batch and legacy workflows share a publishing concurrency group to prevent overlapping runs.
+
+`config/channel_focus.json` sets a minimum 80% core festival/culture share, a maximum of one astrology-category video per day, and at most two rashi-encyclopedia episodes per ISO week. The builder fails with a clear error if the planned active topics exceed those limits. Festival and vrat rows without verified dates, and topics duplicated against nearby legacy briefs, remain blocked rather than being silently replaced.
 
 The calendar covers November 18 through December 31, 2026. Seed owner-editable data and the distinct topic pool with:
 
@@ -54,11 +58,13 @@ Before building the calendar:
 python calendar\build_calendar.py --from 2026-11-18 --to 2026-12-31
 ```
 
-The builder creates `calendar\content_calendar.csv`, `calendar\content_calendar.json`, and `calendar\CALENDAR.md`. It stops on missing daily panchang values or when a date needs a verified festival/vrat topic. A festival less than two days away at the beginning of the range is marked `late_prepublish` and assigned to the earliest calendar date. `PRE_PUBLISH_DAYS_MIN` and `PRE_PUBLISH_DAYS_MAX` may be set to 2 or 3 (in order). The existing YouTube scheduler still rejects publish times less than 15 minutes in the future.
+The builder creates `calendar\content_calendar.csv`, `calendar\content_calendar.json`, and `calendar\CALENDAR.md`. It stops on missing daily panchang values, but blocks festival/vrat slots that have no verified observance instead of bypassing verification. A festival less than two days away at the beginning of the range is marked `late_prepublish` and assigned to the earliest calendar date. `PRE_PUBLISH_DAYS_MIN` and `PRE_PUBLISH_DAYS_MAX` may be set to 2 or 3 (in order). The existing YouTube scheduler still rejects publish times less than 15 minutes in the future.
 
 The 06:00 daily panchang/rashifal script reads only the supplied panchang row and `data\rashifal_rules.json`; predictions are fixed, non-certain interpretations, with a disclaimer in the video description. Rashi episodes use the fixed chapter template and the content is framed as traditional astrology. The generated evergreen topic pool contains at least 300 distinct bilingual topics. Rebuilding the calendar retains completed video statuses and IDs.
 
-Set `GEMINI_API_KEY`, optional `GEMINI_API_KEY1`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. YouTube's default 10,000-unit daily quota allows roughly six video inserts at 1,600 units each; `MAX_API_UPLOADS_PER_DAY` defaults to 6. The first six slots may be scheduled on YouTube. Remaining videos are saved to Google Drive in `ParvKatha_Failed_Uploads/<slot>_quota_reserved` and marked `failed_saved_to_drive`.
+Set `GEMINI_API_KEY`, optional `GEMINI_API_KEY1`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. YouTube's default 10,000-unit daily quota allows roughly six video inserts at 1,600 units each; `MAX_API_UPLOADS_PER_DAY` defaults to 6 across both publishing flows. When the legacy video is scheduled, it reserves one API upload and the batch receives up to five; its other four batch videos use the Google Drive fallback. On a date without a legacy entry, the batch receives the full six-upload budget and sends the other four videos to Drive. Videos saved to Drive are placed under `ParvKatha_Failed_Uploads/<slot>_<reason>` and marked `failed_saved_to_drive`.
+
+When `FACEBOOK_PAGE_ID` and `FACEBOOK_PAGE_ACCESS_TOKEN` are configured, batch videos are also scheduled to the Facebook Page, including videos whose YouTube upload is sent to Drive fallback. Facebook publishing uses its own credentials and does not consume YouTube API quota. If one platform succeeds and another fails, the calendar result records each platform's ID/link and the failed platform detail; the video is also retained in Drive for recovery.
 
 ### Daily-batch troubleshooting
 
@@ -67,6 +73,8 @@ Set `GEMINI_API_KEY`, optional `GEMINI_API_KEY1`, `YT_CLIENT_ID`, `YT_CLIENT_SEC
 - Google Drive HTTP 403: the existing refresh token likely lacks `drive.file`. Regenerate the token with `python tools\get_refresh_token.py`, enable Drive API in the same project, and replace the Actions secret.
 
 The existing YouTube refresh token does not gain Drive permission automatically. Enable Google Drive API in the same Google Cloud project, then run `python tools\get_refresh_token.py` locally with `YT_CLIENT_ID` and `YT_CLIENT_SECRET` set. Copy its output into the `YT_REFRESH_TOKEN` Actions secret. The OAuth consent screen should be **In production**: tokens from an app left in **Testing** may expire after seven days (otherwise regenerate weekly). The refreshed grant includes `youtube.upload`, `youtube.readonly`, and `drive.file`. To retry saved videos after quota resets, run `python recap\retry_failed_uploads.py --calendar calendar\content_calendar.json`.
+
+For Facebook cross-posting from the batch workflow, set `FACEBOOK_PAGE_ACCESS_TOKEN` as an Actions secret and `FACEBOOK_PAGE_ID` as a secret or repository variable. The Page token needs permission to publish Page videos (`pages_manage_posts`).
 
 The older `scheduler\google_apps_script.gs` and `data\india-festival-video-calendar-2026.json` remain a separate single-video dispatch path; they are not used by the 10-video batch workflow.
 

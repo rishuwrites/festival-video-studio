@@ -47,7 +47,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: festival-video-${{ github.repository }}
+  group: parv-katha-publishing-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:

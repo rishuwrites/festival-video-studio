@@ -5,71 +5,81 @@
       "slot": 1,
       "publish_time_ist": "06:00",
       "format": "long",
+      "source": "batch",
       "type": "daily_panchang_rashifal",
-      "content": "Today's sourced panchang and all 12 traditional rashifal readings"
+      "content": "Daily panchang: tithi, nakshatra, Rahu Kaal, sunrise, and at most one short traditional rashifal segment"
     },
     {
       "slot": 2,
-      "publish_time_ist": "08:00",
+      "publish_time_ist": "07:30",
       "format": "long",
+      "source": "batch",
       "type": "festival_explainer",
-      "content": "Main explainer for a verified festival 2 to 3 days away"
+      "content": "Sourced explainer for a verified observance 2 to 3 days ahead"
     },
     {
       "slot": 3,
-      "publish_time_ist": "10:00",
+      "publish_time_ist": "09:00",
       "format": "long",
-      "type": "story_history",
-      "content": "Evergreen story, origin, or history"
+      "source": "legacy",
+      "type": "legacy_daily",
+      "content": "Existing Apps Script video; calendar target date releases two days earlier"
     },
     {
       "slot": 4,
-      "publish_time_ist": "12:00",
+      "publish_time_ist": "10:30",
       "format": "long",
-      "type": "vrat_rules",
-      "content": "Vrat vidhi, dos and don'ts, and parana rules"
+      "source": "batch",
+      "type": "story_history",
+      "content": "Sourced festival story, origin, or history"
     },
     {
       "slot": 5,
-      "publish_time_ist": "14:00",
+      "publish_time_ist": "12:00",
       "format": "long",
-      "type": "regional_customs",
-      "content": "Regional traditions, clearly identifying their communities"
+      "source": "batch",
+      "type": "vrat_rules",
+      "content": "Vrat vidhi, regional rules, and parana guidance"
     },
     {
       "slot": 6,
-      "publish_time_ist": "16:00",
+      "publish_time_ist": "14:00",
       "format": "long",
-      "type": "rashi_encyclopedia",
-      "content": "A full rashi encyclopedia episode, using the fixed chapter template"
+      "source": "batch",
+      "type": "story_history",
+      "content": "A distinct sourced story, history, or significance episode"
     },
     {
       "slot": 7,
-      "publish_time_ist": "18:00",
+      "publish_time_ist": "16:00",
       "format": "long",
-      "type": "rashi_encyclopedia_or_festival",
-      "content": "A later rashi episode or a second verified festival topic"
+      "source": "batch",
+      "type": "regional_customs",
+      "content": "Regional customs with the community and location clearly identified"
     },
     {
       "slot": 8,
-      "publish_time_ist": "19:30",
+      "publish_time_ist": "18:00",
       "format": "long",
-      "type": "upcoming_festival",
-      "content": "A verified festival or vrat 2 to 3 days away"
+      "source": "batch",
+      "type": "evergreen_culture",
+      "content": "Evergreen festival and devotional culture; may be replaced by a limited rashi episode"
     },
     {
       "slot": 9,
-      "publish_time_ist": "21:00",
+      "publish_time_ist": "19:30",
       "format": "long",
-      "type": "story_history",
-      "content": "A distinct evergreen story or meaning-of topic"
+      "source": "batch",
+      "type": "upcoming_festival",
+      "content": "Preparation and customs for a verified observance 2 to 3 days ahead"
     },
     {
       "slot": 10,
-      "publish_time_ist": "22:30",
+      "publish_time_ist": "21:00",
       "format": "long",
-      "type": "evening_special",
-      "content": "Mantra, aarti meaning, or sourced Q&A"
+      "source": "batch",
+      "type": "vrat_rules",
+      "content": "A second distinct vrat story or regional fasting practice"
     }
   ]
 }

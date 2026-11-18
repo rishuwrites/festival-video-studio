@@ -1090,8 +1090,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: अवध में दीप सजाने की लोकरीति",
+      "topic_en": "Regional perspective: Folk lamp decoration in Awadh",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "भोजपुरी अंचल के पर्व गीत",
       "topic_en": "Festival songs of the Bhojpuri region",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: भोजपुरी अंचल के पर्व गीत",
+      "topic_en": "Regional perspective: Festival songs of the Bhojpuri region",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1106,8 +1122,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: मिथिला की अरिपन कला",
+      "topic_en": "Regional perspective: Aripan art in Mithila",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "पूर्वांचल के मंदिर मेले",
       "topic_en": "Temple fairs in Purvanchal",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पूर्वांचल के मंदिर मेले",
+      "topic_en": "Regional perspective: Temple fairs in Purvanchal",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1122,8 +1154,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: बिहार के सामुदायिक प्रसाद",
+      "topic_en": "Regional perspective: Community prasad traditions in Bihar",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "उत्तर प्रदेश की पूजा थाली सजावट",
       "topic_en": "Puja-thali decoration in Uttar Pradesh",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: उत्तर प्रदेश की पूजा थाली सजावट",
+      "topic_en": "Regional perspective: Puja-thali decoration in Uttar Pradesh",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1138,8 +1186,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: गंगा तट की स्थानीय आरती परंपराएँ",
+      "topic_en": "Regional perspective: Local aarti traditions along the Ganga",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "बुंदेलखंड की मौसमी लोककथाएँ",
       "topic_en": "Seasonal folk stories of Bundelkhand",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: बुंदेलखंड की मौसमी लोककथाएँ",
+      "topic_en": "Regional perspective: Seasonal folk stories of Bundelkhand",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1154,8 +1218,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: ब्रज क्षेत्र के भक्ति गीत",
+      "topic_en": "Regional perspective: Devotional songs of Braj",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "मगध की मंदिर यात्राएँ",
       "topic_en": "Temple journeys in Magadh",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: मगध की मंदिर यात्राएँ",
+      "topic_en": "Regional perspective: Temple journeys in Magadh",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1170,8 +1250,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: छोटे नगरों के वार्षिक धार्मिक मेले",
+      "topic_en": "Regional perspective: Annual religious fairs in small towns",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "पूर्वी भारत की अल्पना परंपरा",
       "topic_en": "Alpana traditions of eastern India",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पूर्वी भारत की अल्पना परंपरा",
+      "topic_en": "Regional perspective: Alpana traditions of eastern India",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1186,8 +1282,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: राजस्थान की दीप सजावट",
+      "topic_en": "Regional perspective: Lamp decoration traditions of Rajasthan",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "दक्षिण भारत के मंदिर उत्सव",
       "topic_en": "Temple festivals of southern India",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: दक्षिण भारत के मंदिर उत्सव",
+      "topic_en": "Regional perspective: Temple festivals of southern India",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1202,8 +1314,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पश्चिम भारत की सामूहिक आरती",
+      "topic_en": "Regional perspective: Community aarti in western India",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "पर्व भोज में क्षेत्रीय अनाज",
       "topic_en": "Regional grains in festival meals",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पर्व भोज में क्षेत्रीय अनाज",
+      "topic_en": "Regional perspective: Regional grains in festival meals",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1218,8 +1346,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: घर-घर की पूजा विधि में विविधता",
+      "topic_en": "Regional perspective: Variation in household worship practices",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "बोली और भजन की स्थानीय पहचान",
       "topic_en": "Local identity in dialect and devotional song",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: बोली और भजन की स्थानीय पहचान",
+      "topic_en": "Regional perspective: Local identity in dialect and devotional song",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1234,8 +1378,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: क्षेत्रीय मंदिरों के सेवा समूह",
+      "topic_en": "Regional perspective: Service groups at regional temples",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "स्थानीय पंचांग से पर्व तिथि देखना",
       "topic_en": "Checking dates in a local panchang",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: स्थानीय पंचांग से पर्व तिथि देखना",
+      "topic_en": "Regional perspective: Checking dates in a local panchang",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1250,8 +1410,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: लोक शिल्प में नदी और सूर्य",
+      "topic_en": "Regional perspective: Rivers and the sun in folk crafts",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "गाँव के मेले में कारीगरों की भूमिका",
       "topic_en": "Artisans at village fairs",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: गाँव के मेले में कारीगरों की भूमिका",
+      "topic_en": "Regional perspective: Artisans at village fairs",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1266,8 +1442,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: परिवारों में व्रत की अलग-अलग रीति",
+      "topic_en": "Regional perspective: Different family customs around fasting",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "क्षेत्रीय परंपराओं को सही नाम देना",
       "topic_en": "Naming regional traditions accurately",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: क्षेत्रीय परंपराओं को सही नाम देना",
+      "topic_en": "Regional perspective: Naming regional traditions accurately",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1282,8 +1474,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: शहर और गाँव के पर्व अनुभव",
+      "topic_en": "Regional perspective: Festival experiences in towns and villages",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "स्थानीय मंदिरों में भजन संध्या",
       "topic_en": "Devotional evenings at local temples",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: स्थानीय मंदिरों में भजन संध्या",
+      "topic_en": "Regional perspective: Devotional evenings at local temples",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1298,8 +1506,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: उत्तर भारतीय घरों की मौसमी सजावट",
+      "topic_en": "Regional perspective: Seasonal decoration in North Indian homes",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "भक्ति यात्राओं में स्थानीय भोजन",
       "topic_en": "Local foods on devotional journeys",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: भक्ति यात्राओं में स्थानीय भोजन",
+      "topic_en": "Regional perspective: Local foods on devotional journeys",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1314,8 +1538,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: क्षेत्रीय रीति और सार्वदेशिक तथ्य",
+      "topic_en": "Regional perspective: Regional custom versus nationwide fact",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "अलग-अलग समुदायों में प्रसाद की विविधता",
       "topic_en": "Prasad traditions across communities",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: अलग-अलग समुदायों में प्रसाद की विविधता",
+      "topic_en": "Regional perspective: Prasad traditions across communities",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1330,8 +1570,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पर्व आयोजन में महिलाओं की भूमिका",
+      "topic_en": "Regional perspective: Women's roles in festival organizing",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "स्थानीय मेलों में लोकनृत्य",
       "topic_en": "Folk dance at local fairs",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: स्थानीय मेलों में लोकनृत्य",
+      "topic_en": "Regional perspective: Folk dance at local fairs",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1346,8 +1602,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: नदी किनारे होने वाली सामुदायिक सेवा",
+      "topic_en": "Regional perspective: Community service beside rivers",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "हस्तशिल्प और धार्मिक अवसर",
       "topic_en": "Handicrafts and devotional occasions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: हस्तशिल्प और धार्मिक अवसर",
+      "topic_en": "Regional perspective: Handicrafts and devotional occasions",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1362,8 +1634,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: परिवार की मौखिक परंपरा का दस्तावेज़",
+      "topic_en": "Regional perspective: Documenting family oral traditions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "स्थानीय पर्व भोजन में साझा व्यंजन",
       "topic_en": "Shared dishes in local festival meals",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: स्थानीय पर्व भोजन में साझा व्यंजन",
+      "topic_en": "Regional perspective: Shared dishes in local festival meals",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1378,8 +1666,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: क्षेत्रीय देवालयों की वार्षिक यात्रा",
+      "topic_en": "Regional perspective: Annual visits to regional temples",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "मंदिर मेले में लोकशिल्प का बाज़ार",
       "topic_en": "Folk crafts at a temple fair",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: मंदिर मेले में लोकशिल्प का बाज़ार",
+      "topic_en": "Regional perspective: Folk crafts at a temple fair",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1394,8 +1698,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: लोककथा और समुदाय की स्मृति",
+      "topic_en": "Regional perspective: Folklore and community memory",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "पर्व के समय स्थानीय सेवा परंपरा",
       "topic_en": "Local service traditions during festivals",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पर्व के समय स्थानीय सेवा परंपरा",
+      "topic_en": "Regional perspective: Local service traditions during festivals",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1410,8 +1730,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: क्षेत्रीय पूजा सामग्री का परिचय",
+      "topic_en": "Regional perspective: An introduction to regional worship items",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "गाँव और शहर के व्रत अनुभव",
       "topic_en": "Fasting customs in villages and cities",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: गाँव और शहर के व्रत अनुभव",
+      "topic_en": "Regional perspective: Fasting customs in villages and cities",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1426,6 +1762,14 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: स्थानीय भाषा में पर्व कथा",
+      "topic_en": "Regional perspective: Festival stories in local languages",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "कला और संगीत से क्षेत्रीय पहचान",
       "topic_en": "Regional identity through art and music",
       "evergreen": true,
@@ -1434,8 +1778,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: कला और संगीत से क्षेत्रीय पहचान",
+      "topic_en": "Regional perspective: Regional identity through art and music",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "धार्मिक परंपराओं के स्रोत का सम्मान",
       "topic_en": "Respecting sources for religious customs",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: धार्मिक परंपराओं के स्रोत का सम्मान",
+      "topic_en": "Regional perspective: Respecting sources for religious customs",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1450,8 +1810,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत से पहले संकल्प कैसे लें",
+      "topic_en": "Regional perspective on vrat customs: How to make a vrat intention",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "व्रत में जल और विश्राम की योजना",
       "topic_en": "Planning hydration and rest during a fast",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत में जल और विश्राम की योजना",
+      "topic_en": "Regional perspective on vrat customs: Planning hydration and rest during a fast",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1466,8 +1842,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत की तिथि स्थानीय पंचांग से देखना",
+      "topic_en": "Regional perspective on vrat customs: Checking vrat dates in a local panchang",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "पारण का समय कैसे सत्यापित करें",
       "topic_en": "How to verify a parana time",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: पारण का समय कैसे सत्यापित करें",
+      "topic_en": "Regional perspective on vrat customs: How to verify a parana time",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1482,8 +1874,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: परिवार की परंपरा और व्रत नियम",
+      "topic_en": "Regional perspective on vrat customs: Family tradition and vrat rules",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "फलाहार की परंपरागत तैयारी",
       "topic_en": "Traditional preparation of phalahar",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: फलाहार की परंपरागत तैयारी",
+      "topic_en": "Regional perspective on vrat customs: Traditional preparation of phalahar",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1498,8 +1906,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत कथा सुनने का क्रम",
+      "topic_en": "Regional perspective on vrat customs: The sequence for listening to a vrat story",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "पूजा सामग्री की पहले से सूची",
       "topic_en": "Preparing a puja-supplies checklist",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: पूजा सामग्री की पहले से सूची",
+      "topic_en": "Regional perspective on vrat customs: Preparing a puja-supplies checklist",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1514,8 +1938,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: एकादशी व्रत के नियम स्रोत से जाँचें",
+      "topic_en": "Regional perspective on vrat customs: Verifying Ekadashi rules from a source",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "प्रदोष व्रत की पूजा तैयारी",
       "topic_en": "Preparing for Pradosh worship",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: प्रदोष व्रत की पूजा तैयारी",
+      "topic_en": "Regional perspective on vrat customs: Preparing for Pradosh worship",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1530,8 +1970,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: संकष्टी चतुर्थी की कथा और परंपरा",
+      "topic_en": "Regional perspective on vrat customs: Sankashti Chaturthi story and tradition",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "व्रत में क्षेत्रीय नियमों का अंतर",
       "topic_en": "Regional differences in fasting customs",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत में क्षेत्रीय नियमों का अंतर",
+      "topic_en": "Regional perspective on vrat customs: Regional differences in fasting customs",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1546,8 +2002,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: पारण और स्थानीय सूर्योदय का संबंध",
+      "topic_en": "Regional perspective on vrat customs: Parana and local sunrise",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "व्रत के दिन पूजा स्थान तैयार करना",
       "topic_en": "Preparing a worship space for a fast",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत के दिन पूजा स्थान तैयार करना",
+      "topic_en": "Regional perspective on vrat customs: Preparing a worship space for a fast",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1562,8 +2034,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत नियमों में परिवार से पूछना",
+      "topic_en": "Regional perspective on vrat customs: Asking family elders about vrat customs",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "व्रत कथा और स्रोत की पहचान",
       "topic_en": "Identifying a vrat story and its source",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत कथा और स्रोत की पहचान",
+      "topic_en": "Regional perspective on vrat customs: Identifying a vrat story and its source",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1578,8 +2066,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: निराहार और फलाहार परंपराओं का अंतर",
+      "topic_en": "Regional perspective on vrat customs: Nirahar and phalahar traditions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "व्रत में अहिंसा और सेवा का भाव",
       "topic_en": "Non-harm and service in fasting traditions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत में अहिंसा और सेवा का भाव",
+      "topic_en": "Regional perspective on vrat customs: Non-harm and service in fasting traditions",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1594,8 +2098,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत की शुरुआत और समापन विधि",
+      "topic_en": "Regional perspective on vrat customs: Beginning and ending a vrat",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "उपवास की परंपरा में संयम का अर्थ",
       "topic_en": "The meaning of restraint in fasting",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: उपवास की परंपरा में संयम का अर्थ",
+      "topic_en": "Regional perspective on vrat customs: The meaning of restraint in fasting",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1610,8 +2130,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत तिथि में स्थानानुसार बदलाव",
+      "topic_en": "Regional perspective on vrat customs: Location-based variation in vrat dates",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "पर्व के बाद पारण की तैयारी",
       "topic_en": "Preparing for parana after a festival",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: पर्व के बाद पारण की तैयारी",
+      "topic_en": "Regional perspective on vrat customs: Preparing for parana after a festival",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1626,8 +2162,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत के नियमों को सरल भाषा में समझें",
+      "topic_en": "Regional perspective on vrat customs: Explaining vrat rules in simple language",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "पूजा में उपयोग होने वाली पारंपरिक वस्तुएँ",
       "topic_en": "Traditional objects used in worship",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: पूजा में उपयोग होने वाली पारंपरिक वस्तुएँ",
+      "topic_en": "Regional perspective on vrat customs: Traditional objects used in worship",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1642,8 +2194,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत और सामुदायिक भोजन की परंपरा",
+      "topic_en": "Regional perspective on vrat customs: Fasting and community-meal traditions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "परिवार में बच्चों को व्रत कथा सुनाना",
       "topic_en": "Sharing vrat stories with children",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: परिवार में बच्चों को व्रत कथा सुनाना",
+      "topic_en": "Regional perspective on vrat customs: Sharing vrat stories with children",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1658,8 +2226,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: स्थानीय रीति से पूजा सामग्री चुनना",
+      "topic_en": "Regional perspective on vrat customs: Choosing puja items by local custom",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "व्रत के दिन समय-सारणी बनाना",
       "topic_en": "Making a vrat-day schedule",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत के दिन समय-सारणी बनाना",
+      "topic_en": "Regional perspective on vrat customs: Making a vrat-day schedule",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1674,8 +2258,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत में परंपरा और व्यक्तिगत सुविधा",
+      "topic_en": "Regional perspective on vrat customs: Tradition and personal comfort while fasting",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "व्रत कथा में प्रतीक समझना",
       "topic_en": "Understanding symbols in vrat stories",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत कथा में प्रतीक समझना",
+      "topic_en": "Regional perspective on vrat customs: Understanding symbols in vrat stories",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1690,8 +2290,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: तिथि बदलने पर व्रत निर्णय कैसे लें",
+      "topic_en": "Regional perspective on vrat customs: Making vrat plans when tithis vary",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "पारण के लिए शहर-विशेष पंचांग देखना",
       "topic_en": "Using a city-specific panchang for parana",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: पारण के लिए शहर-विशेष पंचांग देखना",
+      "topic_en": "Regional perspective on vrat customs: Using a city-specific panchang for parana",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1706,8 +2322,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत परंपराओं का सम्मानजनक परिचय",
+      "topic_en": "Regional perspective on vrat customs: A respectful introduction to fasting traditions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "व्रत और दान की लोकपरंपरा",
       "topic_en": "Folk traditions of fasting and giving",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत और दान की लोकपरंपरा",
+      "topic_en": "Regional perspective on vrat customs: Folk traditions of fasting and giving",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1722,8 +2354,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: उपवास के दिन शांत दिनचर्या",
+      "topic_en": "Regional perspective on vrat customs: A calm routine on a fasting day",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "व्रत के नियम और परंपरा में क्षेत्रीय भेद",
       "topic_en": "Regional differences in vrat rules",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत के नियम और परंपरा में क्षेत्रीय भेद",
+      "topic_en": "Regional perspective on vrat customs: Regional differences in vrat rules",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1738,8 +2386,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत में संकल्प का सरल अर्थ",
+      "topic_en": "Regional perspective on vrat customs: The simple meaning of a vrat intention",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "पारण से पहले स्थानीय पंचांग देखना",
       "topic_en": "Checking the local panchang before parana",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: पारण से पहले स्थानीय पंचांग देखना",
+      "topic_en": "Regional perspective on vrat customs: Checking the local panchang before parana",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1754,8 +2418,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: उपवास में स्वास्थ्य-सुविधा को प्राथमिकता",
+      "topic_en": "Regional perspective on vrat customs: Prioritizing personal comfort during a fast",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "व्रत कथा के पात्रों का संदर्भ",
       "topic_en": "Context for characters in a vrat story",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत कथा के पात्रों का संदर्भ",
+      "topic_en": "Regional perspective on vrat customs: Context for characters in a vrat story",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1770,8 +2450,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: परिवार की व्रत परंपरा लिखकर रखना",
+      "topic_en": "Regional perspective on vrat customs: Documenting a family's vrat tradition",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "व्रत सामग्री में स्थानीय विकल्प",
       "topic_en": "Local alternatives for vrat supplies",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत सामग्री में स्थानीय विकल्प",
+      "topic_en": "Regional perspective on vrat customs: Local alternatives for vrat supplies",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1786,8 +2482,24 @@
     },
     {
       "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत और विश्राम का संतुलन",
+      "topic_en": "Regional perspective on vrat customs: Balancing rest and fasting",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
       "topic_hi": "एकादशी नियमों में स्रोत की तारीख देखना",
       "topic_en": "Checking the date of an Ekadashi source",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: एकादशी नियमों में स्रोत की तारीख देखना",
+      "topic_en": "Regional perspective on vrat customs: Checking the date of an Ekadashi source",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1801,7 +2513,15 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "vrat_rules",
+      "topic_hi": "व्रत परंपरा में क्षेत्रीय दृष्टि: व्रत के दिन भोजन परंपरा पूछना",
+      "topic_en": "Regional perspective on vrat customs: Asking about customary vrat foods",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evergreen_culture",
       "topic_hi": "आरती के अर्थ को सरल भाषा में समझें",
       "topic_en": "Aarti meanings in simple language",
       "evergreen": true,
@@ -1809,7 +2529,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "मंत्र जप की परंपरा और उच्चारण",
       "topic_en": "Mantra recitation traditions and pronunciation",
       "evergreen": true,
@@ -1817,7 +2537,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "पूजा में मौन का सांस्कृतिक अर्थ",
       "topic_en": "The cultural meaning of silence in worship",
       "evergreen": true,
@@ -1825,7 +2545,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "भक्ति प्रश्नोत्तर: दीप क्यों जलाते हैं",
       "topic_en": "Devotional Q&A: why light a lamp",
       "evergreen": true,
@@ -1833,7 +2553,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "भक्ति प्रश्नोत्तर: प्रसाद क्या दर्शाता है",
       "topic_en": "Devotional Q&A: what prasad represents",
       "evergreen": true,
@@ -1841,7 +2561,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "शाम की आरती में परिवार की भागीदारी",
       "topic_en": "Family participation in evening aarti",
       "evergreen": true,
@@ -1849,7 +2569,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "भजन सुनने और गाने की परंपरा",
       "topic_en": "Traditions of listening to and singing bhajans",
       "evergreen": true,
@@ -1857,7 +2577,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "मंत्र के अर्थ को समझकर जप",
       "topic_en": "Reciting a mantra with understanding",
       "evergreen": true,
@@ -1865,7 +2585,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "घर की पूजा में दीप की देखभाल",
       "topic_en": "Caring for a lamp in household worship",
       "evergreen": true,
@@ -1873,7 +2593,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "पूजा के बाद कृतज्ञता की परंपरा",
       "topic_en": "Gratitude after worship",
       "evergreen": true,
@@ -1881,7 +2601,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "भक्ति संगीत में ताल और समुदाय",
       "topic_en": "Rhythm and community in devotional music",
       "evergreen": true,
@@ -1889,7 +2609,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "प्रार्थना और ध्यान की सांस्कृतिक जगह",
       "topic_en": "Prayer and meditation in cultural life",
       "evergreen": true,
@@ -1897,7 +2617,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "शाम के समय मंदिर की दिनचर्या",
       "topic_en": "An evening routine at a temple",
       "evergreen": true,
@@ -1905,7 +2625,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "आरती की थाली में वस्तुओं का परिचय",
       "topic_en": "Objects used in an aarti plate",
       "evergreen": true,
@@ -1913,7 +2633,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "भजन की पंक्ति का भावार्थ कैसे समझें",
       "topic_en": "How to understand a bhajan's meaning",
       "evergreen": true,
@@ -1921,7 +2641,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "मंत्रों के स्रोत और परंपरा पूछना",
       "topic_en": "Asking about mantra sources and traditions",
       "evergreen": true,
@@ -1929,7 +2649,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "सांस्कृतिक Q&A: पूजा में घंटी",
       "topic_en": "Cultural Q&A: bells in worship",
       "evergreen": true,
@@ -1937,7 +2657,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "सांस्कृतिक Q&A: तुलसी की घरेलू परंपरा",
       "topic_en": "Cultural Q&A: household Tulsi traditions",
       "evergreen": true,
@@ -1945,7 +2665,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "संध्या समय की पारिवारिक प्रार्थना",
       "topic_en": "Family prayer in the evening",
       "evergreen": true,
@@ -1953,7 +2673,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "लोकभक्ति और शास्त्रीय भक्ति का परिचय",
       "topic_en": "Folk and classical devotional traditions",
       "evergreen": true,
@@ -1961,7 +2681,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "आरती और सामूहिक गायन",
       "topic_en": "Aarti and group singing",
       "evergreen": true,
@@ -1969,7 +2689,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "पूजा के समय स्वच्छता की परंपरा",
       "topic_en": "Cleanliness customs during worship",
       "evergreen": true,
@@ -1977,7 +2697,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "मंदिर में दर्शन की शिष्टाचार परंपरा",
       "topic_en": "Etiquette traditions during temple visits",
       "evergreen": true,
@@ -1985,7 +2705,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "कथा सुनने के बाद चर्चा",
       "topic_en": "Discussing a story after listening",
       "evergreen": true,
@@ -1993,7 +2713,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "मंत्र की ध्वनि और ध्यान",
       "topic_en": "Mantra sound and attention",
       "evergreen": true,
@@ -2001,7 +2721,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "सांस्कृतिक Q&A: तिथि और मुहूर्त",
       "topic_en": "Cultural Q&A: tithi and muhurta",
       "evergreen": true,
@@ -2009,7 +2729,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "संध्या दीप और घर की सजावट",
       "topic_en": "Evening lamps and household decoration",
       "evergreen": true,
@@ -2017,7 +2737,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "भक्ति में सेवा का भाव",
       "topic_en": "The place of service in devotion",
       "evergreen": true,
@@ -2025,7 +2745,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "आरती के बाद प्रसाद बाँटने का भाव",
       "topic_en": "The meaning of sharing prasad after aarti",
       "evergreen": true,
@@ -2033,7 +2753,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "पारंपरिक प्रार्थना और आधुनिक दिनचर्या",
       "topic_en": "Traditional prayer and modern routines",
       "evergreen": true,
@@ -2041,7 +2761,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "भक्ति कथाओं को बच्चों तक पहुँचाना",
       "topic_en": "Sharing devotional stories with children",
       "evergreen": true,
@@ -2049,7 +2769,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "पूजा सामग्री का पर्यावरण-सम्मत उपयोग",
       "topic_en": "Mindful use of worship materials",
       "evergreen": true,
@@ -2057,7 +2777,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "भजन संध्या की सामुदायिक तैयारी",
       "topic_en": "Preparing a community bhajan evening",
       "evergreen": true,
@@ -2065,7 +2785,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "प्रार्थना में भाषा और स्थानीय बोली",
       "topic_en": "Language and dialect in prayer",
       "evergreen": true,
@@ -2073,7 +2793,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "पूजा परंपरा में प्रश्न पूछने की जगह",
       "topic_en": "Making space for questions about worship",
       "evergreen": true,
@@ -2081,7 +2801,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "स्थानीय आरती की धुनों का परिचय",
       "topic_en": "An introduction to local aarti melodies",
       "evergreen": true,
@@ -2089,7 +2809,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "भक्ति परंपराओं में मौसमी फूल",
       "topic_en": "Seasonal flowers in devotional traditions",
       "evergreen": true,
@@ -2097,7 +2817,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "मंदिर के आसपास की स्थानीय कला",
       "topic_en": "Local art around a temple",
       "evergreen": true,
@@ -2105,7 +2825,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "पूजा के बाद सामुदायिक स्वच्छता",
       "topic_en": "Community clean-up after worship",
       "evergreen": true,
@@ -2113,7 +2833,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "पर्व की तैयारी में पड़ोस का सहयोग",
       "topic_en": "Neighbourly help in festival preparations",
       "evergreen": true,
@@ -2121,7 +2841,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "संध्या पूजा में क्षेत्रीय भिन्नताएँ",
       "topic_en": "Regional variations in evening worship",
       "evergreen": true,
@@ -2129,7 +2849,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "स्थानीय कारीगरों से पारंपरिक सजावट",
       "topic_en": "Traditional decoration from local artisans",
       "evergreen": true,
@@ -2137,7 +2857,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "व्रत भोजन की पारिवारिक विविधता",
       "topic_en": "Family variation in vrat foods",
       "evergreen": true,
@@ -2145,7 +2865,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "तीर्थ की लोककथा और स्थानीय संदर्भ",
       "topic_en": "Pilgrimage folklore and local context",
       "evergreen": true,
@@ -2153,7 +2873,7 @@
       "latest_date": "2026-12-31"
     },
     {
-      "type": "evening_special",
+      "type": "evergreen_culture",
       "topic_hi": "क्षेत्रीय परंपरा पर स्रोत कैसे खोजें",
       "topic_en": "Finding sources for a regional custom",
       "evergreen": true,
@@ -2201,29 +2921,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मेष राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Aries: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 0,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "मेष राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Aries: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 0,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मेष राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Aries: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2241,29 +2941,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मेष राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Aries: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 0,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "मेष राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Aries: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 0,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मेष राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Aries: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2311,29 +2991,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "वृषभ राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Taurus: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 1,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "वृषभ राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Taurus: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 1,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "वृषभ राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Taurus: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2351,29 +3011,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "वृषभ राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Taurus: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 1,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "वृषभ राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Taurus: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 1,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "वृषभ राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Taurus: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2421,29 +3061,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मिथुन राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Gemini: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 2,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "मिथुन राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Gemini: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 2,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मिथुन राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Gemini: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2461,29 +3081,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मिथुन राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Gemini: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 2,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "मिथुन राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Gemini: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 2,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मिथुन राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Gemini: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2531,29 +3131,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कर्क राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Cancer: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 3,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "कर्क राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Cancer: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 3,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कर्क राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Cancer: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2571,29 +3151,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कर्क राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Cancer: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 3,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "कर्क राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Cancer: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 3,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कर्क राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Cancer: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2641,29 +3201,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "सिंह राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Leo: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 4,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "सिंह राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Leo: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 4,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "सिंह राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Leo: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2681,29 +3221,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "सिंह राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Leo: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 4,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "सिंह राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Leo: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 4,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "सिंह राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Leo: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2751,29 +3271,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कन्या राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Virgo: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 5,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "कन्या राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Virgo: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 5,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कन्या राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Virgo: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2791,29 +3291,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कन्या राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Virgo: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 5,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "कन्या राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Virgo: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 5,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कन्या राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Virgo: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2861,29 +3341,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "तुला राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Libra: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 6,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "तुला राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Libra: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 6,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "तुला राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Libra: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2901,29 +3361,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "तुला राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Libra: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 6,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "तुला राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Libra: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 6,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "तुला राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Libra: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -2971,29 +3411,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "वृश्चिक राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Scorpio: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 7,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "वृश्चिक राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Scorpio: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 7,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "वृश्चिक राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Scorpio: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -3011,29 +3431,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "वृश्चिक राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Scorpio: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 7,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "वृश्चिक राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Scorpio: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 7,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "वृश्चिक राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Scorpio: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -3081,29 +3481,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "धनु राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Sagittarius: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 8,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "धनु राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Sagittarius: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 8,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "धनु राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Sagittarius: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -3121,29 +3501,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "धनु राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Sagittarius: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 8,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "धनु राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Sagittarius: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 8,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "धनु राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Sagittarius: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -3191,29 +3551,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मकर राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Capricorn: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 9,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "मकर राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Capricorn: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 9,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मकर राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Capricorn: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -3231,29 +3571,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मकर राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Capricorn: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 9,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "मकर राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Capricorn: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 9,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मकर राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Capricorn: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -3301,29 +3621,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कुंभ राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Aquarius: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 10,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "कुंभ राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Aquarius: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 10,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कुंभ राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Aquarius: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -3341,29 +3641,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कुंभ राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Aquarius: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 10,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "कुंभ राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Aquarius: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 10,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "कुंभ राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Aquarius: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -3411,29 +3691,9 @@
       "episode": "career"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मीन राशि: करियर और कार्यशैली की विस्तृत चर्चा",
-      "topic_en": "Pisces: an extended guide to career and working style",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 11,
-      "episode": "career"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "मीन राशि: संबंध और पारंपरिक अनुकूलता",
       "topic_en": "Pisces: Relationships and traditional compatibility",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 11,
-      "episode": "relationships"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मीन राशि: संबंध और पारंपरिक अनुकूलता की विस्तृत चर्चा",
-      "topic_en": "Pisces: an extended guide to relationships and traditional compatibility",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -3451,29 +3711,9 @@
       "episode": "remedies"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मीन राशि: मंत्र, देव परंपरा और उपाय की विस्तृत चर्चा",
-      "topic_en": "Pisces: an extended guide to mantra, deity traditions, and remedies",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 11,
-      "episode": "remedies"
-    },
-    {
       "type": "rashi_encyclopedia",
       "topic_hi": "मीन राशि: लोकधारणाएँ और पारंपरिक दावे",
       "topic_en": "Pisces: Popular beliefs and traditional claims",
-      "evergreen": false,
-      "earliest_date": "2026-11-18",
-      "latest_date": "2026-12-31",
-      "rashi_index": 11,
-      "episode": "beliefs"
-    },
-    {
-      "type": "rashi_encyclopedia_or_festival",
-      "topic_hi": "मीन राशि: लोकधारणाएँ और पारंपरिक दावे की विस्तृत चर्चा",
-      "topic_en": "Pisces: an extended guide to popular beliefs and traditional claims",
       "evergreen": false,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31",
@@ -3499,7 +3739,7 @@
       "festival_key": "Tulsi Vivah"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "तुलसी विवाह: क्षेत्रीय परंपराएँ और अर्थ भाग 1",
       "topic_en": "Tulsi Vivah: regional traditions and meaning, part 1",
       "evergreen": false,
@@ -3526,7 +3766,7 @@
       "festival_key": "Tulsi Vivah"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "तुलसी विवाह: क्षेत्रीय परंपराएँ और अर्थ भाग 2",
       "topic_en": "Tulsi Vivah: regional traditions and meaning, part 2",
       "evergreen": false,
@@ -3553,7 +3793,7 @@
       "festival_key": "Kartik Purnima / Dev Diwali"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "कार्तिक पूर्णिमा / देव दीपावली: क्षेत्रीय परंपराएँ और अर्थ भाग 1",
       "topic_en": "Kartik Purnima / Dev Diwali: regional traditions and meaning, part 1",
       "evergreen": false,
@@ -3580,7 +3820,7 @@
       "festival_key": "Kartik Purnima / Dev Diwali"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "कार्तिक पूर्णिमा / देव दीपावली: क्षेत्रीय परंपराएँ और अर्थ भाग 2",
       "topic_en": "Kartik Purnima / Dev Diwali: regional traditions and meaning, part 2",
       "evergreen": false,
@@ -3607,7 +3847,7 @@
       "festival_key": "Kalbhairav Jayanti"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "कालभैरव जयंती: क्षेत्रीय परंपराएँ और अर्थ भाग 1",
       "topic_en": "Kalbhairav Jayanti: regional traditions and meaning, part 1",
       "evergreen": false,
@@ -3634,7 +3874,7 @@
       "festival_key": "Kalbhairav Jayanti"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "कालभैरव जयंती: क्षेत्रीय परंपराएँ और अर्थ भाग 2",
       "topic_en": "Kalbhairav Jayanti: regional traditions and meaning, part 2",
       "evergreen": false,
@@ -3661,7 +3901,7 @@
       "festival_key": "Margashirsha Amavasya"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "मार्गशीर्ष अमावस्या: क्षेत्रीय परंपराएँ और अर्थ भाग 1",
       "topic_en": "Margashirsha Amavasya: regional traditions and meaning, part 1",
       "evergreen": false,
@@ -3688,7 +3928,7 @@
       "festival_key": "Margashirsha Amavasya"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "मार्गशीर्ष अमावस्या: क्षेत्रीय परंपराएँ और अर्थ भाग 2",
       "topic_en": "Margashirsha Amavasya: regional traditions and meaning, part 2",
       "evergreen": false,
@@ -3715,7 +3955,7 @@
       "festival_key": "Vivah Panchami"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "विवाह पंचमी: क्षेत्रीय परंपराएँ और अर्थ भाग 1",
       "topic_en": "Vivah Panchami: regional traditions and meaning, part 1",
       "evergreen": false,
@@ -3742,7 +3982,7 @@
       "festival_key": "Vivah Panchami"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "विवाह पंचमी: क्षेत्रीय परंपराएँ और अर्थ भाग 2",
       "topic_en": "Vivah Panchami: regional traditions and meaning, part 2",
       "evergreen": false,
@@ -3769,7 +4009,7 @@
       "festival_key": "Dhanu Sankranti"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "धनु संक्रांति: क्षेत्रीय परंपराएँ और अर्थ भाग 1",
       "topic_en": "Dhanu Sankranti: regional traditions and meaning, part 1",
       "evergreen": false,
@@ -3796,7 +4036,7 @@
       "festival_key": "Dhanu Sankranti"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "धनु संक्रांति: क्षेत्रीय परंपराएँ और अर्थ भाग 2",
       "topic_en": "Dhanu Sankranti: regional traditions and meaning, part 2",
       "evergreen": false,
@@ -3823,7 +4063,7 @@
       "festival_key": "Gita Jayanti / Mokshada Ekadashi"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "गीता जयंती / मोक्षदा एकादशी: क्षेत्रीय परंपराएँ और अर्थ भाग 1",
       "topic_en": "Gita Jayanti / Mokshada Ekadashi: regional traditions and meaning, part 1",
       "evergreen": false,
@@ -3850,7 +4090,7 @@
       "festival_key": "Gita Jayanti / Mokshada Ekadashi"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "गीता जयंती / मोक्षदा एकादशी: क्षेत्रीय परंपराएँ और अर्थ भाग 2",
       "topic_en": "Gita Jayanti / Mokshada Ekadashi: regional traditions and meaning, part 2",
       "evergreen": false,
@@ -3877,7 +4117,7 @@
       "festival_key": "Dattatreya Jayanti"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "दत्तात्रेय जयंती: क्षेत्रीय परंपराएँ और अर्थ भाग 1",
       "topic_en": "Dattatreya Jayanti: regional traditions and meaning, part 1",
       "evergreen": false,
@@ -3904,7 +4144,7 @@
       "festival_key": "Dattatreya Jayanti"
     },
     {
-      "type": "rashi_encyclopedia_or_festival",
+      "type": "story_history",
       "topic_hi": "दत्तात्रेय जयंती: क्षेत्रीय परंपराएँ और अर्थ भाग 2",
       "topic_en": "Dattatreya Jayanti: regional traditions and meaning, part 2",
       "evergreen": false,

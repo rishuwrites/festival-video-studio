@@ -1,0 +1,18 @@
+{
+  "core_categories": [
+    "festival_explainer",
+    "vrat_rules",
+    "tithi_and_dates",
+    "story_history",
+    "regional_customs",
+    "evergreen_culture",
+    "upcoming_festival"
+  ],
+  "astrology_categories": [
+    "daily_panchang_rashifal",
+    "rashi_encyclopedia"
+  ],
+  "min_core_share": 0.8,
+  "max_astrology_per_day": 1,
+  "rashi_encyclopedia_max_per_week": 2
+}
