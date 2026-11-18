@@ -33,7 +33,7 @@ jobs:
         id: plan
         env:
           REQUESTED_DATE: ${{ github.event.inputs.date || '' }}
-          MAX_API_UPLOADS_PER_DAY: ${{ vars.MAX_API_UPLOADS_PER_DAY || '6' }}
+          MAX_API_UPLOADS_PER_DAY: ${{ vars.MAX_API_UPLOADS_PER_DAY || '10' }}
         run: |
           if [ -n "$REQUESTED_DATE" ]; then
             batch_date="$REQUESTED_DATE"

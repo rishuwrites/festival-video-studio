@@ -1,8 +1,8 @@
 # Calendar verification checklist
 
 The calendar contains 23 festival/vrat entries: 2 are verified and 21 remain
-`verified: false`. Their slots are retained as `blocked_unverified` and are not
-sent to the batch planner. The locations below refer to Lucknow; a date that
+`verified: false`. Unverified observances are never scheduled; their slots use
+evergreen non-festival topics until the dates are resolved. The locations below refer to Lucknow; a date that
 depends on moonrise, sunset, a regional calendar, or a tradition-specific rule
 must not be treated as an exact-coordinate sunrise-tithi match.
 

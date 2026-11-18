@@ -314,6 +314,7 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
             festival_tradition = ""
             note = ""
             status = "planned"
+            row_type = slot_type
             color, symbol = "#8B6B9E", "✦"
             if slot_type == "daily_panchang_rashifal":
                 record = panchang[iso_date]
@@ -358,13 +359,17 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                             f"No matching topic for verified festival(s) {names} "
                             f"on {iso_date}, slot {slot_no}"
                         )
-                    status = "blocked_unverified"
-                    topic_hi = f"अप्रमाणित पर्व विषय अवरुद्ध: {iso_date} स्लॉट {slot_no}"
-                    topic_en = f"BLOCKED unverified festival topic: {iso_date}, slot {slot_no}"
-                    thumbnail_text = "सत्यापन आवश्यक"
+                    row_type = (
+                        "regional_customs"
+                        if slot_type == "festival_explainer"
+                        else "evening_special"
+                    )
+                    item = _topic_for(topics, row_type, used, iso_date)
+                    topic_hi, topic_en = item["topic_hi"], item["topic_en"]
+                    thumbnail_text = _thumbnail_text(topic_hi)
                     note = (
-                        "blocked_unverified: no verified festival or vrat is available "
-                        "2-3 days after this publish date"
+                        "unverified festival topic not scheduled; evergreen "
+                        f"{row_type} substituted"
                     )
                 else:
                     event, item = selected
@@ -388,7 +393,7 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                 "date": iso_date,
                 "slot": slot_no,
                 "publish_time_ist": slot["publish_time_ist"],
-                "type": slot_type,
+                "type": row_type,
                 "topic_hi": topic_hi,
                 "topic_en": topic_en,
                 "festival_date": festival_date,
@@ -430,8 +435,8 @@ def render_markdown(payload):
         "",
         f"Date range: {payload['start_date']} to {payload['end_date']} (Asia/Kolkata)",
         "",
-        "> Unverified festival/vrat slots remain as `blocked_unverified` and are excluded from "
-        "the upload batch. Each festival video records its tradition for the description.",
+        "> Festival and vrat videos are scheduled only for verified dates. When no verified "
+        "event fits a festival slot, an evergreen non-festival topic fills it instead.",
         "",
     ]
     current_date = None
@@ -481,7 +486,7 @@ def print_summary(payload):
         for date in dates
     }
     try:
-        upload_limit = int(os.getenv("MAX_API_UPLOADS_PER_DAY", "6"))
+        upload_limit = int(os.getenv("MAX_API_UPLOADS_PER_DAY", "10"))
     except ValueError as exc:
         raise CalendarBuildError("MAX_API_UPLOADS_PER_DAY must be a non-negative integer") from exc
     if upload_limit < 0:
@@ -501,7 +506,10 @@ def print_summary(payload):
         f"{max(planned_counts.values())}; fewer than 10: "
         + (", ".join(short_days) if short_days else "none")
     )
-    print(f"YouTube API budget: {api_uploads}; Drive fallback: {drive_fallback}")
+    print(
+        f"YouTube API attempts reserved: {api_uploads}; pre-reserved Drive slots: "
+        f"{drive_fallback}; upload failures use Drive fallback when assets exist"
+    )
 
 
 def main():

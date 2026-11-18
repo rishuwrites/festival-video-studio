@@ -95,7 +95,7 @@ class RunOneFallbackTests(unittest.TestCase):
             self.assertFalse(generate.call_args.kwargs["upload"])
             self.assertEqual(save.call_args.args[3:5], (10, "quota_reserved"))
 
-    def test_planned_day_runs_without_uploads_and_uses_drive_fallback(self):
+    def test_planned_day_attempts_all_videos_on_youtube_then_falls_back_to_drive(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             calendar_path = root / "content_calendar.json"
@@ -109,15 +109,15 @@ class RunOneFallbackTests(unittest.TestCase):
                     "topic_hi": f"परीक्षण विषय {slot}",
                     "festival_date": "",
                     "festival_tradition": "",
-                    "status": "blocked_unverified" if slot in {2, 8} else "planned",
+                    "status": "planned",
                 }
                 for slot in range(1, 11)
             ]
             calendar_path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
-            batch = plan_batch.plan_for_date(
-                calendar_path, "2026-12-10", upload_limit=0,
-            )
-            self.assertEqual(len(batch), 8)
+            with mock.patch.dict("os.environ", {}, clear=True):
+                batch = plan_batch.plan_for_date(calendar_path, "2026-12-10")
+            self.assertEqual(len(batch), 10)
+            self.assertTrue(all(row["upload_allowed"] for row in batch))
 
             def generate(**kwargs):
                 output_dir = Path(kwargs["output_dir"])
@@ -132,7 +132,7 @@ class RunOneFallbackTests(unittest.TestCase):
                 files["metadata"].write_text(
                     json.dumps({"title": kwargs["topic"]}), encoding="utf-8",
                 )
-                return {name: str(path) for name, path in files.items()}
+                raise RuntimeError("YouTube upload failed (HTTP 403, quotaExceeded)")
 
             with mock.patch.object(
                 run_one.festival_main, "generate_video", side_effect=generate,
@@ -145,7 +145,8 @@ class RunOneFallbackTests(unittest.TestCase):
                 results = []
                 for row in batch:
                     env = self._environment(
-                        root / f"slot_{row['slot']}", results_dir, upload_allowed="false",
+                        root / f"slot_{row['slot']}", results_dir,
+                        upload_allowed=str(row["upload_allowed"]).lower(),
                     )
                     env.update({
                         "TOPIC": row["topic_hi"],
@@ -154,7 +155,8 @@ class RunOneFallbackTests(unittest.TestCase):
                     })
                     results.append(run_one.run_one(env))
 
-            self.assertEqual(len(generate_mock.call_args_list), 8)
-            self.assertEqual(save_mock.call_count, 8)
+            self.assertEqual(len(generate_mock.call_args_list), 10)
+            self.assertEqual(save_mock.call_count, 10)
             self.assertTrue(all(result["status"] == "failed_saved_to_drive" for result in results))
-            self.assertTrue(all(not call.kwargs["upload"] for call in generate_mock.call_args_list))
+            self.assertTrue(all(call.kwargs["upload"] for call in generate_mock.call_args_list))
+            self.assertTrue(all("youtube_quota" in result["notes"] for result in results))
