@@ -34,7 +34,43 @@ python recap\festival_main.py --topic "Dhanteras" --date "2026"
 
 YouTube uploads use your OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN`). Without `YT_API_KEY`, the refresh token must include `youtube.readonly` as well as `youtube.upload`; YouTube Data API v3 must be enabled for the Google Cloud project. Use `--scope` to customize coverage, or the older `--location` option as an alias. For example, `--scope "India (nationwide, focus on UP and Bihar)"`. Add Cloudflare credentials if you want that provider available as a fallback. Output is written to `output\`.
 
-## Daily calendar-driven publishing
+## Daily 10-video long-form publishing
+
+The `daily-batch.yml` workflow plans ten **16:9 long-form videos** for one calendar date, renders jobs with `fail-fast: false` and at most three concurrent jobs, and merges each result back into the calendar. No Shorts or vertical videos are produced. The scheduled run starts at 12:00 UTC and selects tomorrow's date in Asia/Kolkata; manual dispatch accepts an optional `YYYY-MM-DD` date.
+
+The calendar covers November 18 through December 31, 2026. Seed owner-editable data and the distinct topic pool with:
+
+```powershell
+python calendar\seed_templates.py
+```
+
+Before building the calendar:
+
+1. In `data\festival_dates_2026.json`, verify each date against Drik Panchang, enter the date and source URL, and change only confirmed entries to `"verified": true`. The initial candidate dates are deliberately unverified; the builder never schedules those entries. Add the date-specific Ekadashi, Pradosh, Sankashti Chaturthi, Purnima, and Amavasya occurrences from a trusted source.
+2. Fill every date in `data\panchang_2026_11_18_to_12_31.csv` with the source-provided `tithi`, `paksha`, `nakshatra`, `moon_rashi`, `rahu_kaal_start`, `rahu_kaal_end`, and `sunrise`. Include the source's city in `source_location` and an HTTPS `source_url` for the daily video because sunrise and Rahu Kaal are location-specific. Do not infer missing values.
+3. Generate and commit the files once the source data is complete:
+
+```powershell
+python calendar\build_calendar.py --from 2026-11-18 --to 2026-12-31
+```
+
+The builder creates `calendar\content_calendar.csv`, `calendar\content_calendar.json`, and `calendar\CALENDAR.md`. It stops on missing daily panchang values or when a date needs a verified festival/vrat topic. A festival less than two days away at the beginning of the range is marked `late_prepublish` and assigned to the earliest calendar date. `PRE_PUBLISH_DAYS_MIN` and `PRE_PUBLISH_DAYS_MAX` may be set to 2 or 3 (in order). The existing YouTube scheduler still rejects publish times less than 15 minutes in the future.
+
+The 06:00 daily panchang/rashifal script reads only the supplied panchang row and `data\rashifal_rules.json`; predictions are fixed, non-certain interpretations, with a disclaimer in the video description. Rashi episodes use the fixed chapter template and the content is framed as traditional astrology. The generated evergreen topic pool contains at least 300 distinct bilingual topics. Rebuilding the calendar retains completed video statuses and IDs.
+
+Set `GEMINI_API_KEY`, optional `GEMINI_API_KEY1`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. YouTube's default 10,000-unit daily quota allows roughly six video inserts at 1,600 units each; `MAX_API_UPLOADS_PER_DAY` defaults to 6. The first six slots may be scheduled on YouTube. Remaining videos are saved to Google Drive in `ParvKatha_Failed_Uploads/<slot>_quota_reserved` and marked `failed_saved_to_drive`.
+
+### Daily-batch troubleshooting
+
+- Gemini HTTP 429: the runner already backs off and rotates `GEMINI_API_KEY` / `GEMINI_API_KEY1`. Confirm both keys have usable quota; two keys from one exhausted Cloud project may share the same limit.
+- YouTube `quotaExceeded` or `uploadLimitExceeded`: `run_one.py` does not retry these responses. The video and metadata are saved to Drive; wait for quota reset, then run `python recap\retry_failed_uploads.py --calendar calendar\content_calendar.json`. Change the `MAX_API_UPLOADS_PER_DAY` repository variable only when your quota supports it.
+- Google Drive HTTP 403: the existing refresh token likely lacks `drive.file`. Regenerate the token with `python tools\get_refresh_token.py`, enable Drive API in the same project, and replace the Actions secret.
+
+The existing YouTube refresh token does not gain Drive permission automatically. Enable Google Drive API in the same Google Cloud project, then run `python tools\get_refresh_token.py` locally with `YT_CLIENT_ID` and `YT_CLIENT_SECRET` set. Copy its output into the `YT_REFRESH_TOKEN` Actions secret. The OAuth consent screen should be **In production**: tokens from an app left in **Testing** may expire after seven days (otherwise regenerate weekly). The refreshed grant includes `youtube.upload`, `youtube.readonly`, and `drive.file`. To retry saved videos after quota resets, run `python recap\retry_failed_uploads.py --calendar calendar\content_calendar.json`.
+
+The older `scheduler\google_apps_script.gs` and `data\india-festival-video-calendar-2026.json` remain a separate single-video dispatch path; they are not used by the 10-video batch workflow.
+
+## Legacy single-video calendar publishing
 
 The researched calendar at `data/india-festival-video-calendar-2026.json` contains one sourced video brief for every date from November 11 through December 31, 2026, including evergreen culture topics. The daily Google Apps Script runs near 02:05 IST and checks the calendar entry three days ahead. It dispatches any entry with a complete topic brief and at least two valid sources, whether it names a festival or is evergreen, and schedules public release at 09:00 IST two days before the calendar target date. This gives the workflow about a day to research, render, and upload before publication. Apps Script triggers run near the selected minute, not at an exact second; the script rejects a release time that is less than 15 minutes away.
 

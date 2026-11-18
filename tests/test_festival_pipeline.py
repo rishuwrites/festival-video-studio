@@ -158,13 +158,16 @@ class VideoMetadataTests(unittest.TestCase):
         description = festival_main._make_description(
             "Chhath Puja", "2026-11-15", "भारत", research, [
                 {"title": "Calendar source", "url": "https://example.org/calendar"},
-            ],
+                ],
+                festival_tradition="Smarta observance; local practice may vary.",
         )
 
         self.assertIn("संध्या अर्घ्य", description)
+        self.assertIn("परंपरा: Smarta observance; local practice may vary.", description)
         self.assertIn("https://example.org/calendar", description)
         self.assertIn("Chhath Puja 2026", description)
         self.assertIn("#ChhathPuja", description)
+        self.assertIn("#छठपूजाकीतिथि", description)
         self.assertLessEqual(len(description), 5000)
 
 

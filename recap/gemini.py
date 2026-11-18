@@ -8,6 +8,16 @@ import requests
 
 BASE = "https://generativelanguage.googleapis.com/v1beta"
 MODEL = os.getenv("GEMINI_MODEL") or "gemini-3.8-flash"
+REQUEST_COUNT = 0
+
+
+def reset_request_count():
+    global REQUEST_COUNT
+    REQUEST_COUNT = 0
+
+
+def get_request_count():
+    return REQUEST_COUNT
 
 FESTIVAL_PROMPT = """Research the requested Hindu festival/observance using the supplied web research when present, then write an original Hindi video script based on that research. If no web research is supplied, use the Google Search tool provided by the Gemini API in this request. Search for current, reputable sources before drafting; do not rely on memory alone.
 
@@ -51,8 +61,10 @@ The source videos and their public captions follow. This section may be empty. U
 
 
 def list_models(key):
+    global REQUEST_COUNT
     candidates = [MODEL, "gemini-3.8-flash", "gemini-flash-latest"]
     try:
+        REQUEST_COUNT += 1
         response = requests.get(
             f"{BASE}/models",
             params={"key": key, "pageSize": 200},
@@ -210,6 +222,7 @@ def research_festival(
     topic, date="", location="India", video_sources=None, web_research=None,
     script_length_feedback="",
 ):
+    global REQUEST_COUNT
     keys = _api_keys()
     if not keys:
         raise RuntimeError("GEMINI_API_KEY or GEMINI_API_KEY1 is required for festival research")
@@ -286,6 +299,7 @@ def research_festival(
                 else:
                     request["tools"] = [{"googleSearch": {}}]
                 try:
+                    REQUEST_COUNT += 1
                     response = requests.post(
                         f"{BASE}/models/{model}:generateContent",
                         params={"key": key},
@@ -417,6 +431,7 @@ def research_notes(topic, date, location, collected):
     for key in _api_keys():
         for model in list_models(key)[:6]:
             try:
+                REQUEST_COUNT += 1
                 response = requests.post(
                     f"{BASE}/models/{model}:generateContent",
                     params={"key": key},

@@ -1,11 +1,294 @@
 import json
+import csv
+import io
+import sys
+import tempfile
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
+from contextlib import redirect_stdout
 
 
 ROOT = Path(__file__).resolve().parents[1]
 CALENDAR_PATH = ROOT / "data" / "india-festival-video-calendar-2026.json"
+sys.path.insert(0, str(ROOT / "calendar"))
+import build_calendar
+import plan_batch
+import seed_templates
+
+
+class DailyCalendarBuilderTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.slots_path = ROOT / "config" / "slots.json"
+        self.pool_path = self.root / "topic_pool.json"
+        topics = seed_templates.build_topics()
+        topics.extend([
+            {
+                "type": "festival_explainer",
+                "topic_hi": "परीक्षण पर्व: तिथि और कथा",
+                "topic_en": "Test Festival: date and story",
+                "evergreen": False,
+                "earliest_date": "2026-11-18",
+                "latest_date": "2026-12-31",
+                "festival_key": "Test Festival",
+            },
+            {
+                "type": "upcoming_festival",
+                "topic_hi": "परीक्षण पर्व: तैयारी",
+                "topic_en": "Test Festival: preparation",
+                "evergreen": False,
+                "earliest_date": "2026-11-18",
+                "latest_date": "2026-12-31",
+                "festival_key": "Test Festival",
+            },
+        ])
+        self.pool_path.write_text(
+            json.dumps({"topics": topics}, ensure_ascii=False), encoding="utf-8",
+        )
+        self.festivals_path = self.root / "festivals.json"
+        self._write_festivals([{
+            "name_hi": "परीक्षण पर्व",
+            "name_en": "Test Festival",
+            "date": "2026-11-19",
+            "tithi_note": "Test owner-verified source",
+            "verified": True,
+            "source_urls": [
+                "https://example.org/festival",
+                "https://example.net/festival",
+            ],
+            "tradition": "Test tradition",
+            "notes": "Test source agreement",
+        }])
+        self.panchang_path = self.root / "panchang.csv"
+        self._write_panchang([{
+            "date": "2026-11-18",
+            "tithi": "द्वादशी",
+            "paksha": "शुक्ल",
+            "nakshatra": "रोहिणी",
+            "moon_rashi": "मेष",
+            "rahu_kaal_start": "10:30",
+            "rahu_kaal_end": "12:00",
+            "sunrise": "06:10",
+        }])
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def _write_festivals(self, entries):
+        self.festivals_path.write_text(
+            json.dumps({"entries": entries}, ensure_ascii=False), encoding="utf-8",
+        )
+
+    def _write_panchang(self, rows):
+        fields = [
+            "date", "tithi", "paksha", "nakshatra", "moon_rashi",
+            "rahu_kaal_start", "rahu_kaal_end", "sunrise",
+        ]
+        with self.panchang_path.open("w", encoding="utf-8", newline="") as file:
+            writer = csv.DictWriter(file, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(rows)
+
+    def _build(self, previous_path=None):
+        return build_calendar.build_rows(
+            "2026-11-18",
+            "2026-11-18",
+            slots_path=self.slots_path,
+            topic_pool_path=self.pool_path,
+            festivals_path=self.festivals_path,
+            panchang_path=self.panchang_path,
+            previous_path=previous_path or self.root / "missing.json",
+        )
+
+    def test_builds_ten_unique_topics_and_marks_early_festival_as_late(self):
+        result = self._build()
+        rows = result["videos"]
+        self.assertEqual(len(rows), 10)
+        self.assertEqual({row["slot"] for row in rows}, set(range(1, 11)))
+        self.assertEqual(len({row["topic_hi"] for row in rows}), 10)
+        self.assertFalse(any(
+            rows[index]["type"] == rows[index - 1]["type"]
+            for index in range(1, len(rows))
+        ))
+        festival_rows = [row for row in rows if row["festival_date"]]
+        self.assertEqual(len(festival_rows), 2)
+        self.assertTrue(all(row["notes"] == "late_prepublish" for row in festival_rows))
+
+    def test_unverified_festival_slots_are_reported_and_blocked(self):
+        entries = json.loads(self.festivals_path.read_text(encoding="utf-8"))["entries"]
+        entries[0]["verified"] = False
+        self._write_festivals(entries)
+        output = io.StringIO()
+        with redirect_stdout(output):
+            result = self._build()
+        blocked = [row for row in result["videos"] if row["status"] == "blocked_unverified"]
+        self.assertEqual([row["slot"] for row in blocked], [2, 8])
+        self.assertIn("Test Festival", output.getvalue())
+        self.assertFalse(any(row["festival_date"] for row in result["videos"]))
+
+    def test_missing_panchang_data_stops_calendar_generation(self):
+        self._write_panchang([])
+        with self.assertRaisesRegex(build_calendar.CalendarBuildError, "missing dates"):
+            self._build()
+
+    def test_builder_preserves_completed_status_and_video_id(self):
+        first = self._build()
+        first["videos"][0].update({
+            "status": "uploaded",
+            "youtube_video_id": "video-123",
+            "drive_link": "https://drive.google.com/file/d/example/view",
+        })
+        previous = self.root / "previous.json"
+        previous.write_text(json.dumps(first), encoding="utf-8")
+        rebuilt = self._build(previous)
+        self.assertEqual(rebuilt["videos"][0]["status"], "uploaded")
+        self.assertEqual(rebuilt["videos"][0]["youtube_video_id"], "video-123")
+        self.assertEqual(rebuilt["videos"][0]["drive_link"], "https://drive.google.com/file/d/example/view")
+
+    def test_pre_publishing_uses_two_to_three_day_window_or_marks_late(self):
+        self.assertEqual(
+            build_calendar.prepublish_date("2026-11-20", "2026-11-18"),
+            ("2026-11-18", False),
+        )
+        self.assertEqual(
+            build_calendar.prepublish_date("2026-11-19", "2026-11-18"),
+            ("2026-11-18", True),
+        )
+
+    def test_generated_topic_pool_has_at_least_300_distinct_topics(self):
+        topics = seed_templates.build_topics()
+        self.assertGreaterEqual(len(topics), 300)
+        self.assertEqual(len({
+            (item["topic_hi"].casefold(), item["topic_en"].casefold())
+            for item in topics
+        }), len(topics))
+
+    def test_full_window_has_440_unique_long_form_slots_when_sources_are_complete(self):
+        start = date(2026, 11, 18)
+        end = date(2026, 12, 31)
+        topics = seed_templates.build_topics()
+        festivals = []
+        current = start
+        while current <= end:
+            event_date = current + timedelta(days=2)
+            name_en = f"Test event {current.isoformat()}"
+            name_hi = f"परीक्षण पर्व {current.isoformat()}"
+            festivals.append({
+                "name_hi": name_hi,
+                "name_en": name_en,
+                "date": event_date.isoformat(),
+                "tithi_note": "Synthetic test data",
+                "verified": True,
+                "source_urls": [
+                    "https://example.org/festival",
+                    "https://example.net/festival",
+                ],
+                "tradition": "Synthetic tradition",
+                "notes": "Synthetic source agreement",
+            })
+            for content_type, suffix in (
+                ("festival_explainer", "मुख्य परिचय"),
+                ("upcoming_festival", "तैयारी"),
+            ):
+                topics.append({
+                    "type": content_type,
+                    "topic_hi": f"{name_hi}: {suffix}",
+                    "topic_en": f"{name_en}: {suffix}",
+                    "evergreen": False,
+                    "earliest_date": start.isoformat(),
+                    "latest_date": end.isoformat(),
+                    "festival_key": name_en,
+                })
+            current += timedelta(days=1)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            festivals_path = root / "festivals.json"
+            festivals_path.write_text(
+                json.dumps({"entries": festivals}, ensure_ascii=False), encoding="utf-8",
+            )
+            pool_path = root / "topics.json"
+            pool_path.write_text(
+                json.dumps({"topics": topics}, ensure_ascii=False), encoding="utf-8",
+            )
+            panchang_path = root / "panchang.csv"
+            fields = [
+                "date", "tithi", "paksha", "nakshatra", "moon_rashi",
+                "rahu_kaal_start", "rahu_kaal_end", "sunrise",
+            ]
+            with panchang_path.open("w", encoding="utf-8", newline="") as file:
+                writer = csv.DictWriter(file, fieldnames=fields)
+                writer.writeheader()
+                current = start
+                while current <= end:
+                    writer.writerow({
+                        "date": current.isoformat(),
+                        "tithi": "द्वादशी",
+                        "paksha": "शुक्ल",
+                        "nakshatra": "रोहिणी",
+                        "moon_rashi": "मेष",
+                        "rahu_kaal_start": "10:30",
+                        "rahu_kaal_end": "12:00",
+                        "sunrise": "06:10",
+                    })
+                    current += timedelta(days=1)
+            result = build_calendar.build_rows(
+                start.isoformat(),
+                end.isoformat(),
+                slots_path=self.slots_path,
+                topic_pool_path=pool_path,
+                festivals_path=festivals_path,
+                panchang_path=panchang_path,
+                previous_path=root / "missing.json",
+            )
+        self.assertEqual(len(result["videos"]), 440)
+        self.assertEqual(len({row["topic_hi"] for row in result["videos"]}), 440)
+        self.assertTrue(all(row["status"] == "planned" for row in result["videos"]))
+
+
+class DailyUploadBudgetTests(unittest.TestCase):
+    def test_upload_budget_reserves_first_six_slots(self):
+        from upload_budget import allocate_uploads
+        rows = [
+            {"date": "2026-11-18", "slot": slot}
+            for slot in range(10, 0, -1)
+        ]
+        planned = allocate_uploads(rows, limit=6)
+        by_slot = {row["slot"]: row for row in planned}
+        self.assertTrue(all(by_slot[slot]["upload_allowed"] for slot in range(1, 7)))
+        self.assertTrue(all(not by_slot[slot]["upload_allowed"] for slot in range(7, 11)))
+        self.assertEqual(by_slot[10]["drive_reason"], "quota_reserved")
+
+    def test_batch_planner_selects_exactly_one_day_and_validates_all_slots(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "content_calendar.json"
+            rows = [
+                {"date": "2026-11-18", "slot": slot, "status": "planned"}
+                for slot in range(1, 11)
+            ]
+            rows.append({"date": "2026-11-19", "slot": 1, "status": "planned"})
+            path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
+            planned = plan_batch.plan_for_date(path, "2026-11-18", upload_limit=6)
+            self.assertEqual([row["slot"] for row in planned], list(range(1, 11)))
+            self.assertEqual(sum(row["upload_allowed"] for row in planned), 6)
+
+    def test_batch_planner_excludes_blocked_unverified_slots(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "content_calendar.json"
+            rows = [
+                {
+                    "date": "2026-11-18",
+                    "slot": slot,
+                    "status": "blocked_unverified" if slot in {2, 8} else "planned",
+                }
+                for slot in range(1, 11)
+            ]
+            path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
+            planned = plan_batch.plan_for_date(path, "2026-11-18", upload_limit=6)
+            self.assertEqual([row["slot"] for row in planned], [1, 3, 4, 5, 6, 7, 9, 10])
+            self.assertEqual(sum(row["upload_allowed"] for row in planned), 6)
 
 
 class FestivalCalendarTests(unittest.TestCase):

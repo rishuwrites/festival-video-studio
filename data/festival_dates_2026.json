@@ -1,0 +1,306 @@
+{
+  "entries": [
+    {
+      "name_hi": "तुलसी विवाह",
+      "name_en": "Tulsi Vivah",
+      "date": "2026-11-21",
+      "tithi_note": "Kartika Shukla Ekadashi/Dwadashi boundary; the configured Lucknow sunrise computation is Ekadashi.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-november.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-november-17.html?loc=1264733",
+        "https://www.prokerala.com/astrology/panchang/2026-november-21.html?loc=1264733"
+      ],
+      "tradition": "North Indian Hindu observance; date may follow local Dwadashi and Smarta/Vaishnava practice.",
+      "notes": "The checked listings place Tulsi Vivah on Nov 21, not Nov 17. The Nov 17 Prokerala daily page is included for manual review but did not substantiate the candidate in this pass. The exact-coordinate computation gives Ekadashi at sunrise while the published pages show Dwadashi at sunrise, close to the tithi boundary. Keep unverified until the location/tithi discrepancy is resolved."
+    },
+    {
+      "name_hi": "कार्तिक पूर्णिमा / देव दीपावली",
+      "name_en": "Kartik Purnima / Dev Diwali",
+      "date": "2026-11-24",
+      "tithi_note": "Shukla Purnima at Lucknow sunrise; both sources list Kartik Purnima on Nov 24.",
+      "verified": true,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-november.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-november-24.html?loc=1264733"
+      ],
+      "tradition": "Hindu Kartik Purnima; Dev Diwali is especially associated with Varanasi, and regional solar-calendar observances may differ.",
+      "notes": "The date agrees across the two published listings and matches computed sunrise Purnima. The regional Dev Diwali celebration is not universal."
+    },
+    {
+      "name_hi": "कालभैरव जयंती",
+      "name_en": "Kalbhairav Jayanti",
+      "date": "2026-12-01",
+      "tithi_note": "Margashirsha Krishna Ashtami at Lucknow sunrise.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-1.html?loc=1264733"
+      ],
+      "tradition": "Hindu Kalabhairava observance; regional ritual practices vary.",
+      "notes": "Drik lists Dec 1 and the computed sunrise tithi is Krishna Ashtami, but the independent Prokerala page could not be confirmed in this pass. The second-source verification requirement is therefore unmet."
+    },
+    {
+      "name_hi": "देवुत्थान एकादशी",
+      "name_en": "Devutthana Ekadashi (Smarta candidate)",
+      "date": "2026-11-20",
+      "tithi_note": "Drik lists Ekadashi on Nov 20; the configured Lucknow sunrise computation gives Shukla Dashami.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-november.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-november-21.html?loc=1264733"
+      ],
+      "tradition": "Smarta candidate; Vaishnava observance is listed separately on Nov 21.",
+      "notes": "The candidate date is Nov 20 in Drik's listing, while Vaishnava observance is listed Nov 21. The computed Nov 20 sunrise tithi is Dashami, so this cannot be verified under the requested sunrise-tithi rule. Prokerala's Nov 21 page reports the adjacent tithi boundary."
+    },
+    {
+      "name_hi": "वैष्णव देवुत्थान एकादशी",
+      "name_en": "Vaishnava Devutthana Ekadashi",
+      "date": "2026-11-21",
+      "tithi_note": "Shukla Ekadashi at the configured Lucknow sunrise; published pages place Dwadashi at sunrise near the boundary.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-november.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-november-21.html?loc=1264733"
+      ],
+      "tradition": "Vaishnava/gauna observance, distinct from the Smarta candidate on Nov 20.",
+      "notes": "Both listings place the Vaishnava observance on Nov 21, but the source sunrise tithi differs from the exact-coordinate computation because of a boundary close to sunrise. Keep unverified; do not merge this with the Nov 20 Smarta candidate."
+    },
+    {
+      "name_hi": "रवि प्रदोष व्रत",
+      "name_en": "Ravi Pradosh Vrat",
+      "date": "2026-11-22",
+      "tithi_note": "Shukla Trayodashi at Lucknow sunrise.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-november.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-november-22.html?loc=1264733"
+      ],
+      "tradition": "Hindu Pradosh observance; the weekday name follows Sunday.",
+      "notes": "Drik lists Ravi Pradosh on Nov 22 and computed sunrise tithi is Trayodashi. The independent Prokerala page timed out during verification, so the two-source rule is not established."
+    },
+    {
+      "name_hi": "गणाधिप संकष्टी चतुर्थी",
+      "name_en": "Ganadhipa Sankashti Chaturthi",
+      "date": "2026-11-27",
+      "tithi_note": "The computed sunrise tithi is Krishna Tritiya; Chaturthi occurs later in the observance window.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-november.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-november-27.html?loc=1264733"
+      ],
+      "tradition": "Hindu Sankashti fast, observed according to Chaturthi and local moonrise.",
+      "notes": "Drik lists Sankashti for Nov 27; the Prokerala page could not be confirmed in this pass. The computed sunrise tithi is Tritiya, so the required sunrise-tithi consistency fails. Keep unverified and do not silently substitute the later Chaturthi."
+    },
+    {
+      "name_hi": "उत्पन्ना एकादशी",
+      "name_en": "Utpanna Ekadashi",
+      "date": "2026-12-04",
+      "tithi_note": "Krishna Ekadashi at Lucknow sunrise.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-4.html?loc=1264733"
+      ],
+      "tradition": "Hindu Ekadashi fast; Smarta/Vaishnava parana rules can differ.",
+      "notes": "Drik lists Dec 4 and the computed sunrise tithi is Krishna Ekadashi. The Prokerala daily URL returned an unavailable response in this pass, so an independent published date match was not verified."
+    },
+    {
+      "name_hi": "रवि प्रदोष व्रत",
+      "name_en": "Ravi Pradosh Vrat",
+      "date": "2026-12-06",
+      "tithi_note": "Krishna Trayodashi at Lucknow sunrise.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-6.html?loc=1264733"
+      ],
+      "tradition": "Hindu Pradosh observance; the weekday name follows Sunday.",
+      "notes": "The Drik monthly listing associates Ravi Pradosh with the Dec 5–6 boundary; Dec 6 is Sunday and the computed sunrise tithi is Trayodashi. The independent daily page timed out, so retain as an unresolved date rather than treating the listing layout as conclusive."
+    },
+    {
+      "name_hi": "मासिक शिवरात्रि",
+      "name_en": "Masik Shivratri",
+      "date": "2026-12-07",
+      "tithi_note": "Krishna Chaturdashi at Lucknow sunrise.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-7.html?loc=1264733"
+      ],
+      "tradition": "Monthly Hindu Shiva observance, generally tied to Krishna Chaturdashi.",
+      "notes": "Drik lists Dec 7 and the computed sunrise tithi is Krishna Chaturdashi. The independent Prokerala daily page could not be confirmed in this pass, so the verification rule is unmet."
+    },
+    {
+      "name_hi": "मार्गशीर्ष अमावस्या",
+      "name_en": "Margashirsha Amavasya",
+      "date": "2026-12-08",
+      "tithi_note": "Krishna Amavasya at Lucknow sunrise.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-8.html?loc=1264733"
+      ],
+      "tradition": "Hindu new-moon observance; regional lunar-month naming and rituals vary.",
+      "notes": "Drik lists Margashirsha Amavasya on Dec 8 and the computed sunrise tithi matches. The independent Prokerala daily page timed out, so this remains unverified pending a second confirmed source."
+    },
+    {
+      "name_hi": "विवाह पंचमी",
+      "name_en": "Vivah Panchami",
+      "date": "2026-12-14",
+      "tithi_note": "Shukla Panchami at Lucknow sunrise.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-14.html?loc=1264733"
+      ],
+      "tradition": "Hindu celebration of the Rama-Sita wedding; observance is especially prominent in Mithila and Ayodhya.",
+      "notes": "Drik lists Dec 14 and computed sunrise tithi is Shukla Panchami. The independent Prokerala page timed out during this pass; do not mark verified until its date is confirmed."
+    },
+    {
+      "name_hi": "धनु संक्रांति",
+      "name_en": "Dhanu Sankranti",
+      "date": "2026-12-16",
+      "tithi_note": "Solar ingress into Dhanu is listed for Dec 16; the computed sunrise tithi is Shukla Saptami.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-16.html?loc=1264733"
+      ],
+      "tradition": "Solar-calendar Sankranti observance; regional rituals and auspicious periods differ.",
+      "notes": "Drik lists the Sun's Vrishchika-to-Dhanu transit on Dec 16. The second independent date could not be confirmed in this pass, so the solar event remains unverified."
+    },
+    {
+      "name_hi": "गीता जयंती / मोक्षदा एकादशी",
+      "name_en": "Gita Jayanti / Mokshada Ekadashi",
+      "date": "2026-12-20",
+      "tithi_note": "Shukla Ekadashi at Lucknow sunrise; both sources list the observance on Dec 20.",
+      "verified": true,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-19.html?loc=1264733",
+        "https://www.prokerala.com/astrology/panchang/2026-december-20.html?loc=1264733"
+      ],
+      "tradition": "Mokshada Ekadashi fast; Gita Jayanti is observed on the same Ekadashi. Smarta/Vaishnava parana practices may vary.",
+      "notes": "Both independent listings give Dec 20, and the date matches computed sunrise Ekadashi. The Dec 19 alternative supplied for checking was not supported by these two sources."
+    },
+    {
+      "name_hi": "सोम प्रदोष व्रत",
+      "name_en": "Soma Pradosh Vrat",
+      "date": "2026-12-21",
+      "tithi_note": "The computed sunrise tithi is Shukla Dwadashi; Trayodashi begins at 17:36, after the computed sunset.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-21.html?loc=1264733"
+      ],
+      "tradition": "Hindu Pradosh observance; the weekday name follows Monday.",
+      "notes": "Both source listings call Dec 21 Som Pradosh, but the sunrise tithi is Dwadashi and Trayodashi begins after sunset. This fails the requested computed-tithi consistency check; retain both source values for owner review."
+    },
+    {
+      "name_hi": "मार्गशीर्ष पूर्णिमा",
+      "name_en": "Margashirsha Purnima",
+      "date": "2026-12-23",
+      "tithi_note": "Purnima starts during Dec 23, while the computed sunrise tithi is Shukla Chaturdashi; sunrise Purnima is computed on Dec 24.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-23.html?loc=1264733",
+        "https://www.prokerala.com/astrology/panchang/2026-december-24.html?loc=1264733"
+      ],
+      "tradition": "Hindu Purnima observance; vrat, snana, and regional calendar conventions can select different days.",
+      "notes": "Drik and Prokerala list Margashirsha Purnima/Purnima Vrat on Dec 23, while Prokerala also lists Purnima on Dec 24 and the computed sunrise tithi changes from Chaturdashi on Dec 23 to Purnima on Dec 24. Preserve the 23/24 disagreement and do not mark verified."
+    },
+    {
+      "name_hi": "दत्तात्रेय जयंती",
+      "name_en": "Dattatreya Jayanti",
+      "date": "2026-12-23",
+      "tithi_note": "The computed sunrise tithi is Shukla Chaturdashi; Purnima begins later on Dec 23.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-23.html?loc=1264733"
+      ],
+      "tradition": "Hindu Dattatreya birth observance, generally associated with Margashirsha Purnima.",
+      "notes": "Drik lists Dec 23 and the Prokerala daily page includes Purnima observances on Dec 23, but the computed sunrise tithi is Chaturdashi. The required tithi consistency therefore fails."
+    },
+    {
+      "name_hi": "अखुरथ संकष्टी चतुर्थी",
+      "name_en": "Akhuratha Sankashti Chaturthi",
+      "date": "2026-12-26",
+      "tithi_note": "The computed sunrise tithi is Krishna Tritiya; Chaturthi begins at 20:05.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-26.html?loc=1264733"
+      ],
+      "tradition": "Hindu Sankashti fast, with local moonrise and Chaturthi timing used for observance.",
+      "notes": "Both source listings identify Dec 26 as Sankashti, but the computed sunrise tithi is Tritiya and Chaturthi begins later that evening. Keep unverified under the requested sunrise-tithi rule."
+    },
+    {
+      "name_hi": "मार्गशीर्ष गुरुवार लक्ष्मी व्रत",
+      "name_en": "Margashirsha Guruvar Lakshmi Vrat",
+      "date": "2026-11-26",
+      "tithi_note": "Krishna Dwadashi at Lucknow sunrise; Thursday in the North Indian Margashirsha month.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-november.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-november-26.html?loc=1264733"
+      ],
+      "tradition": "Regional Margashirsha Thursday Lakshmi vrat; not universal.",
+      "notes": "This is a candidate Margashirsha Thursday, not a confirmed vrat date: neither linked daily source was verified as naming Guruvar Lakshmi vrat. Owner confirmation is required."
+    },
+    {
+      "name_hi": "मार्गशीर्ष गुरुवार लक्ष्मी व्रत",
+      "name_en": "Margashirsha Guruvar Lakshmi Vrat",
+      "date": "2026-12-03",
+      "tithi_note": "Krishna Dashami at Lucknow sunrise; Thursday in Margashirsha.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-3.html?loc=1264733"
+      ],
+      "tradition": "Regional Margashirsha Thursday Lakshmi vrat; not universal.",
+      "notes": "Candidate Thursday only. The linked panchang dates do not independently confirm the specific Lakshmi vrat observance."
+    },
+    {
+      "name_hi": "मार्गशीर्ष गुरुवार लक्ष्मी व्रत",
+      "name_en": "Margashirsha Guruvar Lakshmi Vrat",
+      "date": "2026-12-10",
+      "tithi_note": "Shukla Pratipada at Lucknow sunrise; Thursday in Margashirsha.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-10.html?loc=1264733"
+      ],
+      "tradition": "Regional Margashirsha Thursday Lakshmi vrat; not universal.",
+      "notes": "Candidate Thursday only. The linked panchang dates do not independently confirm the specific Lakshmi vrat observance."
+    },
+    {
+      "name_hi": "मार्गशीर्ष गुरुवार लक्ष्मी व्रत",
+      "name_en": "Margashirsha Guruvar Lakshmi Vrat",
+      "date": "2026-12-17",
+      "tithi_note": "Shukla Ashtami at Lucknow sunrise; Thursday in Margashirsha.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-17.html?loc=1264733"
+      ],
+      "tradition": "Regional Margashirsha Thursday Lakshmi vrat; not universal.",
+      "notes": "Candidate Thursday only. The linked panchang dates do not independently confirm the specific Lakshmi vrat observance."
+    },
+    {
+      "name_hi": "मार्गशीर्ष गुरुवार लक्ष्मी व्रत",
+      "name_en": "Margashirsha Guruvar Lakshmi Vrat",
+      "date": "2026-12-24",
+      "tithi_note": "Shukla Purnima at Lucknow sunrise; Thursday in Margashirsha.",
+      "verified": false,
+      "source_urls": [
+        "https://www.drikpanchang.com/festivals/month/festivals-december.html?year=2026",
+        "https://www.prokerala.com/astrology/panchang/2026-december-24.html?loc=1264733"
+      ],
+      "tradition": "Regional Margashirsha Thursday Lakshmi vrat; not universal.",
+      "notes": "Candidate Thursday only. The linked panchang dates do not independently confirm the specific Lakshmi vrat observance."
+    }
+  ]
+}

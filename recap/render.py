@@ -53,10 +53,12 @@ def cover(img, out):
     im = ImageEnhance.Contrast(im).enhance(1.06)
     im.save(out, quality=92)
 
-def card(title, emotion, out):
+def card(title, emotion, out, color=None):
     """Used only when an illustration could not be generated: designed title card, never a blank screen."""
     title = deva(title)
-    c0 = S.EMOTION_COLORS.get(emotion, (60, 30, 90)); im = Image.new("RGB", (W, H)); d = ImageDraw.Draw(im)
+    if isinstance(color, str) and len(color) == 7 and color.startswith("#"):
+        color = tuple(int(color[index:index + 2], 16) for index in (1, 3, 5))
+    c0 = color or S.EMOTION_COLORS.get(emotion, (60, 30, 90)); im = Image.new("RGB", (W, H)); d = ImageDraw.Draw(im)
     for y in range(H): k = y / H; d.line([(0, y), (W, y)], fill=tuple(int(c0[i] * (1 - 0.7 * k)) for i in range(3)))
     f = font(110); ls = wrap(d, title, f, 1500)[:3]; y0 = 430 - len(ls) * 70
     for i, l in enumerate(ls): d.text(((W - d.textlength(l, font=f)) / 2, y0 + i * 140), l, font=f, fill=(255, 255, 255), stroke_width=5, stroke_fill=(0, 0, 0))
@@ -322,8 +324,14 @@ def concat(files, tmp, out, music=None, total=0, emotion="tense", audio_bitrate=
                         basic_flt, "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", audio_bitrate, "-movflags", "+faststart", out], check=True)
     os.remove(raw)
 
-def thumbnail(img, hook, tag_text, bottom_text, out):
+def thumbnail(img, hook, tag_text, bottom_text, out, accent_color=None):
     hook, tag_text, bottom_text = deva(hook), deva(tag_text), deva(bottom_text)
+    if isinstance(accent_color, str) and len(accent_color) == 7 and accent_color.startswith("#"):
+        accent_color = tuple(
+            int(accent_color[index:index + 2], 16) for index in (1, 3, 5)
+        )
+    accent_color = accent_color or (255, 205, 0)
+    title_color = tuple(int(channel * 0.75 + 255 * 0.25) for channel in accent_color)
     width, height = 1280, 720
     im = Image.open(img).convert("RGB"); r = max(width / im.width, height / im.height)
     im = im.resize((int(im.width * r) + 1, int(im.height * r) + 1)); l, t = (im.width - width) // 2, (im.height - height) // 2
@@ -344,7 +352,7 @@ def thumbnail(img, hook, tag_text, bottom_text, out):
         (30, 28, 820, 692),
         radius=28,
         fill=(8, 12, 22, 255),
-        outline=(255, 205, 0, 235),
+        outline=accent_color + (235,),
         width=3,
     )
 
@@ -370,13 +378,13 @@ def thumbnail(img, hook, tag_text, bottom_text, out):
             stroke_width=7, stroke_fill=(0, 0, 0),
         )
         d.text(
-            (text_left, y), line, font=title_font, fill=(255, 220, 0),
+            (text_left, y), line, font=title_font, fill=title_color,
             stroke_width=4, stroke_fill=(12, 12, 12),
         )
         y += title_line_height
 
     rule_y = y + 8
-    d.rounded_rectangle((text_left, rule_y, text_left + 150, rule_y + 8), 4, fill=(255, 205, 0))
+    d.rounded_rectangle((text_left, rule_y, text_left + 150, rule_y + 8), 4, fill=accent_color)
     hook_y = rule_y + 30
     footer_y = 620
     hook_font, hook_lines, hook_line_height = fit_lines(

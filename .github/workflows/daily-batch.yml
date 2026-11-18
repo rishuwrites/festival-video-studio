@@ -1,0 +1,141 @@
+name: Daily 10-video batch
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: Calendar publish date (YYYY-MM-DD); defaults to tomorrow in IST
+        type: string
+        required: false
+        default: ""
+  schedule:
+    - cron: "0 12 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-batch-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      batch_date: ${{ steps.plan.outputs.batch_date }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build tomorrow's matrix
+        id: plan
+        env:
+          REQUESTED_DATE: ${{ github.event.inputs.date || '' }}
+          MAX_API_UPLOADS_PER_DAY: ${{ vars.MAX_API_UPLOADS_PER_DAY || '6' }}
+        run: |
+          if [ -n "$REQUESTED_DATE" ]; then
+            batch_date="$REQUESTED_DATE"
+          else
+            batch_date="$(python -c 'from datetime import datetime, timedelta; from zoneinfo import ZoneInfo; print((datetime.now(ZoneInfo("Asia/Kolkata")).date() + timedelta(days=1)).isoformat())')"
+          fi
+          export BATCH_DATE="$batch_date"
+          python -c 'from datetime import date; import os; date.fromisoformat(os.environ["BATCH_DATE"])' \
+            || { echo "Invalid batch date: $batch_date"; exit 1; }
+          echo "batch_date=$batch_date" >> "$GITHUB_OUTPUT"
+          matrix="$(python calendar/plan_batch.py --date "$batch_date")"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  render:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        video: ${{ fromJson(needs.plan.outputs.matrix) }}
+    env:
+      PYTHONUNBUFFERED: "1"
+      TOPIC: ${{ matrix.video.topic_hi }}
+      FEST_DATE: ${{ matrix.video.festival_date }}
+      FESTIVAL_TRADITION: ${{ matrix.video.festival_tradition }}
+      CALENDAR_DATE: ${{ matrix.video.date }}
+      PUBLISH_DATE: ${{ matrix.video.date }}
+      PUBLISH_TIME: ${{ matrix.video.publish_time_ist }}
+      CONTENT_TYPE: ${{ matrix.video.type }}
+      SLOT: ${{ matrix.video.slot }}
+      UPLOAD_ALLOWED: ${{ matrix.video.upload_allowed }}
+      EXTRA_ARGS: "[]"
+      OUTPUT_DIR: output/${{ matrix.video.date }}_slot_${{ matrix.video.slot }}
+      RESULTS_DIR: output/run_results
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GEMINI_API_KEY1: ${{ secrets.GEMINI_API_KEY1 }}
+      GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      HF_FLUX_SPACE: ${{ vars.HF_FLUX_SPACE || 'https://black-forest-labs-flux-1-schnell.hf.space' }}
+      POLLINATIONS_TOKEN: ${{ secrets.POLLINATIONS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install rendering dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-core libraqm0 libfribidi0 libharfbuzz0b
+          python -m pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+          python -c "import PIL.features; assert PIL.features.check('raqm'), 'Pillow RAQM support is required for Hindi text rendering'"
+      - name: Render, upload or save to Drive
+        run: python recap/run_one.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-video-result-${{ matrix.video.date }}-${{ matrix.video.slot }}
+          path: output/run_results/RESULT_${{ matrix.video.date }}_${{ matrix.video.slot }}.json
+          retention-days: 30
+          if-no-files-found: ignore
+
+  update-calendar:
+    needs: [plan, render]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: daily-video-result-*
+          path: output/run_results
+          merge-multiple: true
+          if-no-artifact-found: ignore
+      - name: Merge statuses and commit calendar
+        run: |
+          if [ -f calendar/content_calendar.json ] && [ -d output/run_results ]; then
+            python calendar/update_calendar.py \
+              --calendar calendar/content_calendar.json \
+              --results output/run_results
+          else
+            echo "No persistent calendar or result artifacts are available; nothing to merge."
+          fi
+          if ! git diff --quiet -- calendar/content_calendar.csv calendar/content_calendar.json calendar/CALENDAR.md; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add calendar/content_calendar.csv calendar/content_calendar.json calendar/CALENDAR.md
+            git commit -m "Update daily video calendar statuses"
+            git push
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-batch-results-${{ github.run_id }}
+          path: output/run_results
+          retention-days: 30
+          if-no-files-found: ignore
