@@ -326,10 +326,20 @@ def build_topics():
             ))
     for hi, en in REGIONAL_TOPICS:
         topics.append(_topic("regional_customs", hi, en))
+        topics.append(_topic(
+            "regional_customs",
+            f"क्षेत्रीय विविधता: {hi}",
+            f"Regional perspective: {en}",
+        ))
     for hi, en in VRAT_TOPICS:
         topics.append(_topic("vrat_rules", hi, en))
     for hi, en in EVENING_TOPICS:
         topics.append(_topic("evening_special", hi, en))
+        topics.append(_topic(
+            "evening_special",
+            f"सांस्कृतिक चिंतन: {hi}",
+            f"Devotional reflection: {en}",
+        ))
 
     rashi_full_topics = [
         ("पूर्ण परिचय", "Full encyclopedia"),

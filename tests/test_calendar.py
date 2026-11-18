@@ -7,6 +7,7 @@ import unittest
 from datetime import date, timedelta
 from pathlib import Path
 from contextlib import redirect_stdout
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -116,17 +117,19 @@ class DailyCalendarBuilderTests(unittest.TestCase):
         self.assertEqual(len(festival_rows), 2)
         self.assertTrue(all(row["notes"] == "late_prepublish" for row in festival_rows))
 
-    def test_unverified_festival_slots_are_reported_and_blocked(self):
+    def test_unverified_festival_slots_use_evergreen_replacements(self):
         entries = json.loads(self.festivals_path.read_text(encoding="utf-8"))["entries"]
         entries[0]["verified"] = False
         self._write_festivals(entries)
         output = io.StringIO()
         with redirect_stdout(output):
             result = self._build()
-        blocked = [row for row in result["videos"] if row["status"] == "blocked_unverified"]
-        self.assertEqual([row["slot"] for row in blocked], [2, 8])
+        replacements = [result["videos"][slot - 1] for slot in (2, 8)]
+        self.assertEqual([row["type"] for row in replacements], ["regional_customs", "evening_special"])
+        self.assertTrue(all(row["status"] == "planned" for row in replacements))
+        self.assertTrue(all("unverified festival topic not scheduled" in row["notes"] for row in replacements))
         self.assertIn("Test Festival", output.getvalue())
-        self.assertFalse(any(row["festival_date"] for row in result["videos"]))
+        self.assertFalse(any(row["festival_date"] for row in replacements))
 
     def test_missing_panchang_data_stops_calendar_generation(self):
         self._write_panchang([])
@@ -247,8 +250,40 @@ class DailyCalendarBuilderTests(unittest.TestCase):
         self.assertEqual(len({row["topic_hi"] for row in result["videos"]}), 440)
         self.assertTrue(all(row["status"] == "planned" for row in result["videos"]))
 
+    def test_real_window_keeps_ten_planned_videos_without_unverified_festivals(self):
+        with redirect_stdout(io.StringIO()):
+            result = build_calendar.build_rows(
+                "2026-11-18",
+                "2026-12-31",
+                previous_path=self.root / "missing.json",
+            )
+        by_date = {}
+        for row in result["videos"]:
+            by_date.setdefault(row["date"], []).append(row)
+        self.assertEqual(len(result["videos"]), 440)
+        self.assertTrue(all(
+            len(rows) == 10 and all(row["status"] == "planned" for row in rows)
+            for rows in by_date.values()
+        ))
+        self.assertTrue(any(
+            "unverified festival topic not scheduled" in row["notes"]
+            for row in result["videos"]
+        ))
+
 
 class DailyUploadBudgetTests(unittest.TestCase):
+    def test_default_budget_attempts_all_ten_planned_videos(self):
+        from upload_budget import allocate_uploads
+        rows = [
+            {"date": "2026-11-18", "slot": slot}
+            for slot in range(1, 11)
+        ]
+        with mock.patch.dict("os.environ", {}, clear=True):
+            planned = allocate_uploads(rows)
+        self.assertEqual(len(planned), 10)
+        self.assertTrue(all(row["upload_allowed"] for row in planned))
+        self.assertFalse(any("drive_reason" in row for row in planned))
+
     def test_upload_budget_reserves_first_six_slots(self):
         from upload_budget import allocate_uploads
         rows = [
@@ -270,9 +305,10 @@ class DailyUploadBudgetTests(unittest.TestCase):
             ]
             rows.append({"date": "2026-11-19", "slot": 1, "status": "planned"})
             path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
-            planned = plan_batch.plan_for_date(path, "2026-11-18", upload_limit=6)
+            with mock.patch.dict("os.environ", {}, clear=True):
+                planned = plan_batch.plan_for_date(path, "2026-11-18")
             self.assertEqual([row["slot"] for row in planned], list(range(1, 11)))
-            self.assertEqual(sum(row["upload_allowed"] for row in planned), 6)
+            self.assertEqual(sum(row["upload_allowed"] for row in planned), 10)
 
     def test_batch_planner_excludes_blocked_unverified_slots(self):
         with tempfile.TemporaryDirectory() as temp_dir:

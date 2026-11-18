@@ -7,7 +7,7 @@ def allocate_uploads(rows, limit=None):
     """Return copied rows with at most ``limit`` upload slots reserved in slot order."""
     if limit is None:
         try:
-            limit = int(os.getenv("MAX_API_UPLOADS_PER_DAY", "6"))
+            limit = int(os.getenv("MAX_API_UPLOADS_PER_DAY", "10"))
         except ValueError as exc:
             raise ValueError("MAX_API_UPLOADS_PER_DAY must be a non-negative integer") from exc
     if isinstance(limit, bool) or not isinstance(limit, int) or limit < 0:

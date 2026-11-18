@@ -1090,8 +1090,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: अवध में दीप सजाने की लोकरीति",
+      "topic_en": "Regional perspective: Folk lamp decoration in Awadh",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "भोजपुरी अंचल के पर्व गीत",
       "topic_en": "Festival songs of the Bhojpuri region",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: भोजपुरी अंचल के पर्व गीत",
+      "topic_en": "Regional perspective: Festival songs of the Bhojpuri region",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1106,8 +1122,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: मिथिला की अरिपन कला",
+      "topic_en": "Regional perspective: Aripan art in Mithila",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "पूर्वांचल के मंदिर मेले",
       "topic_en": "Temple fairs in Purvanchal",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पूर्वांचल के मंदिर मेले",
+      "topic_en": "Regional perspective: Temple fairs in Purvanchal",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1122,8 +1154,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: बिहार के सामुदायिक प्रसाद",
+      "topic_en": "Regional perspective: Community prasad traditions in Bihar",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "उत्तर प्रदेश की पूजा थाली सजावट",
       "topic_en": "Puja-thali decoration in Uttar Pradesh",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: उत्तर प्रदेश की पूजा थाली सजावट",
+      "topic_en": "Regional perspective: Puja-thali decoration in Uttar Pradesh",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1138,8 +1186,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: गंगा तट की स्थानीय आरती परंपराएँ",
+      "topic_en": "Regional perspective: Local aarti traditions along the Ganga",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "बुंदेलखंड की मौसमी लोककथाएँ",
       "topic_en": "Seasonal folk stories of Bundelkhand",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: बुंदेलखंड की मौसमी लोककथाएँ",
+      "topic_en": "Regional perspective: Seasonal folk stories of Bundelkhand",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1154,8 +1218,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: ब्रज क्षेत्र के भक्ति गीत",
+      "topic_en": "Regional perspective: Devotional songs of Braj",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "मगध की मंदिर यात्राएँ",
       "topic_en": "Temple journeys in Magadh",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: मगध की मंदिर यात्राएँ",
+      "topic_en": "Regional perspective: Temple journeys in Magadh",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1170,8 +1250,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: छोटे नगरों के वार्षिक धार्मिक मेले",
+      "topic_en": "Regional perspective: Annual religious fairs in small towns",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "पूर्वी भारत की अल्पना परंपरा",
       "topic_en": "Alpana traditions of eastern India",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पूर्वी भारत की अल्पना परंपरा",
+      "topic_en": "Regional perspective: Alpana traditions of eastern India",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1186,8 +1282,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: राजस्थान की दीप सजावट",
+      "topic_en": "Regional perspective: Lamp decoration traditions of Rajasthan",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "दक्षिण भारत के मंदिर उत्सव",
       "topic_en": "Temple festivals of southern India",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: दक्षिण भारत के मंदिर उत्सव",
+      "topic_en": "Regional perspective: Temple festivals of southern India",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1202,8 +1314,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पश्चिम भारत की सामूहिक आरती",
+      "topic_en": "Regional perspective: Community aarti in western India",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "पर्व भोज में क्षेत्रीय अनाज",
       "topic_en": "Regional grains in festival meals",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पर्व भोज में क्षेत्रीय अनाज",
+      "topic_en": "Regional perspective: Regional grains in festival meals",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1218,8 +1346,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: घर-घर की पूजा विधि में विविधता",
+      "topic_en": "Regional perspective: Variation in household worship practices",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "बोली और भजन की स्थानीय पहचान",
       "topic_en": "Local identity in dialect and devotional song",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: बोली और भजन की स्थानीय पहचान",
+      "topic_en": "Regional perspective: Local identity in dialect and devotional song",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1234,8 +1378,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: क्षेत्रीय मंदिरों के सेवा समूह",
+      "topic_en": "Regional perspective: Service groups at regional temples",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "स्थानीय पंचांग से पर्व तिथि देखना",
       "topic_en": "Checking dates in a local panchang",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: स्थानीय पंचांग से पर्व तिथि देखना",
+      "topic_en": "Regional perspective: Checking dates in a local panchang",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1250,8 +1410,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: लोक शिल्प में नदी और सूर्य",
+      "topic_en": "Regional perspective: Rivers and the sun in folk crafts",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "गाँव के मेले में कारीगरों की भूमिका",
       "topic_en": "Artisans at village fairs",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: गाँव के मेले में कारीगरों की भूमिका",
+      "topic_en": "Regional perspective: Artisans at village fairs",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1266,8 +1442,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: परिवारों में व्रत की अलग-अलग रीति",
+      "topic_en": "Regional perspective: Different family customs around fasting",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "क्षेत्रीय परंपराओं को सही नाम देना",
       "topic_en": "Naming regional traditions accurately",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: क्षेत्रीय परंपराओं को सही नाम देना",
+      "topic_en": "Regional perspective: Naming regional traditions accurately",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1282,8 +1474,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: शहर और गाँव के पर्व अनुभव",
+      "topic_en": "Regional perspective: Festival experiences in towns and villages",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "स्थानीय मंदिरों में भजन संध्या",
       "topic_en": "Devotional evenings at local temples",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: स्थानीय मंदिरों में भजन संध्या",
+      "topic_en": "Regional perspective: Devotional evenings at local temples",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1298,8 +1506,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: उत्तर भारतीय घरों की मौसमी सजावट",
+      "topic_en": "Regional perspective: Seasonal decoration in North Indian homes",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "भक्ति यात्राओं में स्थानीय भोजन",
       "topic_en": "Local foods on devotional journeys",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: भक्ति यात्राओं में स्थानीय भोजन",
+      "topic_en": "Regional perspective: Local foods on devotional journeys",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1314,8 +1538,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: क्षेत्रीय रीति और सार्वदेशिक तथ्य",
+      "topic_en": "Regional perspective: Regional custom versus nationwide fact",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "अलग-अलग समुदायों में प्रसाद की विविधता",
       "topic_en": "Prasad traditions across communities",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: अलग-अलग समुदायों में प्रसाद की विविधता",
+      "topic_en": "Regional perspective: Prasad traditions across communities",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1330,8 +1570,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पर्व आयोजन में महिलाओं की भूमिका",
+      "topic_en": "Regional perspective: Women's roles in festival organizing",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "स्थानीय मेलों में लोकनृत्य",
       "topic_en": "Folk dance at local fairs",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: स्थानीय मेलों में लोकनृत्य",
+      "topic_en": "Regional perspective: Folk dance at local fairs",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1346,8 +1602,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: नदी किनारे होने वाली सामुदायिक सेवा",
+      "topic_en": "Regional perspective: Community service beside rivers",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "हस्तशिल्प और धार्मिक अवसर",
       "topic_en": "Handicrafts and devotional occasions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: हस्तशिल्प और धार्मिक अवसर",
+      "topic_en": "Regional perspective: Handicrafts and devotional occasions",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1362,8 +1634,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: परिवार की मौखिक परंपरा का दस्तावेज़",
+      "topic_en": "Regional perspective: Documenting family oral traditions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "स्थानीय पर्व भोजन में साझा व्यंजन",
       "topic_en": "Shared dishes in local festival meals",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: स्थानीय पर्व भोजन में साझा व्यंजन",
+      "topic_en": "Regional perspective: Shared dishes in local festival meals",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1378,8 +1666,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: क्षेत्रीय देवालयों की वार्षिक यात्रा",
+      "topic_en": "Regional perspective: Annual visits to regional temples",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "मंदिर मेले में लोकशिल्प का बाज़ार",
       "topic_en": "Folk crafts at a temple fair",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: मंदिर मेले में लोकशिल्प का बाज़ार",
+      "topic_en": "Regional perspective: Folk crafts at a temple fair",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1394,8 +1698,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: लोककथा और समुदाय की स्मृति",
+      "topic_en": "Regional perspective: Folklore and community memory",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "पर्व के समय स्थानीय सेवा परंपरा",
       "topic_en": "Local service traditions during festivals",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: पर्व के समय स्थानीय सेवा परंपरा",
+      "topic_en": "Regional perspective: Local service traditions during festivals",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1410,8 +1730,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: क्षेत्रीय पूजा सामग्री का परिचय",
+      "topic_en": "Regional perspective: An introduction to regional worship items",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "गाँव और शहर के व्रत अनुभव",
       "topic_en": "Fasting customs in villages and cities",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: गाँव और शहर के व्रत अनुभव",
+      "topic_en": "Regional perspective: Fasting customs in villages and cities",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1426,6 +1762,14 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: स्थानीय भाषा में पर्व कथा",
+      "topic_en": "Regional perspective: Festival stories in local languages",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "कला और संगीत से क्षेत्रीय पहचान",
       "topic_en": "Regional identity through art and music",
       "evergreen": true,
@@ -1434,8 +1778,24 @@
     },
     {
       "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: कला और संगीत से क्षेत्रीय पहचान",
+      "topic_en": "Regional perspective: Regional identity through art and music",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
       "topic_hi": "धार्मिक परंपराओं के स्रोत का सम्मान",
       "topic_en": "Respecting sources for religious customs",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "regional_customs",
+      "topic_hi": "क्षेत्रीय विविधता: धार्मिक परंपराओं के स्रोत का सम्मान",
+      "topic_en": "Regional perspective: Respecting sources for religious customs",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1810,8 +2170,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: आरती के अर्थ को सरल भाषा में समझें",
+      "topic_en": "Devotional reflection: Aarti meanings in simple language",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "मंत्र जप की परंपरा और उच्चारण",
       "topic_en": "Mantra recitation traditions and pronunciation",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: मंत्र जप की परंपरा और उच्चारण",
+      "topic_en": "Devotional reflection: Mantra recitation traditions and pronunciation",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1826,8 +2202,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: पूजा में मौन का सांस्कृतिक अर्थ",
+      "topic_en": "Devotional reflection: The cultural meaning of silence in worship",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "भक्ति प्रश्नोत्तर: दीप क्यों जलाते हैं",
       "topic_en": "Devotional Q&A: why light a lamp",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: भक्ति प्रश्नोत्तर: दीप क्यों जलाते हैं",
+      "topic_en": "Devotional reflection: Devotional Q&A: why light a lamp",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1842,8 +2234,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: भक्ति प्रश्नोत्तर: प्रसाद क्या दर्शाता है",
+      "topic_en": "Devotional reflection: Devotional Q&A: what prasad represents",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "शाम की आरती में परिवार की भागीदारी",
       "topic_en": "Family participation in evening aarti",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: शाम की आरती में परिवार की भागीदारी",
+      "topic_en": "Devotional reflection: Family participation in evening aarti",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1858,8 +2266,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: भजन सुनने और गाने की परंपरा",
+      "topic_en": "Devotional reflection: Traditions of listening to and singing bhajans",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "मंत्र के अर्थ को समझकर जप",
       "topic_en": "Reciting a mantra with understanding",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: मंत्र के अर्थ को समझकर जप",
+      "topic_en": "Devotional reflection: Reciting a mantra with understanding",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1874,8 +2298,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: घर की पूजा में दीप की देखभाल",
+      "topic_en": "Devotional reflection: Caring for a lamp in household worship",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "पूजा के बाद कृतज्ञता की परंपरा",
       "topic_en": "Gratitude after worship",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: पूजा के बाद कृतज्ञता की परंपरा",
+      "topic_en": "Devotional reflection: Gratitude after worship",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1890,8 +2330,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: भक्ति संगीत में ताल और समुदाय",
+      "topic_en": "Devotional reflection: Rhythm and community in devotional music",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "प्रार्थना और ध्यान की सांस्कृतिक जगह",
       "topic_en": "Prayer and meditation in cultural life",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: प्रार्थना और ध्यान की सांस्कृतिक जगह",
+      "topic_en": "Devotional reflection: Prayer and meditation in cultural life",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1906,8 +2362,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: शाम के समय मंदिर की दिनचर्या",
+      "topic_en": "Devotional reflection: An evening routine at a temple",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "आरती की थाली में वस्तुओं का परिचय",
       "topic_en": "Objects used in an aarti plate",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: आरती की थाली में वस्तुओं का परिचय",
+      "topic_en": "Devotional reflection: Objects used in an aarti plate",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1922,8 +2394,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: भजन की पंक्ति का भावार्थ कैसे समझें",
+      "topic_en": "Devotional reflection: How to understand a bhajan's meaning",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "मंत्रों के स्रोत और परंपरा पूछना",
       "topic_en": "Asking about mantra sources and traditions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: मंत्रों के स्रोत और परंपरा पूछना",
+      "topic_en": "Devotional reflection: Asking about mantra sources and traditions",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1938,8 +2426,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: सांस्कृतिक Q&A: पूजा में घंटी",
+      "topic_en": "Devotional reflection: Cultural Q&A: bells in worship",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "सांस्कृतिक Q&A: तुलसी की घरेलू परंपरा",
       "topic_en": "Cultural Q&A: household Tulsi traditions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: सांस्कृतिक Q&A: तुलसी की घरेलू परंपरा",
+      "topic_en": "Devotional reflection: Cultural Q&A: household Tulsi traditions",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1954,8 +2458,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: संध्या समय की पारिवारिक प्रार्थना",
+      "topic_en": "Devotional reflection: Family prayer in the evening",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "लोकभक्ति और शास्त्रीय भक्ति का परिचय",
       "topic_en": "Folk and classical devotional traditions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: लोकभक्ति और शास्त्रीय भक्ति का परिचय",
+      "topic_en": "Devotional reflection: Folk and classical devotional traditions",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1970,8 +2490,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: आरती और सामूहिक गायन",
+      "topic_en": "Devotional reflection: Aarti and group singing",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "पूजा के समय स्वच्छता की परंपरा",
       "topic_en": "Cleanliness customs during worship",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: पूजा के समय स्वच्छता की परंपरा",
+      "topic_en": "Devotional reflection: Cleanliness customs during worship",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -1986,8 +2522,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: मंदिर में दर्शन की शिष्टाचार परंपरा",
+      "topic_en": "Devotional reflection: Etiquette traditions during temple visits",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "कथा सुनने के बाद चर्चा",
       "topic_en": "Discussing a story after listening",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: कथा सुनने के बाद चर्चा",
+      "topic_en": "Devotional reflection: Discussing a story after listening",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -2002,8 +2554,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: मंत्र की ध्वनि और ध्यान",
+      "topic_en": "Devotional reflection: Mantra sound and attention",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "सांस्कृतिक Q&A: तिथि और मुहूर्त",
       "topic_en": "Cultural Q&A: tithi and muhurta",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: सांस्कृतिक Q&A: तिथि और मुहूर्त",
+      "topic_en": "Devotional reflection: Cultural Q&A: tithi and muhurta",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -2018,8 +2586,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: संध्या दीप और घर की सजावट",
+      "topic_en": "Devotional reflection: Evening lamps and household decoration",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "भक्ति में सेवा का भाव",
       "topic_en": "The place of service in devotion",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: भक्ति में सेवा का भाव",
+      "topic_en": "Devotional reflection: The place of service in devotion",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -2034,8 +2618,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: आरती के बाद प्रसाद बाँटने का भाव",
+      "topic_en": "Devotional reflection: The meaning of sharing prasad after aarti",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "पारंपरिक प्रार्थना और आधुनिक दिनचर्या",
       "topic_en": "Traditional prayer and modern routines",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: पारंपरिक प्रार्थना और आधुनिक दिनचर्या",
+      "topic_en": "Devotional reflection: Traditional prayer and modern routines",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -2050,8 +2650,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: भक्ति कथाओं को बच्चों तक पहुँचाना",
+      "topic_en": "Devotional reflection: Sharing devotional stories with children",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "पूजा सामग्री का पर्यावरण-सम्मत उपयोग",
       "topic_en": "Mindful use of worship materials",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: पूजा सामग्री का पर्यावरण-सम्मत उपयोग",
+      "topic_en": "Devotional reflection: Mindful use of worship materials",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -2066,8 +2682,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: भजन संध्या की सामुदायिक तैयारी",
+      "topic_en": "Devotional reflection: Preparing a community bhajan evening",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "प्रार्थना में भाषा और स्थानीय बोली",
       "topic_en": "Language and dialect in prayer",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: प्रार्थना में भाषा और स्थानीय बोली",
+      "topic_en": "Devotional reflection: Language and dialect in prayer",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -2082,8 +2714,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: पूजा परंपरा में प्रश्न पूछने की जगह",
+      "topic_en": "Devotional reflection: Making space for questions about worship",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "स्थानीय आरती की धुनों का परिचय",
       "topic_en": "An introduction to local aarti melodies",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: स्थानीय आरती की धुनों का परिचय",
+      "topic_en": "Devotional reflection: An introduction to local aarti melodies",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -2098,8 +2746,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: भक्ति परंपराओं में मौसमी फूल",
+      "topic_en": "Devotional reflection: Seasonal flowers in devotional traditions",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "मंदिर के आसपास की स्थानीय कला",
       "topic_en": "Local art around a temple",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: मंदिर के आसपास की स्थानीय कला",
+      "topic_en": "Devotional reflection: Local art around a temple",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -2114,8 +2778,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: पूजा के बाद सामुदायिक स्वच्छता",
+      "topic_en": "Devotional reflection: Community clean-up after worship",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "पर्व की तैयारी में पड़ोस का सहयोग",
       "topic_en": "Neighbourly help in festival preparations",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: पर्व की तैयारी में पड़ोस का सहयोग",
+      "topic_en": "Devotional reflection: Neighbourly help in festival preparations",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -2130,8 +2810,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: संध्या पूजा में क्षेत्रीय भिन्नताएँ",
+      "topic_en": "Devotional reflection: Regional variations in evening worship",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "स्थानीय कारीगरों से पारंपरिक सजावट",
       "topic_en": "Traditional decoration from local artisans",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: स्थानीय कारीगरों से पारंपरिक सजावट",
+      "topic_en": "Devotional reflection: Traditional decoration from local artisans",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
@@ -2146,6 +2842,14 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: व्रत भोजन की पारिवारिक विविधता",
+      "topic_en": "Devotional reflection: Family variation in vrat foods",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "तीर्थ की लोककथा और स्थानीय संदर्भ",
       "topic_en": "Pilgrimage folklore and local context",
       "evergreen": true,
@@ -2154,8 +2858,24 @@
     },
     {
       "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: तीर्थ की लोककथा और स्थानीय संदर्भ",
+      "topic_en": "Devotional reflection: Pilgrimage folklore and local context",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
       "topic_hi": "क्षेत्रीय परंपरा पर स्रोत कैसे खोजें",
       "topic_en": "Finding sources for a regional custom",
+      "evergreen": true,
+      "earliest_date": "2026-11-18",
+      "latest_date": "2026-12-31"
+    },
+    {
+      "type": "evening_special",
+      "topic_hi": "सांस्कृतिक चिंतन: क्षेत्रीय परंपरा पर स्रोत कैसे खोजें",
+      "topic_en": "Devotional reflection: Finding sources for a regional custom",
       "evergreen": true,
       "earliest_date": "2026-11-18",
       "latest_date": "2026-12-31"
