@@ -388,7 +388,7 @@ def generate_video(
     topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None,
     publish_date="", publish_time="", upload=False, facebook_upload_enabled=False,
     prepared_bundle=None, title_max_length=100, title_suffix="", festival_tradition="",
-    continue_on_upload_errors=False,
+    continue_on_upload_errors=False, allow_existing_upload=False,
 ):
     if not topic.strip():
         raise ValueError("A festival topic is required")
@@ -620,6 +620,7 @@ def generate_video(
             youtube_result = upload_scheduled(
                 video_path, metadata_path, publish_date, publish_time,
                 thumbnail_path=thumb_path,
+                allow_existing=allow_existing_upload,
             )
             metadata.update({
                 "upload_status": youtube_result["status"],
@@ -722,8 +723,11 @@ def main():
             args.topic, args.date, args.scope, args.output_dir or None,
             args.publish_date, args.publish_time, args.upload, args.facebook_upload,
             continue_on_upload_errors=args.upload or args.facebook_upload,
+            allow_existing_upload=True,
         )
-        if generated.get("upload_errors"):
+        youtube_succeeded = bool(generated.get("youtube"))
+        drive_link = ""
+        if args.upload and not youtube_succeeded:
             drive = save_to_drive(
                 generated["video"],
                 generated["thumbnail"],
@@ -734,7 +738,35 @@ def main():
                 publish_time=args.publish_time,
                 calendar_date=args.publish_date,
             )
-            print(f"  upload failure saved to Google Drive: {drive['drive_link']}")
+            drive_link = drive["drive_link"]
+            print(f"  YouTube failure saved to Google Drive: {drive_link}")
+        if args.upload:
+            youtube_status = "scheduled" if youtube_succeeded else "failed"
+            print(
+                f"YouTube upload status: {'SUCCESS' if youtube_succeeded else 'FAILED'}"
+                + (f" — {generated['youtube']}" if youtube_succeeded else "")
+            )
+            result_path = os.path.join(
+                os.path.dirname(generated["metadata"]),
+                f"RESULT_{args.publish_date}_legacy.json",
+            )
+            with open(generated["metadata"], encoding="utf-8") as metadata_file:
+                video_metadata = json.load(metadata_file)
+            with open(result_path, "w", encoding="utf-8") as result_file:
+                json.dump({
+                    "date": args.publish_date,
+                    "slot": 3,
+                    "status": "scheduled" if youtube_succeeded else "failed_saved_to_drive",
+                    "youtube_status": youtube_status,
+                    "youtube_video_id": video_metadata.get("youtube_video_id", ""),
+                    "drive_link": drive_link,
+                    "notes": "; ".join(
+                        f"{platform} upload failed: {detail}"
+                        for platform, detail in generated.get("upload_errors", {}).items()
+                    ),
+                }, result_file, ensure_ascii=False, indent=2)
+            if not youtube_succeeded:
+                raise SystemExit("YouTube upload failed; retry this legacy video later.")
     except Exception as exc:
         raise SystemExit(f"Festival video generation failed: {type(exc).__name__}: {exc}") from exc
 

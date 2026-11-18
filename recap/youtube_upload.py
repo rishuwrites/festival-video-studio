@@ -220,6 +220,7 @@ def set_video_thumbnail(video_id, thumbnail_path):
 
 def upload_scheduled(
     video_path, metadata_path, publish_date, publish_time, now=None, thumbnail_path=None,
+    allow_existing=False,
 ):
     if not os.path.isfile(video_path):
         raise FileNotFoundError(f"Generated video file does not exist: {video_path}")
@@ -240,6 +241,15 @@ def upload_scheduled(
     access_token = oauth_access_token()
     existing_id = _existing_upload(access_token, title)
     if existing_id:
+        if allow_existing:
+            if thumbnail_path:
+                _set_video_thumbnail(access_token, existing_id, thumbnail_path)
+            return {
+                "video_id": existing_id,
+                "url": f"https://www.youtube.com/watch?v={existing_id}",
+                "publish_at_ist": publish_at.strftime("%Y-%m-%d %H:%M %Z"),
+                "status": "scheduled_public",
+            }
         raise RuntimeError(
             f"A video with this title already exists on the channel: "
             f"https://www.youtube.com/watch?v={existing_id}. Not uploading a duplicate."

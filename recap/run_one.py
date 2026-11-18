@@ -144,6 +144,7 @@ def run_one(env=None):
                 title_suffix=f"{publish_date} Slot {slot}",
                 festival_tradition=festival_tradition,
                 continue_on_upload_errors=facebook_upload,
+                allow_existing_upload=True,
             )
             break
         except Exception as exc:
@@ -179,6 +180,9 @@ def run_one(env=None):
                 "date": calendar_date,
                 "slot": slot,
                 "status": "scheduled",
+                "youtube_status": (
+                    "scheduled" if metadata.get("youtube_video_id") else "failed"
+                ),
                 "youtube_video_id": metadata.get("youtube_video_id", ""),
                 "drive_link": drive_link,
                 "facebook_video_id": metadata.get("facebook_video_id", ""),
@@ -223,6 +227,11 @@ def run_one(env=None):
                     )
                     else "failed_saved_to_drive"
                 ),
+                "youtube_status": (
+                    "scheduled"
+                    if generated and metadata.get("youtube_video_id")
+                    else "failed"
+                ),
                 "youtube_video_id": "",
                 "drive_link": drive["drive_link"],
                 "facebook_video_id": metadata.get("facebook_video_id", "") if generated else "",
@@ -256,6 +265,7 @@ def run_one(env=None):
         "date": calendar_date,
         "slot": slot,
         "status": "skipped",
+        "youtube_status": "failed",
         "youtube_video_id": "",
         "drive_link": "",
         "facebook_video_id": "",
@@ -273,7 +283,7 @@ def main():
     except (ValueError, OSError) as exc:
         print(f"Could not run calendar video: {type(exc).__name__}: {exc}", file=sys.stderr)
         raise SystemExit(1) from exc
-    if result["status"] == "skipped":
+    if result.get("youtube_status") != "scheduled" or not result.get("youtube_video_id"):
         raise SystemExit(1)
 
 

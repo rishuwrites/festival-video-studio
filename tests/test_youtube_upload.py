@@ -165,6 +165,31 @@ class ScheduledUploadTests(unittest.TestCase):
 
         post.assert_not_called()
 
+    def test_retry_treats_existing_title_as_success_without_duplicate_upload(self):
+        publish_date, publish_time = future_schedule()
+        with tempfile.TemporaryDirectory() as folder:
+            video_path, metadata_path = self.make_inputs(folder)
+            thumbnail_path = str(Path(folder) / "thumbnail.jpg")
+            Path(thumbnail_path).write_bytes(b"jpeg")
+            with mock.patch.object(youtube_upload, "oauth_access_token", return_value="token"), \
+                    mock.patch.object(youtube_upload, "_existing_upload", return_value="existing123"), \
+                    mock.patch.object(youtube_upload.requests, "post") as post, \
+                    mock.patch.object(youtube_upload, "_set_video_thumbnail") as set_thumbnail:
+                result = youtube_upload.upload_scheduled(
+                    video_path,
+                    metadata_path,
+                    publish_date,
+                    publish_time,
+                    thumbnail_path=thumbnail_path,
+                    allow_existing=True,
+                )
+
+        self.assertEqual(result["video_id"], "existing123")
+        self.assertEqual(result["status"], "scheduled_public")
+        self.assertEqual(result["url"], "https://www.youtube.com/watch?v=existing123")
+        post.assert_not_called()
+        set_thumbnail.assert_called_once_with("token", "existing123", thumbnail_path)
+
     def test_never_uploads_if_publish_time_expired_during_generation(self):
         with tempfile.TemporaryDirectory() as folder:
             video_path, metadata_path = self.make_inputs(folder)

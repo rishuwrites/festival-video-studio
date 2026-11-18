@@ -1,5 +1,7 @@
 name: Festival explainer video
 
+run-name: Legacy video ${{ inputs.publish_date || inputs.date || 'manual' }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -93,7 +95,32 @@ jobs:
           python -c "import sys; sys.path.insert(0, 'recap'); import render; print('Using Devanagari font:', render.find_font())"
 
       - name: Research and render video
-        run: python recap/festival_main.py
+        run: |
+          set +e
+          python recap/festival_main.py
+          run_status=$?
+          set -e
+          result_file="$(find output -type f -name "RESULT_${FESTIVAL_PUBLISH_DATE}_legacy.json" -print -quit 2>/dev/null || true)"
+          if [ -n "$result_file" ]; then
+            cat "$result_file"
+            RESULT_FILE="$result_file" python -c '
+          import json, os
+          result = json.loads(open(os.environ["RESULT_FILE"], encoding="utf-8").read())
+          success = result.get("youtube_status") == "scheduled" and bool(result.get("youtube_video_id"))
+          row = "| {date} | {state} | {video_id} | {drive} | {notes} |\n".format(
+              date=result.get("date", ""), state="SUCCESS" if success else "FAILED",
+              video_id=result.get("youtube_video_id", ""), drive=result.get("drive_link", ""),
+              notes=str(result.get("notes", "")).replace("|", "/").replace("\n", " "),
+          )
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("| Publish date | YouTube | Video ID | Drive fallback | Details |\n")
+              summary.write("|---|---|---|---|---|\n")
+              summary.write(row)
+          '
+          else
+            echo "| ${FESTIVAL_PUBLISH_DATE} | FAILED | no result file |" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$run_status"
 
       - uses: actions/upload-artifact@v4
         if: always()

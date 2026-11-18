@@ -25,6 +25,11 @@ def merge_results(calendar_path, result_dir):
         if status not in {"generated", "scheduled", "uploaded", "failed_saved_to_drive", "skipped"}:
             raise ValueError(f"Invalid run status in {result_path.name}: {status!r}")
         row["status"] = status
+        youtube_status = result.get("youtube_status")
+        if youtube_status not in {None, "scheduled", "failed", "not_attempted"}:
+            raise ValueError(f"Invalid YouTube status in {result_path.name}: {youtube_status!r}")
+        if youtube_status:
+            row["youtube_status"] = youtube_status
         row["youtube_video_id"] = (
             result.get("youtube_video_id") or row.get("youtube_video_id", "")
         )

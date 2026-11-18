@@ -1,5 +1,7 @@
 name: Daily 10-video batch
 
+run-name: Daily batch ${{ inputs.date || 'default' }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -8,6 +10,11 @@ on:
         type: string
         required: false
         default: ""
+      retry_failed:
+        description: Retry only slots without a successful YouTube video ID
+        type: boolean
+        required: false
+        default: false
   # Re-enable this schedule only after owner confirmation and credential setup.
   # schedule:
   #   - cron: "0 12 * * *"
@@ -34,6 +41,7 @@ jobs:
         id: plan
         env:
           REQUESTED_DATE: ${{ github.event.inputs.date || '' }}
+          RETRY_FAILED: ${{ inputs.retry_failed }}
         run: |
           if [ -n "$REQUESTED_DATE" ]; then
             batch_date="$REQUESTED_DATE"
@@ -44,7 +52,11 @@ jobs:
           python -c 'from datetime import date; import os; date.fromisoformat(os.environ["BATCH_DATE"])' \
             || { echo "Invalid batch date: $batch_date"; exit 1; }
           echo "batch_date=$batch_date" >> "$GITHUB_OUTPUT"
-          matrix="$(python calendar/plan_batch.py --date "$batch_date")"
+          retry_args=()
+          if [ "$RETRY_FAILED" = "true" ]; then
+            retry_args+=(--retry-failed)
+          fi
+          matrix="$(python calendar/plan_batch.py --date "$batch_date" "${retry_args[@]}")"
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   render:
@@ -71,6 +83,7 @@ jobs:
       FACEBOOK_UPLOAD: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN != '' && (secrets.FACEBOOK_PAGE_ID || vars.FACEBOOK_PAGE_ID) != '' }}
       OUTPUT_DIR: output/${{ matrix.video.date }}_slot_${{ matrix.video.slot }}
       RESULTS_DIR: output/run_results
+      RETRY_FAILED: ${{ inputs.retry_failed }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_API_KEY1: ${{ secrets.GEMINI_API_KEY1 }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
@@ -96,7 +109,40 @@ jobs:
           python -m playwright install --with-deps chromium
           python -c "import PIL.features; assert PIL.features.check('raqm'), 'Pillow RAQM support is required for Hindi text rendering'"
       - name: Render, upload or save to Drive
-        run: python recap/run_one.py
+        env:
+          RESULT_FILE: output/run_results/RESULT_${{ matrix.video.date }}_${{ matrix.video.slot }}.json
+        run: |
+          set +e
+          python recap/run_one.py
+          run_status=$?
+          set -e
+          python -c '
+          import json, os
+          path = os.environ["RESULT_FILE"]
+          result = json.loads(open(path, encoding="utf-8").read()) if os.path.isfile(path) else {
+              "date": os.environ["CALENDAR_DATE"], "slot": os.environ["SLOT"],
+              "status": "missing_result", "youtube_status": "failed",
+              "youtube_video_id": "", "drive_link": "",
+              "notes": "Runner exited without writing a per-video result."
+          }
+          status = result.get("youtube_status", "failed")
+          label = "SUCCESS" if status == "scheduled" and result.get("youtube_video_id") else "FAILED"
+          row = "| {date} | {slot} | {label} | {video_id} | {drive} | {notes} |\n".format(
+              date=result.get("date", ""), slot=result.get("slot", ""), label=label,
+              video_id=result.get("youtube_video_id", ""), drive=result.get("drive_link", ""),
+              notes=str(result.get("notes", "")).replace("|", "/").replace("\n", " "),
+          )
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("| Date | Slot | YouTube | Video ID | Drive fallback | Details |\n")
+              summary.write("|---|---:|---|---|---|---|\n")
+              summary.write(row)
+          print(json.dumps(result, ensure_ascii=False))
+          '
+          if [ ! -f "$RESULT_FILE" ]; then
+            mkdir -p "$(dirname "$RESULT_FILE")"
+            printf '{"date":"%s","slot":%s,"status":"skipped","youtube_status":"failed","youtube_video_id":"","notes":"Runner exited without writing a per-video result."}\n' "$CALENDAR_DATE" "$SLOT" > "$RESULT_FILE"
+          fi
+          exit "$run_status"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

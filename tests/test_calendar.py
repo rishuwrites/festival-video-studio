@@ -1,5 +1,6 @@
 import json
 import csv
+import datetime as dt
 import io
 import sys
 import tempfile
@@ -16,6 +17,7 @@ sys.path.insert(0, str(ROOT / "calendar"))
 import build_calendar
 import plan_batch
 import seed_templates
+import update_calendar
 
 
 class DailyCalendarBuilderTests(unittest.TestCase):
@@ -481,6 +483,116 @@ class DailyUploadBudgetTests(unittest.TestCase):
 
             self.assertEqual(len(planned), 10)
             self.assertTrue(all(row["upload_allowed"] for row in planned))
+
+    def test_retry_planner_selects_only_future_slots_without_youtube_success(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "content_calendar.json"
+            rows = [
+                {
+                    "date": "2026-12-10",
+                    "slot": slot,
+                    "publish_time_ist": f"{slot:02d}:00",
+                    "type": "legacy_daily" if slot == 3 else "story_history",
+                    "source": "legacy" if slot == 3 else "batch",
+                    "status": "legacy_managed" if slot == 3 else "uploaded",
+                    "youtube_video_id": "" if slot == 3 else f"video-{slot}",
+                }
+                for slot in range(1, 11)
+            ]
+            rows[1]["status"] = "failed_saved_to_drive"
+            rows[1]["youtube_video_id"] = ""
+            rows[3]["status"] = "skipped"
+            rows[3]["youtube_video_id"] = ""
+            rows[4]["status"] = "scheduled"
+            rows[4]["youtube_video_id"] = ""
+            rows[4]["youtube_status"] = "failed"
+            rows[5]["youtube_video_id"] = ""
+            rows[6]["status"] = "blocked_unverified"
+            path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
+
+            planned = plan_batch.plan_for_date(
+                path,
+                "2026-12-10",
+                retry_failed=True,
+                now=dt.datetime(2026, 12, 9, 0, 0, tzinfo=dt.timezone(dt.timedelta(hours=5, minutes=30))),
+            )
+
+        self.assertEqual([row["slot"] for row in planned], [2, 4, 5])
+        self.assertTrue(all(row["upload_allowed"] for row in planned))
+
+    def test_retry_planner_omits_slots_inside_youtube_schedule_cutoff(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "content_calendar.json"
+            rows = [
+                {
+                    "date": "2026-12-10",
+                    "slot": slot,
+                    "publish_time_ist": "06:00",
+                    "type": "story_history",
+                    "source": "batch",
+                    "status": "failed_saved_to_drive",
+                    "youtube_video_id": "",
+                }
+                for slot in range(1, 11)
+            ]
+            path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "No dispatchable failed videos"):
+                plan_batch.plan_for_date(
+                    path,
+                    "2026-12-10",
+                    retry_failed=True,
+                    now=dt.datetime(2026, 12, 10, 5, 50, tzinfo=dt.timezone(dt.timedelta(hours=5, minutes=30))),
+                )
+
+
+class CalendarResultMergeTests(unittest.TestCase):
+    def test_merge_records_youtube_failure_even_if_other_platform_succeeded(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            calendar_path = root / "content_calendar.json"
+            results_path = root / "results"
+            results_path.mkdir()
+            payload = {
+                "start_date": "2026-12-10",
+                "end_date": "2026-12-10",
+                "videos": [{
+                    "date": "2026-12-10",
+                    "slot": 1,
+                    "publish_time_ist": "06:00",
+                    "type": "story_history",
+                    "source": "batch",
+                    "topic_hi": "परीक्षण कथा",
+                    "topic_en": "Test story",
+                    "festival_date": "",
+                    "festival_tradition": "",
+                    "status": "planned",
+                    "youtube_status": "not_attempted",
+                    "youtube_video_id": "",
+                    "drive_link": "",
+                    "facebook_video_id": "",
+                    "facebook_link": "",
+                    "notes": "",
+                }],
+            }
+            calendar_path.write_text(json.dumps(payload), encoding="utf-8")
+            (results_path / "RESULT_2026-12-10_1.json").write_text(json.dumps({
+                "date": "2026-12-10",
+                "slot": 1,
+                "status": "scheduled",
+                "youtube_status": "failed",
+                "youtube_video_id": "",
+                "facebook_video_id": "facebook-id",
+                "facebook_link": "https://facebook.example/video",
+                "notes": "youtube upload failed: quota exceeded",
+            }), encoding="utf-8")
+
+            merged = update_calendar.merge_results(calendar_path, results_path)
+
+        result = merged["videos"][0]
+        self.assertEqual(result["youtube_status"], "failed")
+        self.assertEqual(result["facebook_video_id"], "facebook-id")
+        self.assertEqual(result["status"], "scheduled")
 
 
 class FestivalCalendarTests(unittest.TestCase):

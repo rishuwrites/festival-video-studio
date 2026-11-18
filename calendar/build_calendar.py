@@ -23,7 +23,7 @@ CALENDAR_FIELDS = [
     "date", "slot", "publish_time_ist", "type", "source", "channel_category",
     "topic_hi", "topic_en",
     "festival_date", "festival_tradition", "thumbnail_text_hi", "thumbnail_color",
-    "thumbnail_symbol", "status", "youtube_video_id", "drive_link",
+    "thumbnail_symbol", "status", "youtube_status", "youtube_video_id", "drive_link",
     "facebook_video_id", "facebook_link", "notes",
 ]
 ALLOWED_STATUSES = {
@@ -598,6 +598,7 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                 "thumbnail_color": color,
                 "thumbnail_symbol": symbol,
                 "status": status,
+                "youtube_status": "not_attempted",
                 "youtube_video_id": "",
                 "drive_link": "",
                 "facebook_video_id": "",
@@ -611,7 +612,7 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                 "legacy_managed",
             }:
                 for field in (
-                    "status", "youtube_video_id", "drive_link",
+                    "status", "youtube_status", "youtube_video_id", "drive_link",
                     "facebook_video_id", "facebook_link",
                 ):
                     row[field] = old.get(field, row[field])
