@@ -677,14 +677,14 @@
       "thumbnail_text_hi": "आज का पंचांग",
       "thumbnail_color": "#406A8E",
       "thumbnail_symbol": "☼",
-      "status": "planned",
-      "youtube_status": "not_attempted",
-      "youtube_video_id": "",
+      "status": "scheduled",
+      "youtube_status": "scheduled",
+      "youtube_video_id": "8W_M1MqYNKQ",
       "drive_link": "",
-      "facebook_video_id": "",
-      "facebook_link": "",
+      "facebook_video_id": "1179654987903103",
+      "facebook_link": "https://www.facebook.com/1476204945573767/videos/1179654987903103",
       "festival_tradition": "",
-      "notes": ""
+      "notes": "Gemini requests: 0"
     },
     {
       "date": "2026-11-21",
@@ -699,14 +699,14 @@
       "thumbnail_text_hi": "कार्तिक पूर्णिमा / देव",
       "thumbnail_color": "#8B6B9E",
       "thumbnail_symbol": "✦",
-      "status": "planned",
-      "youtube_status": "not_attempted",
+      "status": "skipped",
+      "youtube_status": "failed",
       "youtube_video_id": "",
       "drive_link": "",
       "facebook_video_id": "",
       "facebook_link": "",
       "festival_tradition": "Hindu Kartik Purnima; Dev Diwali is especially associated with Varanasi, and regional solar-calendar observances may differ.",
-      "notes": ""
+      "notes": "Gemini requests: 25; Gemini festival research failed: gemini-3.8-flash: HTTP 503 (UNAVAILABLE: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.); gemini-flash-latest: HTTP 429 (RESOURCE_EXHAUSTED: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelangu); gemini-3.8-flash: HTTP 403 (PERMISSION_DENIED: The Gemini API free tier is not available for this project. To use the Gemini API, please set up billing to upgrade to the paid tier at https://aistudio.google.com/billing. For more information, see https://ai.google.dev/gemini-api/docs/troubleshooting#project-unavailable.) | The Google Cloud project for at least one API key is not eligible for Gemini's free tier; enable billing for that project in Google AI Studio or use a key from a project with Gemini API access.; Drive fallback unavailable: generated video, thumbnail, or metadata is missing"
     },
     {
       "date": "2026-11-21",
@@ -743,14 +743,14 @@
       "thumbnail_text_hi": "कथा और लोकस्मृति: घंटी",
       "thumbnail_color": "#8B6B9E",
       "thumbnail_symbol": "✦",
-      "status": "planned",
-      "youtube_status": "not_attempted",
+      "status": "skipped",
+      "youtube_status": "failed",
       "youtube_video_id": "",
       "drive_link": "",
       "facebook_video_id": "",
       "facebook_link": "",
       "festival_tradition": "",
-      "notes": ""
+      "notes": "Gemini requests: 31; Gemini festival research failed: gemini-3.8-flash: ReadTimeout; gemini-flash-latest: HTTP 429 (RESOURCE_EXHAUSTED: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelangu); gemini-3.8-flash: HTTP 403 (PERMISSION_DENIED: The Gemini API free tier is not available for this project. To use the Gemini API, please set up billing to upgrade to the paid tier at https://aistudio.google.com/billing. For more information, see https://ai.google.dev/gemini-api/docs/troubleshooting#project-unavailable.) | The Google Cloud project for at least one API key is not eligible for Gemini's free tier; enable billing for that project in Google AI Studio or use a key from a project with Gemini API access.; Drive fallback unavailable: generated video, thumbnail, or metadata is missing"
     },
     {
       "date": "2026-11-21",
@@ -765,14 +765,14 @@
       "thumbnail_text_hi": "पारण का समय कैसे",
       "thumbnail_color": "#8B6B9E",
       "thumbnail_symbol": "✦",
-      "status": "planned",
-      "youtube_status": "not_attempted",
+      "status": "skipped",
+      "youtube_status": "failed",
       "youtube_video_id": "",
       "drive_link": "",
       "facebook_video_id": "",
       "facebook_link": "",
       "festival_tradition": "",
-      "notes": ""
+      "notes": "Gemini requests: 44; Gemini festival research failed: gemini-3.8-flash: HTTP 429 (RESOURCE_EXHAUSTED: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelangu); gemini-3.8-flash: HTTP 403 (PERMISSION_DENIED: The Gemini API free tier is not available for this project. To use the Gemini API, please set up billing to upgrade to the paid tier at https://aistudio.google.com/billing. For more information, see https://ai.google.dev/gemini-api/docs/troubleshooting#project-unavailable.) | The Google Cloud project for at least one API key is not eligible for Gemini's free tier; enable billing for that project in Google AI Studio or use a key from a project with Gemini API access.; Drive fallback unavailable: generated video, thumbnail, or metadata is missing"
     },
     {
       "date": "2026-11-21",
@@ -787,14 +787,14 @@
       "thumbnail_text_hi": "इतिहास की झलक: घंटी",
       "thumbnail_color": "#8B6B9E",
       "thumbnail_symbol": "✦",
-      "status": "planned",
-      "youtube_status": "not_attempted",
+      "status": "skipped",
+      "youtube_status": "failed",
       "youtube_video_id": "",
       "drive_link": "",
       "facebook_video_id": "",
       "facebook_link": "",
       "festival_tradition": "",
-      "notes": ""
+      "notes": "Gemini requests: 31; Gemini festival research failed: gemini-3.8-flash: ReadTimeout; gemini-flash-latest: HTTP 429 (RESOURCE_EXHAUSTED: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelangu); gemini-3.8-flash: HTTP 403 (PERMISSION_DENIED: The Gemini API free tier is not available for this project. To use the Gemini API, please set up billing to upgrade to the paid tier at https://aistudio.google.com/billing. For more information, see https://ai.google.dev/gemini-api/docs/troubleshooting#project-unavailable.) | The Google Cloud project for at least one API key is not eligible for Gemini's free tier; enable billing for that project in Google AI Studio or use a key from a project with Gemini API access.; Drive fallback unavailable: generated video, thumbnail, or metadata is missing"
     },
     {
       "date": "2026-11-21",
@@ -809,14 +809,14 @@
       "thumbnail_text_hi": "पूर्वांचल के मंदिर मेले",
       "thumbnail_color": "#8B6B9E",
       "thumbnail_symbol": "✦",
-      "status": "planned",
-      "youtube_status": "not_attempted",
+      "status": "skipped",
+      "youtube_status": "failed",
       "youtube_video_id": "",
       "drive_link": "",
       "facebook_video_id": "",
       "facebook_link": "",
       "festival_tradition": "",
-      "notes": ""
+      "notes": "Gemini requests: 24; Gemini festival research failed: gemini-3.8-flash: HTTP 429 (RESOURCE_EXHAUSTED: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelangu); gemini-3.8-flash: HTTP 403 (PERMISSION_DENIED: The Gemini API free tier is not available for this project. To use the Gemini API, please set up billing to upgrade to the paid tier at https://aistudio.google.com/billing. For more information, see https://ai.google.dev/gemini-api/docs/troubleshooting#project-unavailable.) | The Google Cloud project for at least one API key is not eligible for Gemini's free tier; enable billing for that project in Google AI Studio or use a key from a project with Gemini API access.; Drive fallback unavailable: generated video, thumbnail, or metadata is missing"
     },
     {
       "date": "2026-11-21",
@@ -831,14 +831,14 @@
       "thumbnail_text_hi": "मंत्र जप की परंपरा",
       "thumbnail_color": "#8B6B9E",
       "thumbnail_symbol": "✦",
-      "status": "planned",
-      "youtube_status": "not_attempted",
+      "status": "skipped",
+      "youtube_status": "failed",
       "youtube_video_id": "",
       "drive_link": "",
       "facebook_video_id": "",
       "facebook_link": "",
       "festival_tradition": "",
-      "notes": ""
+      "notes": "Gemini requests: 29; Gemini festival research failed: gemini-3.8-flash: HTTP 429 (RESOURCE_EXHAUSTED: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelangu); gemini-3.8-flash: HTTP 403 (PERMISSION_DENIED: The Gemini API free tier is not available for this project. To use the Gemini API, please set up billing to upgrade to the paid tier at https://aistudio.google.com/billing. For more information, see https://ai.google.dev/gemini-api/docs/troubleshooting#project-unavailable.) | The Google Cloud project for at least one API key is not eligible for Gemini's free tier; enable billing for that project in Google AI Studio or use a key from a project with Gemini API access.; Drive fallback unavailable: generated video, thumbnail, or metadata is missing"
     },
     {
       "date": "2026-11-21",
@@ -853,14 +853,14 @@
       "thumbnail_text_hi": "कार्तिक पूर्णिमा / देव",
       "thumbnail_color": "#8B6B9E",
       "thumbnail_symbol": "✦",
-      "status": "planned",
-      "youtube_status": "not_attempted",
+      "status": "skipped",
+      "youtube_status": "failed",
       "youtube_video_id": "",
       "drive_link": "",
       "facebook_video_id": "",
       "facebook_link": "",
       "festival_tradition": "Hindu Kartik Purnima; Dev Diwali is especially associated with Varanasi, and regional solar-calendar observances may differ.",
-      "notes": ""
+      "notes": "Gemini requests: 26; Gemini festival research failed: gemini-3.8-flash: HTTP 429 (RESOURCE_EXHAUSTED: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelangu); gemini-3.8-flash: HTTP 403 (PERMISSION_DENIED: The Gemini API free tier is not available for this project. To use the Gemini API, please set up billing to upgrade to the paid tier at https://aistudio.google.com/billing. For more information, see https://ai.google.dev/gemini-api/docs/troubleshooting#project-unavailable.) | The Google Cloud project for at least one API key is not eligible for Gemini's free tier; enable billing for that project in Google AI Studio or use a key from a project with Gemini API access.; Drive fallback unavailable: generated video, thumbnail, or metadata is missing"
     },
     {
       "date": "2026-11-21",
@@ -875,14 +875,14 @@
       "thumbnail_text_hi": "व्रत परंपरा में क्षेत्रीय",
       "thumbnail_color": "#8B6B9E",
       "thumbnail_symbol": "✦",
-      "status": "planned",
-      "youtube_status": "not_attempted",
+      "status": "skipped",
+      "youtube_status": "failed",
       "youtube_video_id": "",
       "drive_link": "",
       "facebook_video_id": "",
       "facebook_link": "",
       "festival_tradition": "",
-      "notes": ""
+      "notes": "Gemini requests: 24; Gemini festival research failed: gemini-3.8-flash: HTTP 429 (RESOURCE_EXHAUSTED: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelangu); gemini-3.8-flash: HTTP 403 (PERMISSION_DENIED: The Gemini API free tier is not available for this project. To use the Gemini API, please set up billing to upgrade to the paid tier at https://aistudio.google.com/billing. For more information, see https://ai.google.dev/gemini-api/docs/troubleshooting#project-unavailable.) | The Google Cloud project for at least one API key is not eligible for Gemini's free tier; enable billing for that project in Google AI Studio or use a key from a project with Gemini API access.; Drive fallback unavailable: generated video, thumbnail, or metadata is missing"
     },
     {
       "date": "2026-11-22",

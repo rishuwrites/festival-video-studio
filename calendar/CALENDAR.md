@@ -53,16 +53,16 @@ Date range: 2026-11-18 to 2026-12-31 (Asia/Kolkata)
 
 | Slot | Time IST | Source | Type | Topic | Festival date | Tradition | Status |
 |---:|:---:|---|---|---|:---:|---|---|
-| 1 | 06:00 | batch | daily_panchang_rashifal | आज का पंचांग: तिथि, नक्षत्र और राहु काल (2026-11-21) |  |  | planned |
-| 2 | 07:30 | batch | festival_explainer | कार्तिक पूर्णिमा / देव दीपावली: तिथि, कथा और परंपराएँ भाग 1 | 2026-11-24 | Hindu Kartik Purnima; Dev Diwali is especially associated with Varanasi, and regional solar-calendar observances may differ. | planned |
+| 1 | 06:00 | batch | daily_panchang_rashifal | आज का पंचांग: तिथि, नक्षत्र और राहु काल (2026-11-21) |  |  | scheduled |
+| 2 | 07:30 | batch | festival_explainer | कार्तिक पूर्णिमा / देव दीपावली: तिथि, कथा और परंपराएँ भाग 1 | 2026-11-24 | Hindu Kartik Purnima; Dev Diwali is especially associated with Varanasi, and regional solar-calendar observances may differ. | skipped |
 | 3 | 09:00 | legacy | legacy_daily | Vaikuntha Chaturdashi: Kartika traditions honoring Vishnu and Shiva |  |  | legacy_managed |
-| 4 | 10:30 | batch | story_history | कथा और लोकस्मृति: घंटी और आरती की ध्वनि |  |  | planned |
-| 5 | 12:00 | batch | vrat_rules | पारण का समय कैसे सत्यापित करें |  |  | planned |
-| 6 | 14:00 | batch | story_history | इतिहास की झलक: घंटी और आरती की ध्वनि |  |  | planned |
-| 7 | 16:00 | batch | regional_customs | पूर्वांचल के मंदिर मेले |  |  | planned |
-| 8 | 18:00 | batch | evergreen_culture | मंत्र जप की परंपरा और उच्चारण |  |  | planned |
-| 9 | 19:30 | batch | upcoming_festival | कार्तिक पूर्णिमा / देव दीपावली: से पहले जानें: रीति और तैयारी भाग 1 | 2026-11-24 | Hindu Kartik Purnima; Dev Diwali is especially associated with Varanasi, and regional solar-calendar observances may differ. | planned |
-| 10 | 21:00 | batch | vrat_rules | व्रत परंपरा में क्षेत्रीय दृष्टि: पारण का समय कैसे सत्यापित करें |  |  | planned |
+| 4 | 10:30 | batch | story_history | कथा और लोकस्मृति: घंटी और आरती की ध्वनि |  |  | skipped |
+| 5 | 12:00 | batch | vrat_rules | पारण का समय कैसे सत्यापित करें |  |  | skipped |
+| 6 | 14:00 | batch | story_history | इतिहास की झलक: घंटी और आरती की ध्वनि |  |  | skipped |
+| 7 | 16:00 | batch | regional_customs | पूर्वांचल के मंदिर मेले |  |  | skipped |
+| 8 | 18:00 | batch | evergreen_culture | मंत्र जप की परंपरा और उच्चारण |  |  | skipped |
+| 9 | 19:30 | batch | upcoming_festival | कार्तिक पूर्णिमा / देव दीपावली: से पहले जानें: रीति और तैयारी भाग 1 | 2026-11-24 | Hindu Kartik Purnima; Dev Diwali is especially associated with Varanasi, and regional solar-calendar observances may differ. | skipped |
+| 10 | 21:00 | batch | vrat_rules | व्रत परंपरा में क्षेत्रीय दृष्टि: पारण का समय कैसे सत्यापित करें |  |  | skipped |
 
 ## 2026-11-22
 
