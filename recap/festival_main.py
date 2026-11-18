@@ -6,6 +6,7 @@ import math
 import os
 import re
 import tempfile
+import unicodedata
 from urllib.parse import urlparse
 
 import config as S
@@ -156,7 +157,8 @@ def _safe_slug(text):
     return slug[:60].strip("-")
 
 
-def _make_description(topic, date, scope, research, sources):
+def _make_description(topic, date, scope, research, sources, disclaimer="",
+                      title_max_length=100, title_suffix="", festival_tradition=""):
     date_line = f"तिथि/वर्ष: {date}\n" if date else ""
     chapters = [
         str(scene.get("title", "")).strip()
@@ -167,15 +169,30 @@ def _make_description(topic, date, scope, research, sources):
         f"- {source['title']}: {source['url']}" for source in sources[:10]
     )
     keywords = _video_tags(topic, date, research)
-    hashtag_candidates = [topic, *keywords[:2]]
+    hashtag_candidates = [topic, *research.get("keywords", [])]
+    hindi_phrase = next(
+        (phrase for phrase in hashtag_candidates if re.search(r"[\u0900-\u097f]", phrase)),
+        "भारतीय संस्कृति",
+    )
+    english_phrase = next(
+        (phrase for phrase in hashtag_candidates
+         if re.search(r"[A-Za-z]", phrase) and not re.search(r"[\u0900-\u097f]", phrase)),
+        "IndianCulture",
+    )
     hashtags = []
-    for phrase in hashtag_candidates:
-        hashtag = re.sub(r"[^\w]", "", phrase, flags=re.UNICODE)
+    for phrase in (hindi_phrase, english_phrase, topic, *keywords):
+        hashtag = "".join(
+            character for character in phrase
+            if character.isalnum() or unicodedata.category(character).startswith("M")
+        )
         if hashtag and hashtag.casefold() not in {tag.casefold() for tag in hashtags}:
             hashtags.append(hashtag)
-        if len(hashtags) == 3:
+        if len(hashtags) == 4:
             break
-    title = _video_title(topic, date, research["headline"])
+    title = _video_title(
+        topic, date, research["headline"], max_length=title_max_length,
+        unique_suffix=title_suffix,
+    )
     description_parts = [
         title,
         research["research_summary"].strip(),
@@ -183,6 +200,8 @@ def _make_description(topic, date, scope, research, sources):
         "इस वीडियो में: " + " • ".join(chapters[:12]) if chapters else "",
         f"विषय: {topic}",
         date_line.rstrip(),
+        f"परंपरा: {festival_tradition}" if festival_tradition.strip() else "",
+        disclaimer,
         f"क्षेत्र: {scope}",
         "पंचांग की तिथियां और मुहूर्त स्थान तथा परंपरा के अनुसार बदल सकते हैं। अपने शहर के विश्वसनीय पंचांग से पुष्टि करें।",
         "वीडियो उपयोगी लगे तो इसे साझा करें और ऐसे ही स्रोत-आधारित हिंदी सांस्कृतिक वीडियो के लिए चैनल को सब्सक्राइब करें।",
@@ -193,10 +212,19 @@ def _make_description(topic, date, scope, research, sources):
     return "\n\n".join(part for part in description_parts if part)[:5000]
 
 
-def _video_title(topic, date, headline):
+def _video_title(topic, date, headline, max_length=100, unique_suffix=""):
     title = " ".join(str(headline).split())
     year_match = re.search(r"\b(?:19|20)\d{2}\b", date or "")
     year = year_match.group(0) if year_match else ""
+    if max_length < 30 or max_length > 100:
+        raise ValueError("Video title limit must be between 30 and 100 characters")
+    if unique_suffix or max_length < 100:
+        suffix_parts = [value for value in (topic, year, unique_suffix)
+                        if value and value.casefold() not in title.casefold()]
+        suffix = " | " + " ".join(suffix_parts) if suffix_parts else ""
+        if len(suffix) >= max_length:
+            suffix = " | " + suffix[-(max_length - 3):]
+        return title[:max_length - len(suffix)].rstrip() + suffix
     suffix_parts = [value for value in (topic, year) if value and value.casefold() not in title.casefold()]
     suffix = " | " + " ".join(suffix_parts) if suffix_parts else ""
     if len(title) + len(suffix) > 100 and year and year not in title:
@@ -298,8 +326,43 @@ def _research_and_validate(topic, date, scope):
             )
 
 
-def _scene_image_count(duration):
-    return max(1, math.ceil(duration / render.S.CUT_SECONDS))
+def _validate_prepared_bundle(bundle):
+    research = bundle.get("research")
+    if not isinstance(research, dict):
+        raise ValueError("Prepared video content must include a research object")
+    for field in ("headline", "thumbnail_text", "hook", "research_summary"):
+        if not isinstance(research.get(field), str) or not research[field].strip():
+            raise ValueError(f"Prepared video content is missing required field: {field}")
+    scenes = research.get("scenes")
+    if not isinstance(scenes, list) or not 9 <= len(scenes) <= 12:
+        raise ValueError("Prepared video content must contain 9-12 scenes")
+    for index, scene in enumerate(scenes, start=1):
+        if not isinstance(scene, dict):
+            raise ValueError(f"Prepared scene {index} must be an object")
+        for field in ("title", "narration", "visual_prompt", "emotion"):
+            if not isinstance(scene.get(field), str) or not scene[field].strip():
+                raise ValueError(f"Prepared scene {index} is missing {field}")
+        if scene["emotion"] not in VALID_EMOTIONS:
+            raise ValueError(f"Prepared scene {index} has unsupported emotion")
+    word_count = len(" ".join([research["hook"]] + [
+        scene["narration"] for scene in scenes
+    ]).split())
+    if word_count < MIN_NARRATION_WORDS:
+        raise NarrationLengthError(
+            f"Prepared narration needs at least {MIN_NARRATION_WORDS} words; got {word_count}"
+        )
+    sources = bundle.get("sources", [])
+    if not isinstance(sources, list):
+        raise ValueError("Prepared video sources must be a list")
+    for source in sources:
+        parsed = urlparse(str(source.get("url", ""))) if isinstance(source, dict) else None
+        if not isinstance(source, dict) or not source.get("title") or parsed.scheme != "https" or not parsed.netloc:
+            raise ValueError("Prepared source citations must have a title and HTTPS URL")
+    return research
+
+
+def _scene_image_count(duration, interval_seconds=render.S.CUT_SECONDS):
+    return max(1, math.ceil(duration / interval_seconds))
 
 
 def _shot_prompt(scene, shot_index, shot_count):
@@ -323,13 +386,20 @@ def _shot_prompt(scene, shot_index, shot_count):
 def generate_video(
     topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None,
     publish_date="", publish_time="", upload=False, facebook_upload_enabled=False,
+    prepared_bundle=None, title_max_length=100, title_suffix="", festival_tradition="",
 ):
     if not topic.strip():
         raise ValueError("A festival topic is required")
     if upload or facebook_upload_enabled:
         scheduled_datetime(publish_date, publish_time)
     scope = scope.strip() or S.DEFAULT_SCOPE
-    grounded, research = _research_and_validate(topic.strip(), date.strip(), scope)
+    if prepared_bundle is None:
+        grounded, research = _research_and_validate(topic.strip(), date.strip(), scope)
+        fixed_template = False
+    else:
+        grounded = prepared_bundle
+        research = _validate_prepared_bundle(grounded)
+        fixed_template = bool(grounded.get("fixed_template"))
 
     output_dir = output_dir or os.path.join(S.BASE, "output")
     os.makedirs(output_dir, exist_ok=True)
@@ -402,7 +472,19 @@ def generate_video(
         compositions = {index: [] for index in range(len(scenes))}
         generated = set()
         for index, scene in enumerate(scenes):
-            shot_count = _scene_image_count(segments[index + 1]["times"][-1][1])
+            shot_count = _scene_image_count(
+                segments[index + 1]["times"][-1][1],
+                interval_seconds=60 if fixed_template else render.S.CUT_SECONDS,
+            )
+            if fixed_template:
+                card_path = os.path.join(tmp, f"card_{index}.jpg")
+                render.card(
+                    scene["title"], scene["emotion"], card_path,
+                    color=grounded.get("thumbnail_color"),
+                )
+                compositions[index].append(card_path)
+                generated.add(index)
+                continue
             for shot_index in range(shot_count):
                 raw_path = os.path.join(tmp, f"scene_{index}_shot_{shot_index}.jpg")
                 comp_path = os.path.join(tmp, f"comp_{index}_shot_{shot_index}.jpg")
@@ -422,7 +504,10 @@ def generate_video(
                 render.card(scene["title"], scene["emotion"], card_path)
                 compositions[index].append(card_path)
         for index, scene in enumerate(scenes):
-            shot_count = _scene_image_count(segments[index + 1]["times"][-1][1])
+            shot_count = _scene_image_count(
+                segments[index + 1]["times"][-1][1],
+                interval_seconds=60 if fixed_template else render.S.CUT_SECONDS,
+            )
             while len(compositions[index]) < shot_count:
                 shot_index = len(compositions[index])
                 comp_path = os.path.join(tmp, f"comp_{index}_fallback_{shot_index}.jpg")
@@ -473,19 +558,33 @@ def generate_video(
             "The image itself must contain absolutely no text, letters, writing, signs, logos, or watermark."
         )
         thumbnail_art = os.path.join(tmp, "thumbnail_art.jpg")
-        if not images.generate_thumbnail(thumbnail_prompt, seed + 1001, thumbnail_art, style=FESTIVAL_STYLE):
+        if fixed_template:
+            thumbnail_art = compositions[0][0]
+        elif not images.generate_thumbnail(
+            thumbnail_prompt, seed + 1001, thumbnail_art, style=FESTIVAL_STYLE,
+        ):
             thumbnail_art = compositions[0][0]
         render.thumbnail(
             thumbnail_art,
             research["thumbnail_text"],
-            _thumbnail_badge(research),
+            f"{_thumbnail_badge(research)} {grounded.get('thumbnail_symbol', '')}".strip(),
             _thumbnail_date_label(date),
             thumb_path,
+            accent_color=grounded.get("thumbnail_color"),
         )
 
-    description = _make_description(topic, date, scope, research, grounded["sources"])
+    description = _make_description(
+        topic, date, scope, research, grounded["sources"],
+        disclaimer=grounded.get("description_disclaimer", ""),
+        title_max_length=title_max_length,
+        title_suffix=title_suffix,
+        festival_tradition=festival_tradition,
+    )
     keywords = _video_tags(topic, date, research)
-    video_title = _video_title(topic, date, research["headline"])
+    video_title = _video_title(
+        topic, date, research["headline"], max_length=title_max_length,
+        unique_suffix=title_suffix,
+    )
     metadata = {
         "title": video_title,
         "description": description,

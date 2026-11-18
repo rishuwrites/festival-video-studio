@@ -1,0 +1,75 @@
+{
+  "timezone": "Asia/Kolkata",
+  "slots": [
+    {
+      "slot": 1,
+      "publish_time_ist": "06:00",
+      "format": "long",
+      "type": "daily_panchang_rashifal",
+      "content": "Today's sourced panchang and all 12 traditional rashifal readings"
+    },
+    {
+      "slot": 2,
+      "publish_time_ist": "08:00",
+      "format": "long",
+      "type": "festival_explainer",
+      "content": "Main explainer for a verified festival 2 to 3 days away"
+    },
+    {
+      "slot": 3,
+      "publish_time_ist": "10:00",
+      "format": "long",
+      "type": "story_history",
+      "content": "Evergreen story, origin, or history"
+    },
+    {
+      "slot": 4,
+      "publish_time_ist": "12:00",
+      "format": "long",
+      "type": "vrat_rules",
+      "content": "Vrat vidhi, dos and don'ts, and parana rules"
+    },
+    {
+      "slot": 5,
+      "publish_time_ist": "14:00",
+      "format": "long",
+      "type": "regional_customs",
+      "content": "Regional traditions, clearly identifying their communities"
+    },
+    {
+      "slot": 6,
+      "publish_time_ist": "16:00",
+      "format": "long",
+      "type": "rashi_encyclopedia",
+      "content": "A full rashi encyclopedia episode, using the fixed chapter template"
+    },
+    {
+      "slot": 7,
+      "publish_time_ist": "18:00",
+      "format": "long",
+      "type": "rashi_encyclopedia_or_festival",
+      "content": "A later rashi episode or a second verified festival topic"
+    },
+    {
+      "slot": 8,
+      "publish_time_ist": "19:30",
+      "format": "long",
+      "type": "upcoming_festival",
+      "content": "A verified festival or vrat 2 to 3 days away"
+    },
+    {
+      "slot": 9,
+      "publish_time_ist": "21:00",
+      "format": "long",
+      "type": "story_history",
+      "content": "A distinct evergreen story or meaning-of topic"
+    },
+    {
+      "slot": 10,
+      "publish_time_ist": "22:30",
+      "format": "long",
+      "type": "evening_special",
+      "content": "Mantra, aarti meaning, or sourced Q&A"
+    }
+  ]
+}
