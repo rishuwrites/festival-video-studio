@@ -111,6 +111,36 @@ class ScheduledUploadTests(unittest.TestCase):
         self.assertEqual(post.call_args.kwargs["params"], {"videoId": "video123"})
         self.assertEqual(post.call_args.kwargs["headers"]["Content-Type"], "image/jpeg")
 
+    def test_keeps_video_id_when_thumbnail_upload_fails_after_video_upload(self):
+        publish_date, publish_time = future_schedule()
+        initiated = mock.Mock(status_code=200)
+        initiated.headers = {"Location": "https://www.googleapis.com/upload/youtube/v3/videos?upload_id=test"}
+        uploaded = mock.Mock(status_code=201)
+        uploaded.json.return_value = {"id": "video123"}
+
+        with tempfile.TemporaryDirectory() as folder:
+            video_path, metadata_path = self.make_inputs(folder)
+            thumbnail_path = str(Path(folder) / "thumbnail.jpg")
+            Path(thumbnail_path).write_bytes(b"jpeg")
+            with mock.patch.object(youtube_upload, "oauth_access_token", return_value="token"), \
+                    mock.patch.object(youtube_upload, "_existing_upload", return_value=None), \
+                    mock.patch.object(youtube_upload.requests, "post", return_value=initiated), \
+                    mock.patch.object(youtube_upload.requests, "put", return_value=uploaded), \
+                    mock.patch.object(
+                        youtube_upload, "_set_video_thumbnail",
+                        side_effect=RuntimeError(
+                            "YouTube thumbnail upload failed (HTTP 429, uploadRateLimitExceeded)"
+                        ),
+                    ):
+                result = youtube_upload.upload_scheduled(
+                    video_path, metadata_path, publish_date, publish_time,
+                    thumbnail_path=thumbnail_path,
+                )
+
+        self.assertEqual(result["video_id"], "video123")
+        self.assertEqual(result["url"], "https://www.youtube.com/watch?v=video123")
+        self.assertIn("uploadRateLimitExceeded", result["thumbnail_error"])
+
     def test_rejects_missing_thumbnail_before_uploading_video(self):
         publish_date, publish_time = future_schedule()
         with tempfile.TemporaryDirectory() as folder:

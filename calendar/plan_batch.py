@@ -76,7 +76,10 @@ def plan_for_date(calendar_path, batch_date, retry_failed=False, now=None):
     if not selected:
         label = "failed videos" if retry_failed else "planned videos"
         raise ValueError(f"No dispatchable {label} for {batch_date}")
-    return allocate_uploads(selected)
+    planned = allocate_uploads(selected)
+    for row in planned:
+        row["facebook_upload_allowed"] = not bool(row.get("facebook_video_id"))
+    return planned
 
 
 def main():

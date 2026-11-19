@@ -630,6 +630,10 @@ def generate_video(
                 "youtube_url": youtube_result["url"],
                 "publish_at_ist": youtube_result["publish_at_ist"],
             })
+            if youtube_result.get("thumbnail_error"):
+                upload_errors["youtube_thumbnail"] = youtube_result["thumbnail_error"]
+                metadata["thumbnail_upload_status"] = "failed"
+                metadata["thumbnail_upload_error"] = youtube_result["thumbnail_error"]
         except (RuntimeError, ValueError, OSError) as exc:
             if not continue_on_upload_errors:
                 raise

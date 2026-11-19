@@ -221,6 +221,16 @@ def set_video_thumbnail(video_id, thumbnail_path):
     _set_video_thumbnail(oauth_access_token(), video_id, thumbnail_path)
 
 
+def _thumbnail_upload_error(access_token, video_id, thumbnail_path):
+    if not thumbnail_path:
+        return ""
+    try:
+        _set_video_thumbnail(access_token, video_id, thumbnail_path)
+    except (RuntimeError, ValueError, OSError) as exc:
+        return f"{type(exc).__name__}: {exc}"
+    return ""
+
+
 def upload_scheduled(
     video_path, metadata_path, publish_date, publish_time, now=None, thumbnail_path=None,
     allow_existing=False,
@@ -247,14 +257,18 @@ def upload_scheduled(
     existing_id = _existing_upload(access_token, title)
     if existing_id:
         if allow_existing:
-            if thumbnail_path:
-                _set_video_thumbnail(access_token, existing_id, thumbnail_path)
-            return {
+            result = {
                 "video_id": existing_id,
                 "url": f"https://www.youtube.com/watch?v={existing_id}",
                 "publish_at_ist": publish_at.strftime("%Y-%m-%d %H:%M %Z"),
                 "status": "scheduled_public",
             }
+            thumbnail_error = _thumbnail_upload_error(
+                access_token, existing_id, thumbnail_path,
+            )
+            if thumbnail_error:
+                result["thumbnail_error"] = thumbnail_error
+            return result
         raise RuntimeError(
             f"A video with this title already exists on the channel: "
             f"https://www.youtube.com/watch?v={existing_id}. Not uploading a duplicate."
@@ -281,11 +295,13 @@ def upload_scheduled(
     video_id = result.get("id")
     if not video_id:
         raise RuntimeError("YouTube accepted the upload but returned no video ID; verify YouTube Studio")
-    if thumbnail_path:
-        _set_video_thumbnail(access_token, video_id, thumbnail_path)
-    return {
+    result = {
         "video_id": video_id,
         "url": f"https://www.youtube.com/watch?v={video_id}",
         "publish_at_ist": publish_at.strftime("%Y-%m-%d %H:%M %Z"),
         "status": "scheduled_public",
     }
+    thumbnail_error = _thumbnail_upload_error(access_token, video_id, thumbnail_path)
+    if thumbnail_error:
+        result["thumbnail_error"] = thumbnail_error
+    return result

@@ -80,7 +80,7 @@ jobs:
       SLOT: ${{ matrix.video.slot }}
       UPLOAD_ALLOWED: ${{ matrix.video.upload_allowed }}
       EXTRA_ARGS: "[]"
-      FACEBOOK_UPLOAD: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN != '' && (secrets.FACEBOOK_PAGE_ID || vars.FACEBOOK_PAGE_ID) != '' }}
+      FACEBOOK_UPLOAD: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN != '' && (secrets.FACEBOOK_PAGE_ID || vars.FACEBOOK_PAGE_ID) != '' && matrix.video.facebook_upload_allowed }}
       OUTPUT_DIR: output/${{ matrix.video.date }}_slot_${{ matrix.video.slot }}
       RESULTS_DIR: output/run_results
       RETRY_FAILED: ${{ inputs.retry_failed }}

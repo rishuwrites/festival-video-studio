@@ -540,6 +540,7 @@ class DailyUploadBudgetTests(unittest.TestCase):
                     "source": "legacy" if slot == 3 else "batch",
                     "status": "legacy_managed" if slot == 3 else "uploaded",
                     "youtube_video_id": "" if slot == 3 else f"video-{slot}",
+                    "facebook_video_id": "",
                 }
                 for slot in range(1, 11)
             ]
@@ -551,6 +552,7 @@ class DailyUploadBudgetTests(unittest.TestCase):
             rows[4]["youtube_video_id"] = ""
             rows[4]["youtube_status"] = "failed"
             rows[5]["youtube_video_id"] = ""
+            rows[3]["facebook_video_id"] = "facebook-video-4"
             rows[6]["status"] = "blocked_unverified"
             path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
 
@@ -563,6 +565,10 @@ class DailyUploadBudgetTests(unittest.TestCase):
 
         self.assertEqual([row["slot"] for row in planned], [2, 4, 5])
         self.assertTrue(all(row["upload_allowed"] for row in planned))
+        self.assertFalse(next(row for row in planned if row["slot"] == 4)["facebook_upload_allowed"])
+        self.assertTrue(all(
+            row["facebook_upload_allowed"] for row in planned if row["slot"] != 4
+        ))
 
     def test_retry_planner_omits_slots_inside_youtube_schedule_cutoff(self):
         with tempfile.TemporaryDirectory() as temp_dir:
