@@ -59,7 +59,7 @@ Date range: 2026-11-18 to 2026-12-31 (Asia/Kolkata)
 | 4 | 10:30 | batch | story_history | कथा और लोकस्मृति: घंटी और आरती की ध्वनि |  |  | scheduled |
 | 5 | 12:00 | batch | vrat_rules | पारण का समय कैसे सत्यापित करें |  |  | skipped |
 | 6 | 14:00 | batch | story_history | इतिहास की झलक: घंटी और आरती की ध्वनि |  |  | scheduled |
-| 7 | 16:00 | batch | regional_customs | पूर्वांचल के मंदिर मेले |  |  | skipped |
+| 7 | 16:00 | batch | regional_customs | पूर्वांचल के मंदिर मेले |  |  | scheduled |
 | 8 | 18:00 | batch | evergreen_culture | मंत्र जप की परंपरा और उच्चारण |  |  | skipped |
 | 9 | 19:30 | batch | upcoming_festival | कार्तिक पूर्णिमा / देव दीपावली: से पहले जानें: रीति और तैयारी भाग 1 | 2026-11-24 | Hindu Kartik Purnima; Dev Diwali is especially associated with Varanasi, and regional solar-calendar observances may differ. | skipped |
 | 10 | 21:00 | batch | vrat_rules | व्रत परंपरा में क्षेत्रीय दृष्टि: पारण का समय कैसे सत्यापित करें |  |  | skipped |
