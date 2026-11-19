@@ -328,6 +328,8 @@ def _research_and_validate(topic, date, scope):
 
 
 def _validate_prepared_bundle(bundle):
+    if bundle.get("content_origin") == "editorially_prepared":
+        return validate_research(bundle)
     research = bundle.get("research")
     if not isinstance(research, dict):
         raise ValueError("Prepared video content must include a research object")

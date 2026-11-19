@@ -95,6 +95,43 @@ class RunOneFallbackTests(unittest.TestCase):
             self.assertFalse(generate.call_args.kwargs["upload"])
             self.assertEqual(save.call_args.args[3:5], (10, "quota_reserved"))
 
+    def test_uses_researched_slot_bundle_without_requesting_gemini_content(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            output_dir = root / "output"
+            results_dir = root / "results"
+            prepared_root = root / "prepared"
+            prepared_path = prepared_root / "2026-12-10" / "slot_10.json"
+            prepared_path.parent.mkdir(parents=True)
+            bundle = {
+                "research": {"headline": "तैयार पाठ"},
+                "sources": [{"title": "Source A", "url": "https://example.org/a"}],
+            }
+            prepared_path.write_text(json.dumps(bundle, ensure_ascii=False), encoding="utf-8")
+            files = {
+                "video": output_dir / "video.mp4",
+                "thumbnail": output_dir / "video.jpg",
+                "metadata": output_dir / "video.json",
+                "youtube": "https://www.youtube.com/watch?v=video-123",
+            }
+            output_dir.mkdir()
+            files["video"].write_bytes(b"mp4")
+            files["thumbnail"].write_bytes(b"jpg")
+            files["metadata"].write_text(json.dumps({
+                "title": "तैयार पाठ",
+                "youtube_video_id": "video-123",
+            }), encoding="utf-8")
+            env = self._environment(output_dir, results_dir)
+            env["PREPARED_CONTENT_DIR"] = str(prepared_root)
+
+            with mock.patch.object(
+                run_one.festival_main, "generate_video", return_value=files,
+            ) as generate:
+                result = run_one.run_one(env)
+
+        self.assertEqual(result["youtube_status"], "scheduled")
+        self.assertEqual(generate.call_args.kwargs["prepared_bundle"], bundle)
+
     def test_planned_day_attempts_all_videos_on_youtube_then_falls_back_to_drive(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

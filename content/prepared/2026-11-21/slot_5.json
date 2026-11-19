@@ -1,0 +1,108 @@
+{
+  "content_origin": "editorially_prepared",
+  "research_method": "editorial_web_research",
+  "search_queries": [
+    "Ekadashi Parana meaning local sunrise Hari Vasara Drik Panchang",
+    "2026 Ekadashi observance date city panchang"
+  ],
+  "sources": [
+    {
+      "title": "Drik Panchang — Devutthana Ekadashi Vrat Timings and Ekadashi Fasting FAQ",
+      "url": "https://www.drikpanchang.com/ekadashis/prabodhini/prabodhini-ekadashi-date-time.html?year=2026",
+      "kind": "web_research"
+    },
+    {
+      "title": "Drik Panchang — 2026 November Hindu Festivals",
+      "url": "https://www.drikpanchang.com/festivals/month/festivals-november.html?year=2026",
+      "kind": "web_research"
+    },
+    {
+      "title": "Prokerala — Panchang for 21 November 2026, New Delhi",
+      "url": "https://www.prokerala.com/astrology/panchang/2026-november-21.html?loc=1264733",
+      "kind": "web_research"
+    }
+  ],
+  "research": {
+    "headline": "पारण का समय कैसे सत्यापित करें",
+    "thumbnail_text": "पारण का समय",
+    "hook": "एकादशी के बाद पारण का समय हर शहर के लिए एक जैसा क्यों नहीं दिखता? सही उत्तर पाने के लिए पहले स्थान, तिथि और अपनी परंपरा को साथ पढ़ना जरूरी है।",
+    "research_summary": "यह व्यावहारिक मार्गदर्शिका बताती है कि पारण-सूचना में स्थानीय सूर्योदय, अगले दिन की तिथि, हरिवासर और चुनी हुई परंपरा क्यों देखनी चाहिए। वीडियो कोई एक सार्वभौमिक समय नहीं बताता; दर्शक अपने स्थान और परिवार की रीति के अनुसार विश्वसनीय पंचांग जाँचें।",
+    "keywords": ["एकादशी पारण", "पारण समय", "स्थानीय सूर्योदय", "हरिवासर", "पंचांग"],
+    "key_facts": [
+      {
+        "claim": "Drik Panchang के FAQ में पारण को एकादशी व्रत तोड़ने का समय बताया गया है; उसे हमेशा अगले सूर्योदय के ठीक क्षण पर नहीं रखा जाता।",
+        "source_titles": ["Drik Panchang — Devutthana Ekadashi Vrat Timings and Ekadashi Fasting FAQ"]
+      },
+      {
+        "claim": "Drik Panchang का FAQ हरिवासर के दौरान पारण से बचने की परंपरा का उल्लेख करता है; पालन अपनी परंपरा के अनुसार समझना चाहिए।",
+        "source_titles": ["Drik Panchang — Devutthana Ekadashi Vrat Timings and Ekadashi Fasting FAQ"]
+      },
+      {
+        "claim": "पंचांग प्रविष्टियों में स्थान और वर्ष देखना जरूरी है; स्रोत शहर-विशेष तिथि और समय देता है।",
+        "source_titles": ["Prokerala — Panchang for 21 November 2026, New Delhi"]
+      }
+    ],
+    "scenes": [
+      {
+        "title": "पारण का अर्थ",
+        "narration": "पारण का सरल अर्थ है व्रत समाप्त करने की प्रक्रिया या समय। एकादशी के संदर्भ में यह केवल भोजन का समय पूछना नहीं, बल्कि अगले दिन की तिथि और अपनी धार्मिक परंपरा को समझना भी है। Drik Panchang के एकादशी FAQ में बताया गया है कि व्रत स्थानीय सूर्योदय से जुड़ता है, लेकिन पारण हमेशा अगले सूर्योदय के ठीक क्षण पर नहीं होता। इसलिए सोशल मीडिया पर दिखी एक घड़ी की तस्वीर को अपने घर का अंतिम नियम न मानें। पहले देखें कि सूचना किस वर्ष, किस शहर और किस परंपरा के लिए बनाई गई है।",
+        "visual_prompt": "An editorial close-up of a traditional panchang beside a simple clock at dawn, a person checking the page thoughtfully, no readable text or numerals.",
+        "emotion": "shock"
+      },
+      {
+        "title": "सूर्योदय क्यों मायने रखता है",
+        "narration": "पंचांग में दिन और तिथि का संबंध समझना जरूरी है। Drik Panchang का FAQ एकादशी व्रत को स्थानीय सूर्योदय से शुरू होने वाली परंपरा के रूप में समझाता है और कहता है कि व्रत अगले दिन तक चल सकता है। पर सूर्योदय का समय शहर के अनुसार बदलता है; पहाड़, समुद्र-तट और अलग देश के समय को एक तालिका में मिलाना सही नहीं। इसी वजह से पारण का समय भी केवल तारीख देखकर तय नहीं किया जा सकता। अपने शहर का नाम डालें, उसी तारीख की प्रविष्टि खोलें और देखें कि दिए गए समय स्थानीय समय हैं या किसी दूसरे स्थान के।",
+        "visual_prompt": "A sunrise over a map-like silhouette of India with three distinct horizons representing different cities, subtle clocks without numbers, educational illustration.",
+        "emotion": "happy"
+      },
+      {
+        "title": "अगले दिन की तिथि",
+        "narration": "सिर्फ सूर्योदय का समय पर्याप्त जानकारी नहीं है। पारण की प्रविष्टि पढ़ते समय अगले दिन कौन-सी तिथि चल रही है, यह भी देखना पड़ सकता है। तिथि आधी रात पर बदलना जरूरी नहीं, इसलिए कोई स्क्रीनशॉट जिसमें तारीख तो दिखे पर तिथि का अंत न दिखे, अधूरा संदर्भ दे सकता है। Drik Panchang के FAQ में एकादशी तिथि के आरंभ और अंत को समझने तथा व्रत की तारीख चुनने के बीच फर्क बताया गया है। दर्शक इस अंतर को याद रखें: तिथि का समय एक गणना है, जबकि व्रत और पारण की रीति परंपरा के नियम से तय होती है।",
+        "visual_prompt": "Two layered calendar pages with a lunar phase crossing from one civil date to another, clear visual distinction without written labels.",
+        "emotion": "shock"
+      },
+      {
+        "title": "शहर और वर्ष जाँचें",
+        "narration": "समय जाँचने का पहला व्यावहारिक कदम है शीर्षक और स्थान पढ़ना। क्या पेज 2026 का है या पिछले वर्ष का? क्या शहर New Delhi है, Lucknow है, या आपका अपना जिला? Prokerala की दैनिक पंचांग प्रविष्टि भी तारीख और स्थान के साथ दी जाती है, इसलिए किसी स्रोत का पता और चयनित लोकेशन देखना उपयोगी है। खोज परिणाम में दिखाई देने वाला छोटा अंश पर्याप्त नहीं; मूल पेज खोलें। अगर किसी ऐप में शहर अपने-आप गलत चुना है तो समय को आगे साझा करने से पहले शहर बदलें। यही छोटी सावधानी पुराने या दूसरे शहर के मुहूर्त को आज के निर्देश की तरह फैलने से रोकती है।",
+        "visual_prompt": "A smartphone displaying a generic calendar interface while a hand selects a city on a map, screen contains abstract blocks only and no legible text.",
+        "emotion": "happy"
+      },
+      {
+        "title": "परंपरा का नाम",
+        "narration": "कभी एक पर्व के लिए दो अलग दिन या अलग निर्देश सामने आते हैं। इसका कारण हमेशा स्रोत की गलती नहीं होता; अलग समुदायों की गणना और पालन-पद्धति अलग हो सकती है। इसीलिए पूछें कि सूचना स्मार्त, वैष्णव या किसी स्थानीय मंदिर की परंपरा से संबंधित है। हर पेज यह अंतर स्पष्ट न भी करे, तो अपने परिवार के पुरोहित या धार्मिक संस्था से पुष्टि करें। बिना आधार के दो तारीखों में से एक को गलत बताना भ्रम बढ़ा सकता है। वीडियो का उद्देश्य हर मत का फैसला करना नहीं, बल्कि दर्शक को सही प्रश्न पूछने और अपने संदर्भ के लिए स्रोत खोजने में मदद देना है।",
+        "visual_prompt": "Two respectful groups consulting separate calendars in different home settings, both shown peacefully without ranking one tradition above another.",
+        "emotion": "happy"
+      },
+      {
+        "title": "हरिवासर का संदर्भ",
+        "narration": "Drik Panchang के FAQ में हरिवासर को वह अवधि बताया गया है जिसमें पारण से बचने की सलाह दी जाती है। किसी दर्शक को इस शब्द का अर्थ पहली बार सुनाई दे सकता है, इसलिए इसे तकनीकी पंचांग-सूचना की तरह समझाएँ, डराने वाली चेतावनी की तरह नहीं। अलग संप्रदाय या परिवार इस अवधि को अपने नियमों से कैसे जोड़ते हैं, यह स्थानीय धार्मिक मार्गदर्शक से पूछें। अगर किसी की तबीयत खराब हो या दवा लेने का समय हो, तो वीडियो देखकर स्वास्थ्य निर्णय न लें। उपवास और भोजन के बारे में व्यक्तिगत सलाह के लिए योग्य चिकित्सक की बात सर्वोपरि है।",
+        "visual_prompt": "A peaceful dawn scene with a symbolic interval on a circular clock and a devotee speaking with a knowledgeable elder, no visible text.",
+        "emotion": "happy"
+      },
+      {
+        "title": "स्रोतों की तुलना",
+        "narration": "दो स्रोत देखने का अर्थ यह नहीं कि बस दोनों में कोई एक समय चुन लिया जाए। पहले देखें कि दोनों एक ही शहर और एक ही तारीख की बात कर रहे हैं या नहीं। फिर जाँचें कि उनका समय स्थानीय समय है और पारण के लिए है, न कि एकादशी तिथि शुरू होने या समाप्त होने का। Drik Panchang का विस्तृत FAQ और तारीख-विशेष पेज अलग तरह की जानकारी देते हैं; उन्हें सही उद्देश्य से पढ़ना जरूरी है। दूसरे पंचांग से मिलान करते समय भी स्थान और परंपरा समान रखें। यदि तुलना फिर भी अलग निकले, तो अंतर को छुपाने के बजाय पाठक को स्रोत और कारण बताइए।",
+        "visual_prompt": "Two open panchang pages aligned side by side over a desk, a magnifying glass highlighting date and location fields represented by icons, no legible writing.",
+        "emotion": "shock"
+      },
+      {
+        "title": "गलत सूचना से बचें",
+        "narration": "सबसे आम गलती है पुराने वर्ष का स्क्रीनशॉट बिना तारीख के भेज देना। दूसरी गलती है किसी बड़े शहर का समय पूरे देश पर लागू कर देना। तीसरी है पारण और पूजा-मुहूर्त को एक ही समय समझ लेना। साझा करने से पहले वेब पेज का पूरा पता, वर्ष, शहर और शीर्षक देखें। यदि स्रोत कहता है कि समय दिल्ली के लिए है, तो उसे अपने गाँव का समय न लिखें। चैनल की ओर से भी विवरण में स्रोत जोड़ना दर्शक का भरोसा बढ़ाता है। धार्मिक जानकारी में थोड़ी देर लगाकर जाँच करना, जल्दी में निश्चित घोषणा करने से बेहतर और अधिक सम्मानजनक है।",
+        "visual_prompt": "A social media message being checked against a full source page and a location pin, clean modern educational illustration, no readable text.",
+        "emotion": "happy"
+      },
+      {
+        "title": "अपना संदर्भ चुनें",
+        "narration": "अगर आप व्रत रखते हैं, तो पहले अपने परिवार या समुदाय की पालन-पद्धति पहचानें। उसके बाद उसी तिथि के लिए अपने शहर का विश्वसनीय पंचांग खोलें और पारण की अलग पंक्ति देखें। मंदिर की सूचना उपलब्ध हो तो उसकी तारीख भी जाँचें। इस प्रक्रिया में कोई जटिल गणना करने की जरूरत नहीं; बस स्रोत के शहर, वर्ष और धार्मिक संदर्भ को समझना है। पहली बार व्रत कर रहे हों तो अनुभवी व्यक्ति से पूछें। स्वास्थ्य संबंधी जरूरतें हों तो चिकित्सकीय सलाह लें। दूसरों की रीति पर टिप्पणी करने से पहले उनके स्रोत के बारे में विनम्रता से सवाल करें।",
+        "visual_prompt": "A family member, an elder, and a young viewer discussing a calendar at a table, warm respectful domestic setting, no readable text.",
+        "emotion": "happy"
+      },
+      {
+        "title": "निष्कर्ष",
+        "narration": "पारण का समय सत्यापित करने का सूत्र याद रखें: वर्ष, शहर, अगले दिन की तिथि, पारण की परंपरा और मूल स्रोत। सूर्योदय का स्थानीय समय महत्वपूर्ण है, लेकिन वह अकेला पूरा उत्तर नहीं। Drik Panchang का FAQ हरिवासर तथा अगले दिन के पारण पर जानकारी देता है; अन्य पंचांगों से तुलना करते समय स्थान और पालन-रीति समान रखें। यह वीडियो किसी एक सार्वभौमिक समय की घोषणा नहीं करता। अपने परिवार या धार्मिक संस्था से पुष्टि करें, स्रोत का लिंक साझा करें और बिना संदर्भ के समय आगे न भेजें। सही जानकारी श्रद्धा को कम नहीं करती; वह उसे अधिक स्पष्ट और जिम्मेदार बनाती है।",
+        "visual_prompt": "A final dawn scene with an open calendar, a lamp, and a phone showing a generic source link icon, calm hopeful mood, no text.",
+        "emotion": "happy"
+      }
+    ]
+  }
+}
