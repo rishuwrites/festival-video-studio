@@ -1,6 +1,6 @@
 {
   "timezone": "Asia/Kolkata",
-  "active_publish_slots": [1, 2],
+  "active_publish_slots": [1],
   "slots": [
     {
       "slot": 1,

@@ -1,4 +1,4 @@
-name: Daily two-video batch
+name: Daily Panchang batch
 
 run-name: Daily batch ${{ inputs.date || 'default' }}
 

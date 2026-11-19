@@ -36,17 +36,17 @@ YouTube uploads use your OAuth secrets (`YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_
 
 ## Daily two-video long-form publishing
 
-The `daily-batch.yml` workflow publishes only two **16:9 long-form videos** per calendar date: slot 1 is the 06:00 daily Panchang and slot 2 is the 07:30 sourced festival/culture explainer. Other historical calendar slots are ignored by the planner; the separate legacy workflow is no longer dispatched automatically. No Shorts or vertical videos are produced.
+The daily schedule publishes only two **16:9 long-form videos** per date: the 06:00 daily Panchang (batch slot 1) and one calendar-sourced festival/culture video at 09:00 (the restored `festival-video.yml` flow). Other batch slots are ignored by the planner. No Shorts or vertical videos are produced.
 
-The batch workflow is manual-only (`workflow_dispatch`); its GitHub `schedule:` trigger stays commented out. The Apps Script dispatches both active slots for a publish date two days ahead. Replace the Apps Script project code with the checked-in `scheduler/google_apps_script.gs` and rerun `setupDailyTrigger()` to stop the old legacy-video dispatch.
+The batch workflow is manual-only (`workflow_dispatch`); its GitHub `schedule:` trigger stays commented out. Apps Script dispatches the festival video and the Panchang batch on their publish lead times. Replace the Apps Script project code with the checked-in `scheduler/google_apps_script.gs` and rerun `setupDailyTrigger()` so the older multi-video dispatch is removed.
 
-Each active slot writes a result artifact and a GitHub Actions job-summary row showing YouTube success/failure, video ID, and any Drive fallback link. Apps Script checks dispatched publish dates every two hours and retries only active slots that still have no YouTube video ID. Retries reuse the same title/date/slot and first check the channel for an existing title, treating that existing upload as success rather than uploading a duplicate. If a scheduled Facebook upload already exists, a YouTube-only retry skips Facebook. Retries stop when the scheduled publish time is within 15 minutes; API quota limits or other platform failures can still prevent a video from being scheduled in time.
+Each run writes a result artifact and a GitHub Actions job-summary row showing YouTube success/failure, video ID, and any Drive fallback link. Apps Script checks dispatched publish dates every two hours and retries only the festival video or Panchang if no YouTube video ID exists. Retries reuse the same title/date/slot and first check the channel for an existing title, treating that existing upload as success rather than uploading a duplicate. If a scheduled Facebook upload already exists, a YouTube-only retry skips Facebook. Retries stop when the scheduled publish time is within 15 minutes; API quota limits or other platform failures can still prevent a video from being scheduled in time.
 
 The festival/culture video uses the researched script flow from commit `945224505d54b00bd3ecb8464b64ff4fafa638fa`: if the narration is short, Gemini is asked for up to two longer sourced drafts. The daily Panchang remains built from the checked-in city-specific Panchang data and does not request Gemini for its script.
 
-`config/slots.json` identifies slots 1 and 2 as the only active publishing slots. The other calendar rows are retained for history but are not rendered or retried.
+`config/slots.json` identifies slot 1 as the only active batch slot. The restored daily festival workflow uses the separate sourced calendar; all other batch rows are retained for history and are not rendered or retried.
 
-The calendar covers November 18 through December 31, 2026. It retains older slot records for history, but only slots 1 and 2 are published. Seed owner-editable data and the topic pool with:
+The calendar covers November 18 through December 31, 2026. It retains older slot records for history, but only the Panchang batch slot is published from the batch calendar; the festival video comes from its separate sourced calendar. Seed owner-editable data and the topic pool with:
 
 ```powershell
 python calendar\seed_templates.py
@@ -64,7 +64,7 @@ python calendar\build_calendar.py --from 2026-11-18 --to 2026-12-31
 
 The builder creates `calendar\content_calendar.csv`, `calendar\content_calendar.json`, and `calendar\CALENDAR.md`. It stops on missing daily panchang values, schedules festival/vrat topics only for verified dates, and substitutes an evergreen culture topic when no verified event fits. A festival less than two days away at the beginning of the range is marked `late_prepublish` and assigned to the earliest calendar date. `PRE_PUBLISH_DAYS_MIN` and `PRE_PUBLISH_DAYS_MAX` may be set to 2 or 3 (in order).
 
-The 06:00 daily Panchang script reads only the supplied city-specific panchang row. The second daily video uses the researched festival/culture script flow. Other rashi, legacy, and culture slots are inactive and are neither rendered nor retried. Rebuilding the calendar retains completed video statuses and IDs.
+The 06:00 daily Panchang script reads only the supplied city-specific panchang row. The second daily video uses the researched festival/culture script flow. Other rashi, duplicate legacy, and culture slots are inactive and are neither rendered nor retried. Rebuilding the calendar retains completed video statuses and IDs.
 
 Set `GEMINI_API_KEY`, optional `GEMINI_API_KEY1`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` as repository Actions secrets. Only the two active slots attempt YouTube uploads. Failed videos are saved to Google Drive when the video, thumbnail, and metadata exist; failures before those files exist are marked `skipped`.
 
@@ -81,20 +81,20 @@ The existing YouTube refresh token does not gain Drive permission automatically.
 
 For Facebook cross-posting from the batch workflow, set `FACEBOOK_PAGE_ACCESS_TOKEN` as an Actions secret and `FACEBOOK_PAGE_ID` as a secret or repository variable. The Page token needs permission to publish Page videos (`pages_manage_posts`).
 
-The Apps Script is the daily orchestrator and dispatches only the two active batch slots. GitHub cron remains disabled. The older `festival-video.yml` remains available for intentional manual runs but is not part of the daily schedule.
+The Apps Script is the daily orchestrator and dispatches only the active Panchang slot plus one sourced festival video. GitHub cron remains disabled.
 
-## Retained legacy publishing (manual only)
+## Daily sourced festival video
 
-The researched calendar at `data/india-festival-video-calendar-2026.json` and older legacy workflow are retained for reference and manual use only. The daily Google Apps Script runs near 02:05 IST and dispatches the two active batch slots for a publish date two days ahead.
+The researched calendar at `data/india-festival-video-calendar-2026.json` contains one sourced video brief per target date. The daily Google Apps Script runs near 02:05 IST, dispatches that festival video for publication one day ahead, and dispatches the Panchang batch for publication two days ahead.
 
 To enable the daily trigger:
 
-1. Copy `scheduler/google_apps_script.gs` into a new project at [script.google.com](https://script.google.com).
+1. Replace the code in the existing project at [script.google.com](https://script.google.com) with `scheduler/google_apps_script.gs`.
 2. In **Project Settings → Script properties**, add `GITHUB_PAT` with a token that can read workflow runs and dispatch Actions in this repository (`Actions: read and write` for a fine-grained token; a classic token needs `repo` and `workflow`).
 3. Run `setupDailyTrigger()` once and authorize the requested permissions. It installs the 02:05 daily dispatcher and a separate every-two-hours verification/retry trigger. Check Apps Script **Executions** and GitHub Actions job summaries for per-video results and retry errors.
 4. Ensure the repository has `GEMINI_API_KEY`, `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, and `YT_REFRESH_TOKEN` Actions secrets. The YouTube refresh token needs `youtube.upload` and `youtube.readonly` scopes. To schedule the same video on Facebook, add `FACEBOOK_PAGE_ACCESS_TOKEN` as an Actions secret and `FACEBOOK_PAGE_ID` as an Actions variable (the page ID can also be a secret). The Page token must have Page publishing access and the app must have the required Page publishing permission (`pages_manage_posts`). Facebook uses the Page-token resumable video-upload flow and does not require `META_APP_ID` or `META_USER_ACCESS_TOKEN`.
 
-To manually rerun today's dispatch, replace the project code with the current `scheduler/google_apps_script.gs`, then select and run `dispatchTodaysFestivalVideo()` from the Apps Script editor. Only the two active batch slots are dispatched or retried.
+To manually rerun today's dispatch, select and run `dispatchTodaysFestivalVideo()` from the Apps Script editor. The dispatcher launches only one festival workflow and the Panchang batch slot.
 
 The festival workflow receives the calendar target date, topic, and researched source notes, writes the script, renders a video and thumbnail, and schedules it at the active slot's publish time. If the generated narration is under 800 words, it requests up to two longer drafts using the same research context; synthesized audio must still pass the six-minute minimum. YouTube and Facebook uploads have separate controls so a failed platform can be retried without attempting a duplicate upload to the other. YouTube requires scheduled videos to be private until its publish time. Facebook uses Meta's resumable video-upload API and a scheduled Page video post. Configure channel defaults and audience/restrictions in YouTube Studio as needed.
 

@@ -24,8 +24,8 @@ def _active_batch_slots():
         active = {int(slot) for slot in slots}
     except (TypeError, ValueError) as exc:
         raise ValueError("active_publish_slots must contain slot numbers") from exc
-    if active != {1, 2}:
-        raise ValueError("Daily publishing is limited to slots 1 and 2")
+    if active != {1}:
+        raise ValueError("The daily batch is limited to the Panchang slot 1")
     return active
 
 
@@ -56,7 +56,7 @@ def plan_for_date(calendar_path, batch_date, retry_failed=False, now=None):
     if len(batch_rows) != len(active_slots) or {
         int(row.get("slot", 0)) for row in batch_rows
     } != active_slots:
-        raise ValueError(f"Calendar date {batch_date} must include active slots 1 and 2")
+        raise ValueError(f"Calendar date {batch_date} must include the active Panchang slot 1")
     if retry_failed:
         retryable_statuses = {
             "planned", "generated", "scheduled", "failed_saved_to_drive", "skipped",

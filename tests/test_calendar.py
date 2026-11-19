@@ -458,7 +458,7 @@ class DailyUploadBudgetTests(unittest.TestCase):
         self.assertTrue(all(row["upload_allowed"] for row in planned))
         self.assertFalse(any("drive_reason" in row for row in planned))
 
-    def test_batch_planner_selects_only_the_daily_panchang_and_festival_slots(self):
+    def test_batch_planner_selects_only_the_daily_panchang_slot(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / "content_calendar.json"
             rows = [
@@ -469,8 +469,8 @@ class DailyUploadBudgetTests(unittest.TestCase):
             path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
             with mock.patch.dict("os.environ", {}, clear=True):
                 planned = plan_batch.plan_for_date(path, "2026-11-18")
-            self.assertEqual([row["slot"] for row in planned], [1, 2])
-            self.assertEqual(sum(row["upload_allowed"] for row in planned), 2)
+            self.assertEqual([row["slot"] for row in planned], [1])
+            self.assertEqual(sum(row["upload_allowed"] for row in planned), 1)
 
     def test_batch_planner_excludes_blocked_unverified_slots(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -505,10 +505,10 @@ class DailyUploadBudgetTests(unittest.TestCase):
 
             planned = plan_batch.plan_for_date(path, "2026-11-18")
 
-            self.assertEqual([row["slot"] for row in planned], [1, 2])
+            self.assertEqual([row["slot"] for row in planned], [1])
             self.assertTrue(all(row["upload_allowed"] for row in planned))
 
-    def test_batch_planner_ignores_every_slot_outside_the_two_video_plan(self):
+    def test_batch_planner_ignores_every_slot_outside_the_panchang_plan(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / "content_calendar.json"
             rows = [
@@ -525,7 +525,7 @@ class DailyUploadBudgetTests(unittest.TestCase):
 
             planned = plan_batch.plan_for_date(path, "2026-12-30")
 
-            self.assertEqual([row["slot"] for row in planned], [1, 2])
+            self.assertEqual([row["slot"] for row in planned], [1])
             self.assertTrue(all(row["upload_allowed"] for row in planned))
 
     def test_retry_planner_selects_only_future_slots_without_youtube_success(self):
@@ -544,9 +544,9 @@ class DailyUploadBudgetTests(unittest.TestCase):
                 }
                 for slot in range(1, 11)
             ]
-            rows[1]["status"] = "failed_saved_to_drive"
-            rows[1]["youtube_video_id"] = ""
-            rows[1]["facebook_video_id"] = "facebook-video-2"
+            rows[0]["status"] = "failed_saved_to_drive"
+            rows[0]["youtube_video_id"] = ""
+            rows[0]["facebook_video_id"] = "facebook-video-1"
             rows[3]["status"] = "skipped"
             rows[3]["youtube_video_id"] = ""
             rows[4]["status"] = "scheduled"
@@ -564,7 +564,7 @@ class DailyUploadBudgetTests(unittest.TestCase):
                 now=dt.datetime(2026, 12, 9, 0, 0, tzinfo=dt.timezone(dt.timedelta(hours=5, minutes=30))),
             )
 
-        self.assertEqual([row["slot"] for row in planned], [2])
+        self.assertEqual([row["slot"] for row in planned], [1])
         self.assertTrue(all(row["upload_allowed"] for row in planned))
         self.assertFalse(planned[0]["facebook_upload_allowed"])
 

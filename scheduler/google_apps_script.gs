@@ -7,19 +7,24 @@
  *    allowed to dispatch workflows in rishuwrites/festival-video-studio.
  * 3. Run setupDailyTrigger() once and authorize the requested permissions.
  *
- * The daily trigger dispatches only the daily Panchang and festival videos
- * two days ahead. A separate two-hour trigger retries those active slots only.
+ * The daily trigger dispatches one festival video for tomorrow and one
+ * Panchang video two days ahead. A two-hour trigger retries only these videos.
  */
 
 const OWNER = "rishuwrites";
 const REPO = "festival-video-studio";
 const BRANCH = "main";
+const LEGACY_WORKFLOW = "festival-video.yml";
 const BATCH_WORKFLOW = "daily-batch.yml";
 const TIME_ZONE = "Asia/Kolkata";
+const PUBLISH_TIME = "09:00";
+const GENERATION_LEAD_DAYS = 3;
 const PUBLISH_LEAD_DAYS = 2;
+const LEGACY_CALENDAR_URL =
+  "https://raw.githubusercontent.com/rishuwrites/festival-video-studio/main/data/india-festival-video-calendar-2026.json";
 const BATCH_CALENDAR_URL =
   "https://raw.githubusercontent.com/rishuwrites/festival-video-studio/main/calendar/content_calendar.json";
-const ACTIVE_BATCH_SLOTS = new Set([1, 2]);
+const ACTIVE_BATCH_SLOTS = new Set([1]);
 const RETRY_COOLDOWN_MS = 15 * 60 * 1000;
 const RETRYABLE_BATCH_STATUSES = new Set([
   "planned", "generated", "scheduled", "failed_saved_to_drive", "skipped"
@@ -64,6 +69,68 @@ function dispatchTodaysFestivalVideo() {
     const now = new Date();
     const today = Utilities.formatDate(now, TIME_ZONE, "yyyy-MM-dd");
     const properties = PropertiesService.getScriptProperties();
+    const dispatchKey = "DISPATCHED_" + today;
+    if (!properties.getProperty(dispatchKey)) {
+      const publishDate = shiftDate(today, GENERATION_LEAD_DAYS - PUBLISH_LEAD_DAYS);
+      const festivalDate = shiftDate(today, GENERATION_LEAD_DAYS);
+      const publishAt = new Date(publishDate + "T" + PUBLISH_TIME + ":00+05:30");
+      if (publishAt.getTime() <= now.getTime() + 15 * 60 * 1000) {
+        throw new Error("Too late to safely schedule the festival video for " + publishDate + " " + PUBLISH_TIME + " IST.");
+      }
+
+      const calendar = fetchJson(LEGACY_CALENDAR_URL, "festival calendar");
+      if (festivalDate >= calendar.start_date && festivalDate <= calendar.end_date) {
+        const entry = (calendar.entries || []).find(item => item.date === festivalDate);
+        if (!entry) {
+          throw new Error("No festival video brief exists for " + festivalDate + ".");
+        }
+        const monthSource = festivalDate.slice(5, 7) === "11" ? "drik_november" : "drik_december";
+        const sourceIds = Array.from(new Set([...(entry.source_ids || []), monthSource]));
+        const sources = sourceIds
+          .map(sourceId => calendar.sources && calendar.sources[sourceId])
+          .filter(source => source && source.title && source.url);
+        if (!entry.topic || !entry.research_notes || !Array.isArray(entry.panchang_events) || sources.length < 2) {
+          throw new Error("The " + festivalDate + " calendar brief needs a topic, notes, event list, and at least two sources.");
+        }
+
+        const legacyResult = dispatchWorkflow(LEGACY_WORKFLOW, {
+          topic: entry.topic,
+          date: festivalDate,
+          scope: entry.scope || calendar.default_scope,
+          publish_date: publishDate,
+          publish_time: PUBLISH_TIME,
+          research_context: JSON.stringify({
+            notes: [
+              entry.festival
+                ? "Scheduled observance: " + entry.festival
+                : "Evergreen calendar topic: " + entry.topic,
+              "Calendar target date: " + festivalDate + "; planned public release: " + publishDate + " (two days before the target date).",
+              entry.date_confidence ? "Date confidence: " + entry.date_confidence : "",
+              entry.panchang_events.length
+                ? "Other observances on this date in the monthly Panchang listing (keep distinct and identify regional scope): " + entry.panchang_events.join("; ")
+                : "",
+              entry.research_notes
+            ].filter(Boolean).join("\n"),
+            sources: sources,
+            search_queries: entry.search_queries || []
+          }),
+          upload: "true",
+          facebook_upload: "true"
+        });
+        properties.setProperty(dispatchKey, legacyResult);
+        properties.setProperty("LEGACY_TARGET_" + publishDate, String(Date.now()));
+        Logger.log(
+          "Dispatched festival video " + entry.topic + " for calendar date " + festivalDate +
+          ", public release " + publishDate + " at " + PUBLISH_TIME + " IST (run " + legacyResult + ")"
+        );
+      } else {
+        Logger.log("No legacy calendar coverage for " + festivalDate + "; skipping festival dispatch.");
+        properties.setProperty(dispatchKey, "no-legacy-coverage");
+      }
+    } else {
+      Logger.log("Festival video already handled today: " + properties.getProperty(dispatchKey));
+    }
+
     const batchKey = "BATCH_DISPATCHED_" + today;
     if (properties.getProperty(batchKey)) {
       Logger.log("Daily batch already dispatched today: " + properties.getProperty(batchKey));
@@ -84,7 +151,7 @@ function dispatchTodaysFestivalVideo() {
       batchRows.length !== ACTIVE_BATCH_SLOTS.size
       || batchRows.some(item => item.status !== "planned")
     ) {
-      throw new Error("The batch calendar needs planned Panchang and festival slots for " + batchDate + ".");
+      throw new Error("The batch calendar needs its planned Panchang slot for " + batchDate + ".");
     }
     const batchResult = dispatchWorkflow(BATCH_WORKFLOW, { date: batchDate });
     properties.setProperty(batchKey, batchResult);
@@ -109,18 +176,26 @@ function checkAndRetryFailedVideos() {
       .filter(key => key.indexOf("BATCH_TARGET_") === 0)
       .map(key => key.slice("BATCH_TARGET_".length))
       .sort();
-    if (!batchTargets.length) {
+    const legacyTargets = Object.keys(allProperties)
+      .filter(key => key.indexOf("LEGACY_TARGET_") === 0)
+      .map(key => key.slice("LEGACY_TARGET_".length))
+      .sort();
+    if (!batchTargets.length && !legacyTargets.length) {
       Logger.log("No dispatched videos are awaiting verification.");
       return;
     }
 
     const batchRuns = listWorkflowRuns(BATCH_WORKFLOW);
-    if (batchRuns.some(isRunActive)) {
+    const legacyRuns = listWorkflowRuns(LEGACY_WORKFLOW);
+    if (batchRuns.some(isRunActive) || legacyRuns.some(isRunActive)) {
       Logger.log("A publishing workflow is queued or running; postponing retries.");
       return;
     }
     if (batchTargets.length) {
       retryFailedBatchDates(batchTargets, batchRuns, properties);
+    }
+    if (legacyTargets.length) {
+      retryFailedLegacyDates(legacyTargets, legacyRuns, properties);
     }
   } finally {
     lock.releaseLock();
@@ -204,6 +279,53 @@ function retryFailedBatchDates(targetDates, runs, properties) {
   });
 }
 
+function retryFailedLegacyDates(targetDates, runs, properties) {
+  const now = new Date();
+  targetDates.forEach(publishDate => {
+    const publishAt = new Date(publishDate + "T" + PUBLISH_TIME + ":00+05:30");
+    if (publishAt.getTime() <= now.getTime() + 15 * 60 * 1000) {
+      properties.deleteProperty("LEGACY_TARGET_" + publishDate);
+      Logger.log("Festival video for " + publishDate + " is past its safe retry window.");
+      return;
+    }
+    const matching = runs.filter(run => (
+      workflowRunTitle(run).indexOf("Legacy video " + publishDate) !== -1
+    ));
+    if (!matching.length) {
+      Logger.log("No GitHub Actions run found yet for festival video " + publishDate + ".");
+      return;
+    }
+    const latest = matching[0];
+    if (isRunActive(latest)) {
+      Logger.log("Festival video " + publishDate + " is queued or in progress.");
+      return;
+    }
+    if (latest.conclusion === "success") {
+      properties.deleteProperty("LEGACY_TARGET_" + publishDate);
+      Logger.log("Festival video " + publishDate + " succeeded in YouTube.");
+      return;
+    }
+    if (!["failure", "timed_out", "cancelled"].includes(latest.conclusion)) {
+      Logger.log(
+        "Festival video " + publishDate + " ended as " + latest.conclusion +
+        "; automatic retry was not started.",
+      );
+      return;
+    }
+    if (isInRetryCooldown(properties, "LEGACY_RETRY_" + publishDate)) {
+      Logger.log("Festival video " + publishDate + " was retried recently; waiting for the result.");
+      return;
+    }
+
+    rerunWorkflow(latest.id);
+    properties.setProperty("LEGACY_RETRY_" + publishDate, String(Date.now()));
+    Logger.log(
+      "Re-ran failed festival video " + publishDate + " only (Actions run " +
+      latest.id + ", attempt " + (Number(latest.run_attempt || 1) + 1) + ").",
+    );
+  });
+}
+
 function listWorkflowRuns(workflow) {
   const url = "https://api.github.com/repos/" + OWNER + "/" + REPO +
     "/actions/workflows/" + workflow + "/runs?branch=" + BRANCH + "&per_page=100";
@@ -237,6 +359,18 @@ function isRunActive(run) {
 function isInRetryCooldown(properties, key) {
   const lastDispatch = Number(properties.getProperty(key) || 0);
   return lastDispatch > 0 && Date.now() - lastDispatch < RETRY_COOLDOWN_MS;
+}
+
+function rerunWorkflow(runId) {
+  const url = "https://api.github.com/repos/" + OWNER + "/" + REPO +
+    "/actions/runs/" + encodeURIComponent(runId) + "/rerun";
+  const response = githubApiRequest("post", url);
+  if (response.getResponseCode() !== 201) {
+    throw new Error(
+      "Could not rerun Actions run " + runId + " (HTTP " +
+      response.getResponseCode() + "): " + response.getContentText().slice(0, 500),
+    );
+  }
 }
 
 function fetchJson(url, label) {

@@ -134,7 +134,7 @@ class RunOneFallbackTests(unittest.TestCase):
         self.assertEqual(result["youtube_status"], "scheduled")
         self.assertIsNone(generate.call_args.kwargs["prepared_bundle"])
 
-    def test_planned_day_attempts_only_two_active_videos(self):
+    def test_planned_day_attempts_only_the_panchang_video(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             calendar_path = root / "content_calendar.json"
@@ -155,7 +155,7 @@ class RunOneFallbackTests(unittest.TestCase):
             calendar_path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
             with mock.patch.dict("os.environ", {}, clear=True):
                 batch = plan_batch.plan_for_date(calendar_path, "2026-12-10")
-            self.assertEqual([row["slot"] for row in batch], [1, 2])
+            self.assertEqual([row["slot"] for row in batch], [1])
             self.assertTrue(all(row["upload_allowed"] for row in batch))
 
             def generate(**kwargs):
@@ -194,8 +194,8 @@ class RunOneFallbackTests(unittest.TestCase):
                     })
                     results.append(run_one.run_one(env))
 
-            self.assertEqual(len(generate_mock.call_args_list), 2)
-            self.assertEqual(save_mock.call_count, 2)
+            self.assertEqual(len(generate_mock.call_args_list), 1)
+            self.assertEqual(save_mock.call_count, 1)
             self.assertTrue(all(result["status"] == "failed_saved_to_drive" for result in results))
             self.assertTrue(all(call.kwargs["upload"] for call in generate_mock.call_args_list))
             self.assertTrue(all("youtube_quota" in result["notes"] for result in results))
