@@ -74,7 +74,7 @@ def _write_result(result_dir, result):
     return path
 
 
-def _prepared_content(content_type, topic, publish_date, festival_date, calendar_date, slot, env):
+def _prepared_content(content_type, topic, publish_date, festival_date):
     if content_type == "daily_panchang_rashifal":
         return rashifal.build_panchang_content(
             publish_date, include_rashifal=True,
@@ -86,14 +86,7 @@ def _prepared_content(content_type, topic, publish_date, festival_date, calendar
     if content_type == "rashi_encyclopedia" and not festival_date:
         rashi_name = topic.split(":", 1)[0].removesuffix(" राशि").strip()
         return rashi_encyclopedia.build_rashi_content(rashi_name)
-    prepared_root = Path(env.get("PREPARED_CONTENT_DIR") or ROOT / "content" / "prepared")
-    prepared_path = prepared_root / calendar_date / f"slot_{slot}.json"
-    if not prepared_path.is_file():
-        return None
-    bundle = json.loads(prepared_path.read_text(encoding="utf-8"))
-    if not isinstance(bundle, dict):
-        raise ValueError(f"Prepared content must be a JSON object: {prepared_path}")
-    return bundle
+    return None
 
 
 def run_one(env=None):
@@ -123,9 +116,7 @@ def run_one(env=None):
     output_dir = Path(env.get("OUTPUT_DIR", OUTPUT_ROOT / f"{calendar_date}_slot_{slot}"))
     result_dir = Path(env.get("RESULTS_DIR", RESULTS_ROOT))
     allowed = env.get("UPLOAD_ALLOWED", "false").strip().casefold() in {"1", "true", "yes"}
-    prepared = _prepared_content(
-        content_type, topic, publish_date, festival_date, calendar_date, slot, env,
-    )
+    prepared = _prepared_content(content_type, topic, publish_date, festival_date)
     if prepared and content_type == "daily_panchang_rashifal":
         prepared["description_disclaimer"] = rashifal.DISCLAIMER
     content_date = (
