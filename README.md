@@ -71,6 +71,7 @@ When `FACEBOOK_PAGE_ID` and `FACEBOOK_PAGE_ACCESS_TOKEN` are configured, batch v
 ### Daily-batch troubleshooting
 
 - Gemini HTTP 429: the runner already backs off and rotates `GEMINI_API_KEY` / `GEMINI_API_KEY1`. Confirm both keys have usable quota; two keys from one exhausted Cloud project may share the same limit.
+- Gemini `PERMISSION_DENIED` stating that the free tier is unavailable is a project billing/access issue, not a video upload or font failure. Enable billing for that API project or replace the Actions key with one from an eligible project, then retry failed slots. A retry cannot render a video while Gemini generation remains unavailable.
 - YouTube `quotaExceeded` or `uploadLimitExceeded`: generated video files are saved to Drive. The Apps Script checks every two hours and retries only slots without a YouTube video ID while their publish time remains safely in the future. The manual `python recap\retry_failed_uploads.py --calendar calendar\content_calendar.json` command remains available to recover videos saved to Drive.
 - Google Drive HTTP 403: the existing refresh token likely lacks `drive.file`. Regenerate the token with `python tools\get_refresh_token.py`, enable Drive API in the same project, and replace the Actions secret.
 

@@ -123,6 +123,15 @@ class DailyCalendarBuilderTests(unittest.TestCase):
         self.assertEqual(len(festival_rows), 2)
         self.assertTrue(all(row["notes"] == "late_prepublish" for row in festival_rows))
 
+    def test_does_not_repeat_a_topic_with_a_different_angle_on_the_same_day(self):
+        rows = self._build()["videos"]
+        identities = [
+            build_calendar._topic_identity(row)
+            for row in rows
+        ]
+
+        self.assertEqual(len(identities), len(set(identities)))
+
     def test_unverified_festival_slots_use_evergreen_replacements(self):
         entries = json.loads(self.festivals_path.read_text(encoding="utf-8"))["entries"]
         entries[0]["verified"] = False
@@ -270,6 +279,8 @@ class DailyCalendarBuilderTests(unittest.TestCase):
             "status": "uploaded",
             "youtube_video_id": "video-123",
             "drive_link": "https://drive.google.com/file/d/example/view",
+            "topic_hi": "मौजूदा अपलोड किया गया विषय",
+            "topic_en": "Existing uploaded topic",
         })
         previous = self.root / "previous.json"
         previous.write_text(json.dumps(first), encoding="utf-8")
@@ -277,6 +288,39 @@ class DailyCalendarBuilderTests(unittest.TestCase):
         self.assertEqual(rebuilt["videos"][0]["status"], "uploaded")
         self.assertEqual(rebuilt["videos"][0]["youtube_video_id"], "video-123")
         self.assertEqual(rebuilt["videos"][0]["drive_link"], "https://drive.google.com/file/d/example/view")
+        self.assertEqual(rebuilt["videos"][0]["topic_hi"], "मौजूदा अपलोड किया गया विषय")
+        self.assertEqual(rebuilt["videos"][0]["topic_en"], "Existing uploaded topic")
+
+    def test_rebuild_keeps_uploaded_topics_and_avoids_reusing_their_subjects(self):
+        first = self._build()
+        for slot, hindi_angle, english_angle in (
+            (4, "कथा और लोकस्मृति", "Story and community memory"),
+            (6, "इतिहास की झलक", "A glimpse into history"),
+        ):
+            row = first["videos"][slot - 1]
+            row.update({
+                "status": "scheduled",
+                "youtube_video_id": f"video-{slot}",
+                "topic_hi": f"{hindi_angle}: घंटी और आरती की ध्वनि",
+                "topic_en": f"{english_angle}: Temple bells and aarti",
+            })
+        previous = self.root / "previous.json"
+        previous.write_text(json.dumps(first, ensure_ascii=False), encoding="utf-8")
+
+        rebuilt = self._build(previous)
+
+        rows = rebuilt["videos"]
+        completed = [row for row in rows if row["youtube_video_id"]]
+        planned = [row for row in rows if row["status"] == "planned"]
+        completed_identities = {
+            build_calendar._topic_identity(row) for row in completed
+        }
+        planned_identities = [
+            build_calendar._topic_identity(row) for row in planned
+        ]
+        self.assertEqual([row["youtube_video_id"] for row in completed], ["video-4", "video-6"])
+        self.assertEqual(len(planned_identities), len(set(planned_identities)))
+        self.assertFalse(completed_identities.intersection(planned_identities))
 
     def test_pre_publishing_uses_two_to_three_day_window_or_marks_late(self):
         self.assertEqual(

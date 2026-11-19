@@ -263,6 +263,27 @@ def _normalized_words(value):
     return re.sub(r"[^\w]+", " ", str(value or "").casefold()).strip()
 
 
+def _topic_identity(topic):
+    topic_hi = str(topic.get("topic_hi", "")).strip()
+    topic_en = str(topic.get("topic_en", "")).strip()
+    for prefix in (
+        "कथा और लोकस्मृति: ", "इतिहास की झलक: ", "आज के जीवन में अर्थ: ",
+        "क्षेत्रीय विविधता: ", "व्रत परंपरा में क्षेत्रीय दृष्टि: ", "सांस्कृतिक चिंतन: ",
+    ):
+        if topic_hi.startswith(prefix):
+            topic_hi = topic_hi[len(prefix):]
+            break
+    for prefix in (
+        "Story and community memory: ", "A glimpse into history: ",
+        "Meaning in contemporary life: ", "Regional perspective: ",
+        "Regional perspective on vrat customs: ", "Devotional reflection: ",
+    ):
+        if topic_en.startswith(prefix):
+            topic_en = topic_en[len(prefix):]
+            break
+    return _normalized_words(topic_hi), _normalized_words(topic_en)
+
+
 def _legacy_entries_near(legacy_entries, publish_date, radius=2):
     publish_day = dt.date.fromisoformat(publish_date)
     nearby = []
@@ -317,12 +338,13 @@ def _duplicates_legacy(topic, legacy_entries):
     return False
 
 
-def _topic_for(topics, topic_type, used, publish_date, legacy_entries=()):
+def _topic_for(topics, topic_type, used, publish_date, legacy_entries=(), used_today=None):
     for topic in topics:
         if topic.get("type") == topic_type and topic.get("evergreen") is True:
             key = topic["topic_hi"].casefold()
             if (
                 key not in used
+                and (used_today is None or _topic_identity(topic) not in used_today)
                 and not _duplicates_legacy(topic, legacy_entries)
                 and topic.get("earliest_date", "") <= publish_date
                 <= topic.get("latest_date", "9999-12-31")
@@ -349,7 +371,8 @@ def _verified_events_for(events, publish_date, min_days, max_days, calendar_star
     ]
 
 
-def _event_topic(topics, event, topic_type, used, publish_date, legacy_entries=()):
+def _event_topic(topics, event, topic_type, used, publish_date, legacy_entries=(),
+                 used_today=None):
     keys = {event["name_en"].casefold(), event["name_hi"].casefold()}
     for topic in topics:
         if topic.get("type") != topic_type:
@@ -359,13 +382,18 @@ def _event_topic(topics, event, topic_type, used, publish_date, legacy_entries=(
         if not topic.get("earliest_date", "") <= publish_date <= topic.get("latest_date", "9999-12-31"):
             continue
         title = topic["topic_hi"].casefold()
-        if title not in used and not _duplicates_legacy(topic, legacy_entries):
+        if (
+            title not in used
+            and (used_today is None or _topic_identity(topic) not in used_today)
+            and not _duplicates_legacy(topic, legacy_entries)
+        ):
             used.add(title)
             return topic
     return None
 
 
-def _rashi_topic(topics, rashi_index, topic_type, used, episode=None, legacy_entries=()):
+def _rashi_topic(topics, rashi_index, topic_type, used, episode=None, legacy_entries=(),
+                 used_today=None):
     sign_hi, sign_en, color, symbol = RASHIS[rashi_index % len(RASHIS)]
     candidates = [
         item for item in topics
@@ -375,7 +403,11 @@ def _rashi_topic(topics, rashi_index, topic_type, used, episode=None, legacy_ent
     ]
     for topic in candidates:
         key = topic["topic_hi"].casefold()
-        if key not in used and not _duplicates_legacy(topic, legacy_entries):
+        if (
+            key not in used
+            and (used_today is None or _topic_identity(topic) not in used_today)
+            and not _duplicates_legacy(topic, legacy_entries)
+        ):
             used.add(key)
             return topic, sign_hi, sign_en, color, symbol
     raise CalendarBuildError(f"No unused {topic_type} topic for {sign_en}")
@@ -471,6 +503,7 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
     while day <= end:
         iso_date = day.isoformat()
         day_rows = []
+        used_today = set()
         week_key = (day.isocalendar().year, day.isocalendar().week)
         include_rashi = (
             day.weekday() in {1, 4}
@@ -495,6 +528,18 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
             status = "planned"
             row_type = slot_type
             color, symbol = "#8B6B9E", "✦"
+            old = previous.get((iso_date, slot_no))
+            if old and old.get("status") in {
+                "generated", "scheduled", "uploaded", "failed_saved_to_drive",
+            }:
+                row = dict(old)
+                day_rows.append(row)
+                used.add(str(row.get("topic_hi", "")).casefold())
+                used_today.add(_topic_identity(row))
+                if row.get("type") == "rashi_encyclopedia":
+                    rashi_index += 1
+                    rashi_counts_by_week[week_key] = rashi_counts_by_week.get(week_key, 0) + 1
+                continue
             if slot_type == "legacy_daily":
                 if legacy_entry:
                     topic_hi = topic_en = legacy_entry["topic"]
@@ -511,6 +556,7 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                     channel_category = row_type
                     item = _topic_for(
                         topics, row_type, used, iso_date, nearby_legacy,
+                        used_today=used_today,
                     )
                     topic_hi, topic_en = item["topic_hi"], item["topic_en"]
                     note = "No legacy calendar entry for this release date; batch fills the slot"
@@ -530,6 +576,7 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                     used,
                     episode="full",
                     legacy_entries=nearby_legacy,
+                    used_today=used_today,
                 )
                 rashi_index += 1
                 rashi_counts_by_week[week_key] = rashi_counts_by_week.get(week_key, 0) + 1
@@ -542,6 +589,7 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                 for event in event_candidates:
                     item = _event_topic(
                         topics, event, slot_type, used, iso_date, nearby_legacy,
+                        used_today=used_today,
                     )
                     if item:
                         selected = event, item
@@ -560,6 +608,7 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                     channel_category = row_type
                     item = _topic_for(
                         topics, row_type, used, iso_date, nearby_legacy,
+                        used_today=used_today,
                     )
                     topic_hi, topic_en = item["topic_hi"], item["topic_en"]
                     thumbnail_text = _thumbnail_text(topic_hi)
@@ -576,10 +625,17 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                     if lead < lead_min:
                         note = "late_prepublish"
             else:
-                item = _topic_for(topics, slot_type, used, iso_date, nearby_legacy)
+                item = _topic_for(
+                    topics, slot_type, used, iso_date, nearby_legacy,
+                    used_today=used_today,
+                )
                 topic_hi, topic_en = item["topic_hi"], item["topic_en"]
                 thumbnail_text = _thumbnail_text(topic_hi)
 
+            identity = _topic_identity({"topic_hi": topic_hi, "topic_en": topic_en})
+            if identity in used_today:
+                raise CalendarBuildError(f"Duplicate topic subject on {iso_date}: {topic_hi}")
+            used_today.add(identity)
             title_key = topic_hi.casefold()
             if status == "legacy_managed" and title_key in used:
                 raise CalendarBuildError(f"Duplicate planned topic: {topic_hi}")
@@ -606,7 +662,6 @@ def build_rows(start_date, end_date, slots_path=SLOTS_PATH, topic_pool_path=TOPI
                 "festival_tradition": festival_tradition,
                 "notes": note,
             }
-            old = previous.get((iso_date, slot_no))
             if status in {"planned", "legacy_managed"} and old and old.get("status") in {
                 "generated", "scheduled", "uploaded", "failed_saved_to_drive",
                 "legacy_managed",

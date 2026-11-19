@@ -2,6 +2,7 @@ import datetime as dt
 import json
 import os
 import re
+import unicodedata
 from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
@@ -44,7 +45,9 @@ def normalize_youtube_tags(values):
     seen = set()
     total_length = 0
     for value in values:
-        tag = " ".join(str(value).replace(",", " ").split()).strip(" ,")
+        tag = " ".join(
+            unicodedata.normalize("NFC", str(value)).replace(",", " ").split()
+        ).strip(" ,")
         if len(tag) > MAX_TAG_LENGTH:
             if ":" in tag:
                 tag = tag.split(":", 1)[0].strip()
@@ -229,8 +232,10 @@ def upload_scheduled(
     publish_at = scheduled_datetime(publish_date, publish_time, now=now)
     with open(metadata_path, "r", encoding="utf-8") as file:
         details = json.load(file)
-    title = str(details.get("title", "")).strip()
-    description = str(details.get("description", "")).strip()
+    title = unicodedata.normalize("NFC", str(details.get("title", ""))).strip()
+    description = unicodedata.normalize(
+        "NFC", str(details.get("description", "")),
+    ).strip()
     tags = normalize_youtube_tags(details.get("tags", []))
     if not title or not description:
         raise ValueError("Video metadata must include a title and description before upload")

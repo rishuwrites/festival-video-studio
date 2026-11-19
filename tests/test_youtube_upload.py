@@ -2,6 +2,7 @@ import json
 import sys
 import tempfile
 import unittest
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 from unittest import mock
@@ -150,6 +151,34 @@ class ScheduledUploadTests(unittest.TestCase):
         tags = post.call_args.kwargs["json"]["snippet"]["tags"]
         self.assertEqual(tags, ["Chhath Puja Usha Arghya", "a tag with commas"])
         self.assertTrue(all(len(tag) <= 30 and "," not in tag for tag in tags))
+
+    def test_normalizes_hindi_title_description_and_tags_before_upload(self):
+        publish_date, publish_time = future_schedule()
+        initiated = mock.Mock(status_code=200)
+        initiated.headers = {"Location": "https://www.googleapis.com/upload/youtube/v3/videos?upload_id=test"}
+        uploaded = mock.Mock(status_code=201)
+        uploaded.json.return_value = {"id": "video123"}
+        title = unicodedata.normalize("NFD", "क़िस्सा और आरती")
+        description = unicodedata.normalize("NFD", "हिंदी संस्कृति की जानकारी।")
+        tag = unicodedata.normalize("NFD", "क़िस्सा")
+
+        with tempfile.TemporaryDirectory() as folder:
+            video_path, metadata_path = self.make_inputs(folder)
+            Path(metadata_path).write_text(json.dumps({
+                "title": title,
+                "description": description,
+                "tags": [tag],
+            }), encoding="utf-8")
+            with mock.patch.object(youtube_upload, "oauth_access_token", return_value="token"), \
+                    mock.patch.object(youtube_upload, "_existing_upload", return_value=None), \
+                    mock.patch.object(youtube_upload.requests, "post", return_value=initiated) as post, \
+                    mock.patch.object(youtube_upload.requests, "put", return_value=uploaded):
+                youtube_upload.upload_scheduled(video_path, metadata_path, publish_date, publish_time)
+
+        snippet = post.call_args.kwargs["json"]["snippet"]
+        self.assertEqual(snippet["title"], unicodedata.normalize("NFC", title))
+        self.assertEqual(snippet["description"], unicodedata.normalize("NFC", description))
+        self.assertEqual(snippet["tags"], [unicodedata.normalize("NFC", tag)])
 
     def test_prevents_upload_when_same_title_already_exists(self):
         publish_date, publish_time = future_schedule()
