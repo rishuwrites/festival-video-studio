@@ -68,7 +68,7 @@ Date range: 2026-11-18 to 2026-12-31 (Asia/Kolkata)
 
 | Slot | Time IST | Source | Type | Topic | Festival date | Tradition | Status |
 |---:|:---:|---|---|---|:---:|---|---|
-| 1 | 06:00 | batch | daily_panchang_rashifal | आज का पंचांग: तिथि, नक्षत्र और राहु काल (2026-11-22) |  |  | planned |
+| 1 | 06:00 | batch | daily_panchang_rashifal | आज का पंचांग: तिथि, नक्षत्र और राहु काल (2026-11-22) |  |  | scheduled |
 | 2 | 07:30 | batch | festival_explainer | कार्तिक पूर्णिमा / देव दीपावली: तिथि, कथा और परंपराएँ भाग 2 | 2026-11-24 | Hindu Kartik Purnima; Dev Diwali is especially associated with Varanasi, and regional solar-calendar observances may differ. | planned |
 | 3 | 09:00 | legacy | legacy_daily | Kartik Purnima: Guru Nanak Jayanti and Rasa Purnima traditions |  |  | legacy_managed |
 | 4 | 10:30 | batch | story_history | आज के जीवन में अर्थ: घंटी और आरती की ध्वनि |  |  | planned |

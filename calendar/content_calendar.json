@@ -897,14 +897,14 @@
       "thumbnail_text_hi": "आज का पंचांग",
       "thumbnail_color": "#406A8E",
       "thumbnail_symbol": "☼",
-      "status": "planned",
-      "youtube_status": "not_attempted",
-      "youtube_video_id": "",
+      "status": "scheduled",
+      "youtube_status": "scheduled",
+      "youtube_video_id": "mCwpEv7KXzs",
       "drive_link": "",
-      "facebook_video_id": "",
-      "facebook_link": "",
+      "facebook_video_id": "2113908629237429",
+      "facebook_link": "https://www.facebook.com/1476204945573767/videos/2113908629237429",
       "festival_tradition": "",
-      "notes": ""
+      "notes": "Gemini requests: 0"
     },
     {
       "date": "2026-11-22",
