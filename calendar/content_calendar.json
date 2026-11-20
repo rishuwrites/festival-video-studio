@@ -447,7 +447,7 @@
     {
       "date": "2026-11-20",
       "slot": 1,
-      "publish_time_ist": "06:00",
+      "publish_time_ist": "12:00",
       "type": "tithi_and_dates",
       "source": "batch",
       "channel_category": "tithi_and_dates",

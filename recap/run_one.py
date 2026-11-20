@@ -66,7 +66,9 @@ def _video_files(output_dir):
     return None, None, None
 
 
-def _write_result(result_dir, result):
+def _write_result(result_dir, result, publish_time=""):
+    if publish_time:
+        result["publish_time_ist"] = publish_time
     result_dir = Path(result_dir)
     result_dir.mkdir(parents=True, exist_ok=True)
     path = result_dir / f"RESULT_{result['date']}_{result['slot']}.json"
@@ -195,7 +197,7 @@ def run_one(env=None):
                     ],
                 ]),
             }
-            _write_result(result_dir, result)
+            _write_result(result_dir, result, publish_time=publish_time)
             return result
         video_path, thumbnail_path, metadata_path = (
             generated["video"], generated["thumbnail"], generated["metadata"],
@@ -245,7 +247,7 @@ def run_one(env=None):
                     ],
                 ]),
             }
-            _write_result(result_dir, result)
+            _write_result(result_dir, result, publish_time=publish_time)
             return result
         except (DriveFallbackError, OSError, ValueError, RuntimeError) as exc:
             fallback_error = f"Drive fallback failed: {type(exc).__name__}: {exc}"
@@ -272,7 +274,7 @@ def run_one(env=None):
         "facebook_link": "",
         "notes": "; ".join(note for note in notes if note),
     }
-    _write_result(result_dir, result)
+    _write_result(result_dir, result, publish_time=publish_time)
     print(result["notes"])
     return result
 

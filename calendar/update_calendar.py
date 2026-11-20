@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 from build_calendar import write_calendar
@@ -30,6 +31,13 @@ def merge_results(calendar_path, result_dir):
             raise ValueError(f"Invalid YouTube status in {result_path.name}: {youtube_status!r}")
         if youtube_status:
             row["youtube_status"] = youtube_status
+        publish_time = result.get("publish_time_ist")
+        if publish_time is not None:
+            if not isinstance(publish_time, str) or not re.fullmatch(
+                r"(?:[01]\d|2[0-3]):[0-5]\d", publish_time,
+            ):
+                raise ValueError(f"Invalid publish time in {result_path.name}: {publish_time!r}")
+            row["publish_time_ist"] = publish_time
         row["youtube_video_id"] = (
             result.get("youtube_video_id") or row.get("youtube_video_id", "")
         )

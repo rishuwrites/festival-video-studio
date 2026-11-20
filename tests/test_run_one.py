@@ -57,6 +57,7 @@ class RunOneFallbackTests(unittest.TestCase):
 
             self.assertEqual(result["status"], "failed_saved_to_drive")
             self.assertEqual(result["drive_link"], drive_response["drive_link"])
+            self.assertEqual(result["publish_time_ist"], "22:30")
             generate.assert_called_once()
             self.assertEqual(generate.call_args.kwargs["date"], "")
             self.assertEqual(generate.call_args.kwargs["festival_tradition"], "A test tradition")
@@ -91,6 +92,7 @@ class RunOneFallbackTests(unittest.TestCase):
 
             self.assertEqual(result["status"], "failed_saved_to_drive")
             self.assertIn("quota_reserved", result["notes"])
+            self.assertEqual(result["publish_time_ist"], "22:30")
             generate.assert_called_once()
             self.assertFalse(generate.call_args.kwargs["upload"])
             self.assertEqual(save.call_args.args[3:5], (10, "quota_reserved"))

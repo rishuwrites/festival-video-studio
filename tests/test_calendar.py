@@ -666,6 +666,7 @@ class CalendarResultMergeTests(unittest.TestCase):
                 "youtube_video_id": "",
                 "facebook_video_id": "facebook-id",
                 "facebook_link": "https://facebook.example/video",
+                "publish_time_ist": "12:00",
                 "notes": "youtube upload failed: quota exceeded",
             }), encoding="utf-8")
 
@@ -675,6 +676,7 @@ class CalendarResultMergeTests(unittest.TestCase):
         self.assertEqual(result["youtube_status"], "failed")
         self.assertEqual(result["facebook_video_id"], "facebook-id")
         self.assertEqual(result["status"], "scheduled")
+        self.assertEqual(result["publish_time_ist"], "12:00")
 
 
 class FestivalCalendarTests(unittest.TestCase):
