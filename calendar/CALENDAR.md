@@ -38,7 +38,7 @@ Date range: 2026-11-18 to 2026-12-31 (Asia/Kolkata)
 
 | Slot | Time IST | Source | Type | Topic | Festival date | Tradition | Status |
 |---:|:---:|---|---|---|:---:|---|---|
-| 1 | 06:00 | batch | tithi_and_dates | आज का पंचांग: तिथि, नक्षत्र और राहु काल (2026-11-20) |  |  | planned |
+| 1 | 06:00 | batch | tithi_and_dates | आज का पंचांग: तिथि, नक्षत्र और राहु काल (2026-11-20) |  |  | scheduled |
 | 2 | 07:30 | batch | regional_customs | मिथिला की अरिपन कला |  |  | planned |
 | 3 | 09:00 | legacy | legacy_daily | Ravi Pradosh Vrat: a Sunday Pradosh observance |  |  | legacy_managed |
 | 4 | 10:30 | batch | story_history | कथा और लोकस्मृति: कमल का प्रतीकात्मक स्थान |  |  | planned |
