@@ -16,6 +16,10 @@ REQUIRED_FIELDS = (
     "tithi", "paksha", "nakshatra", "moon_rashi",
     "rahu_kaal_start", "rahu_kaal_end", "sunrise", "source_location",
 )
+HINDI_MONTH_NAMES = (
+    "जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून",
+    "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर",
+)
 FORBIDDEN = re.compile(
     r"मृत्यु|गंभीर बीमारी|सटीक धन लाभ|परीक्षा परिणाम|गर्भावस्था|"
     r"\bdeath\b|\bserious illness\b|\bexact financial gain\b|\bexam result\b|\bpregnancy\b",
@@ -25,6 +29,19 @@ FORBIDDEN = re.compile(
 
 class RashifalDataError(ValueError):
     pass
+
+
+def _hindi_date(target_date):
+    value = dt.date.fromisoformat(target_date)
+    return f"{value.day} {HINDI_MONTH_NAMES[value.month - 1]} {value.year}"
+
+
+def _hindi_location(location):
+    return {
+        "Lucknow, Uttar Pradesh": "लखनऊ, उत्तर प्रदेश",
+        "Varanasi": "वाराणसी",
+        "Varanasi, Uttar Pradesh": "वाराणसी, उत्तर प्रदेश",
+    }.get(location, location)
 
 
 def _read_panchang(path, target_date):
@@ -81,11 +98,12 @@ def build_daily_content(target_date, panchang_path=PANCHANG_PATH, rules_path=RUL
         raise RashifalDataError(f"Unknown Moon rashi for {target_date}: {row['moon_rashi']}")
     moon_rashi = selected_rashi["rashi"]
 
-    date_text = dt.date.fromisoformat(target_date).strftime("%d-%m-%Y")
+    date_text = _hindi_date(target_date)
+    location_hi = _hindi_location(row["source_location"])
     hook = (
         f"आज {date_text} का पंचांग स्रोत में दी गई तिथि और समय के अनुसार प्रस्तुत है। "
         f"तिथि {row['tithi']}, {row['paksha']} पक्ष, नक्षत्र {row['nakshatra']} और "
-        f"चंद्र राशि {moon_rashi} है। {row['source_location']} के लिए सूर्योदय "
+        f"चंद्र राशि {moon_rashi} है। {location_hi} के लिए सूर्योदय "
         f"{row['sunrise']} बजे है। "
         f"राहु काल {row['rahu_kaal_start']} से {row['rahu_kaal_end']} तक दिया गया है। "
         "पंचांग के समय स्थान के अनुसार बदलते हैं; अपने शहर के स्रोत से पुष्टि करें। "
@@ -118,19 +136,19 @@ def build_daily_content(target_date, panchang_path=PANCHANG_PATH, rules_path=RUL
         })
 
     source = {
-        "title": f"Owner-supplied panchang for {target_date}",
+        "title": f"{date_text} के पंचांग का स्रोत",
         "url": row["source_url"],
         "kind": "owner_supplied_panchang",
     }
     research = {
-        "headline": f"{date_text} का पंचांग और बारह राशियाँ",
+        "headline": f"आज का पंचांग: तिथि, नक्षत्र और बारह राशियाँ | {date_text}",
         "thumbnail_text": "आज का पंचांग",
         "hook": hook,
         "research_summary": (
-            f"तिथि: {row['tithi']} ({row['paksha']} पक्ष); नक्षत्र: {row['nakshatra']}; "
-            f"चंद्र राशि: {moon_rashi}; स्थान: {row['source_location']}; "
-            f"राहु काल: {row['rahu_kaal_start']}–"
-            f"{row['rahu_kaal_end']}; सूर्योदय: {row['sunrise']}। स्रोत: {row['source_url']}"
+            f"स्थान: {location_hi}। तिथि {row['tithi']} ({row['paksha']} पक्ष), "
+            f"नक्षत्र {row['nakshatra']} और चंद्र राशि {moon_rashi}। सूर्योदय "
+            f"{row['sunrise']} बजे। राहु काल {row['rahu_kaal_start']} से "
+            f"{row['rahu_kaal_end']} तक।"
         ),
         "key_facts": [{
             "claim": research_fact,
@@ -165,7 +183,8 @@ def build_panchang_content(
     festivals_path=ROOT / "data" / "festival_dates_2026.json",
 ):
     row = _read_panchang(panchang_path, target_date)
-    date_text = dt.date.fromisoformat(target_date).strftime("%d-%m-%Y")
+    date_text = _hindi_date(target_date)
+    location_hi = _hindi_location(row["source_location"])
     observances = json.loads(Path(festivals_path).read_text(encoding="utf-8")).get(
         "entries", [],
     )
@@ -181,11 +200,11 @@ def build_panchang_content(
         "अपने शहर के विश्वसनीय पंचांग और पारिवारिक परंपरा से पुष्टि करें।"
     )
     hook = (
-        f"आज {date_text} का पंचांग {row['source_location']} के लिए प्रस्तुत है। "
+        f"आज {date_text} का पंचांग {location_hi} के लिए प्रस्तुत है। "
         f"स्रोत में तिथि {row['tithi']}, {row['paksha']} पक्ष, नक्षत्र "
         f"{row['nakshatra']} और चंद्र राशि {row['moon_rashi']} दी गई है। "
         f"सूर्योदय {row['sunrise']} बजे तथा राहु काल {row['rahu_kaal_start']} "
-        f"से {row['rahu_kaal_end']} तक है। {vrat_text} ये समय और observance "
+        f"से {row['rahu_kaal_end']} तक है। {vrat_text} ये समय और व्रत-पालन "
         "स्थान तथा परंपरा के अनुसार बदल सकते हैं।"
     )
     scenes = [
@@ -236,7 +255,7 @@ def build_panchang_content(
         {
             "title": "सूर्योदय",
             "narration": (
-                f"आज {row['source_location']} के लिए दिया गया सूर्योदय "
+                f"आज {location_hi} के लिए दिया गया सूर्योदय "
                 f"{row['sunrise']} बजे है। सूर्योदय का समय अक्षांश, देशांतर, ऊँचाई "
                 "और तारीख के अनुसार बदलता है; इसलिए एक शहर का समय पूरे भारत पर लागू "
                 "नहीं होता। बहुत-से पंचांग-आधारित व्रत-नियमों में सूर्योदय के समय की "
@@ -280,7 +299,7 @@ def build_panchang_content(
         {
             "title": "स्रोत और स्थान",
             "narration": (
-                f"यह जानकारी {row['source_location']} के लिए दिए गए पंचांग स्रोत "
+                f"यह जानकारी {location_hi} के लिए दिए गए पंचांग स्रोत "
                 "से ली गई है। किसी दूसरे शहर में सूर्योदय, राहु काल या तिथि-सीमा "
                 "अलग दिख सकती है। तारीखों की जाँच में स्रोत का पूरा नाम, शहर, समय "
                 "क्षेत्र और अद्यतन वर्ष देखना उपयोगी है। यदि दो स्रोतों में अंतर "
@@ -298,7 +317,7 @@ def build_panchang_content(
                 "बताती है, पक्ष चंद्र मास के बढ़ने या घटने वाले हिस्से को, नक्षत्र "
                 "चंद्रमा की स्थिति को, और सूर्योदय तथा राहु काल दिन के समय-संदर्भ "
                 "को। किसी त्योहार की तारीख तय करने में केवल एक अंग पर्याप्त नहीं "
-                "होता; स्थान, परंपरा और उस observance का विशेष नियम भी देखा जाता है। "
+                "होता; स्थान, परंपरा और उस व्रत की विशेष विधि भी देखी जाती है। "
                 "इसलिए छोटे कैलेंडर कार्ड को पूरी पूजा-विधि न मानें। समय संवेदनशील "
                 "निर्णय से पहले भरोसेमंद स्थानीय पंचांग या परंपरा के जानकार से पुष्टि "
                 "करना बेहतर है।"
@@ -311,7 +330,7 @@ def build_panchang_content(
             "narration": (
                 f"आज के सार में फिर याद रखें: तिथि {row['tithi']} ({row['paksha']} "
                 f"पक्ष), नक्षत्र {row['nakshatra']}, चंद्र राशि {row['moon_rashi']}, "
-                f"{row['source_location']} का सूर्योदय {row['sunrise']} बजे, और "
+                f"{location_hi} का सूर्योदय {row['sunrise']} बजे, और "
                 f"राहु काल {row['rahu_kaal_start']} से {row['rahu_kaal_end']} तक "
                 "दिया गया है। " + vrat_text + " इन विवरणों को अपने शहर और "
                 "परंपरा के अनुसार जाँचें। पंचांग को सांस्कृतिक समय-सूचक की तरह "
@@ -355,21 +374,22 @@ def build_panchang_content(
         })
 
     source = {
-        "title": f"Owner-supplied panchang for {target_date}",
+        "title": f"{date_text} के पंचांग का स्रोत",
         "url": row["source_url"],
         "kind": "owner_supplied_panchang",
     }
     research = {
-        "headline": f"{date_text} का आज का पंचांग",
+        "headline": (
+            f"आज का पंचांग: तिथि, नक्षत्र, राहु काल"
+            f"{' और राशिफल' if include_rashifal else ''} | {date_text}"
+        ),
         "thumbnail_text": "आज का पंचांग",
         "hook": hook,
         "research_summary": (
-            f"तिथि: {row['tithi']} ({row['paksha']} पक्ष); नक्षत्र: {row['nakshatra']}; "
-            f"चंद्र राशि: {row['moon_rashi']}; स्थान: {row['source_location']}; "
-            f"राहु काल: {row['rahu_kaal_start']}–{row['rahu_kaal_end']}; "
-            f"सूर्योदय: {row['sunrise']}; सत्यापित व्रत: "
-            f"{', '.join(verified_observances) if verified_observances else 'कोई दर्ज नहीं'}। "
-            f"स्रोत: {row['source_url']}"
+            f"स्थान: {location_hi}। तिथि {row['tithi']} ({row['paksha']} पक्ष), "
+            f"नक्षत्र {row['nakshatra']} और चंद्र राशि {row['moon_rashi']}। "
+            f"सूर्योदय {row['sunrise']} बजे। राहु काल {row['rahu_kaal_start']} से "
+            f"{row['rahu_kaal_end']} तक। {vrat_text}"
         ),
         "key_facts": [{
             "claim": research_fact,

@@ -20,6 +20,16 @@ on:
         type: string
         required: false
         default: ""
+      duplicate:
+        description: Create an additional upload for an already-scheduled Panchang slot
+        type: boolean
+        required: false
+        default: false
+      title_suffix:
+        description: Hindi text to distinguish an intentional duplicate upload
+        type: string
+        required: false
+        default: ""
   # Re-enable this schedule only after owner confirmation and credential setup.
   # schedule:
   #   - cron: "0 12 * * *"
@@ -48,6 +58,8 @@ jobs:
           REQUESTED_DATE: ${{ github.event.inputs.date || '' }}
           RETRY_FAILED: ${{ inputs.retry_failed }}
           PUBLISH_TIME_OVERRIDE: ${{ inputs.publish_time || '' }}
+          DUPLICATE: ${{ inputs.duplicate }}
+          TITLE_SUFFIX_OVERRIDE: ${{ inputs.title_suffix || '' }}
         run: |
           if [ -n "$REQUESTED_DATE" ]; then
             batch_date="$REQUESTED_DATE"
@@ -64,6 +76,13 @@ jobs:
           fi
           if [ -n "$PUBLISH_TIME_OVERRIDE" ]; then
             retry_args+=(--publish-time "$PUBLISH_TIME_OVERRIDE")
+          fi
+          if [ "$DUPLICATE" = "true" ]; then
+            if [ -z "$TITLE_SUFFIX_OVERRIDE" ]; then
+              echo "Duplicate mode requires a distinct Hindi title_suffix."
+              exit 1
+            fi
+            retry_args+=(--duplicate)
           fi
           matrix="$(python calendar/plan_batch.py --date "$batch_date" "${retry_args[@]}")"
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
@@ -89,6 +108,7 @@ jobs:
       SLOT: ${{ matrix.video.slot }}
       UPLOAD_ALLOWED: ${{ matrix.video.upload_allowed }}
       EXTRA_ARGS: "[]"
+      TITLE_SUFFIX: ${{ inputs.title_suffix || '' }}
       FACEBOOK_UPLOAD: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN != '' && (secrets.FACEBOOK_PAGE_ID || vars.FACEBOOK_PAGE_ID) != '' && matrix.video.facebook_upload_allowed }}
       OUTPUT_DIR: output/${{ matrix.video.date }}_slot_${{ matrix.video.slot }}
       RESULTS_DIR: output/run_results
@@ -162,7 +182,7 @@ jobs:
 
   update-calendar:
     needs: [plan, render]
-    if: always() && needs.plan.result == 'success'
+    if: always() && needs.plan.result == 'success' && inputs.duplicate != true
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4

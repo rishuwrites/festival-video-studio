@@ -68,7 +68,7 @@ class RashifalRulesTests(unittest.TestCase):
         self.assertIn("द्वादशी", research["hook"])
         self.assertIn("रोहिणी", research["hook"])
         self.assertIn("मेष", research["hook"])
-        self.assertIn("Varanasi", research["hook"])
+        self.assertIn("वाराणसी", research["hook"])
         self.assertEqual(len(research["scenes"]), 12)
         self.assertGreaterEqual(content["word_count"], 800)
         self.assertEqual(content["sources"][0]["url"], "https://example.org/panchang")
@@ -101,6 +101,42 @@ class RashifalRulesTests(unittest.TestCase):
         self.assertEqual(len(panchang_with_rashifal["research"]["scenes"]), 10)
         festival_main._validate_prepared_bundle(panchang)
         festival_main._validate_prepared_bundle(panchang_with_rashifal)
+
+    def test_panchang_title_and_description_use_clear_hindi_and_a_readable_date(self):
+        content = rashifal.build_panchang_content(
+            "2026-11-21",
+            include_rashifal=True,
+        )
+        research = content["research"]
+        title_suffix = "चित्रों सहित संस्करण"
+        title = festival_main._video_title(
+            "आज का पंचांग",
+            "2026-11-21",
+            research["headline"],
+            max_length=100,
+            unique_suffix=title_suffix,
+        )
+        description = festival_main._make_description(
+            "आज का पंचांग",
+            "2026-11-21",
+            "India",
+            research,
+            content["sources"],
+            disclaimer=rashifal.DISCLAIMER,
+            title_max_length=100,
+            title_suffix=title_suffix,
+        )
+
+        self.assertIn("आज का पंचांग", title)
+        self.assertIn("21 नवंबर 2026", title)
+        self.assertIn(title_suffix, title)
+        self.assertLessEqual(len(title), 100)
+        self.assertIn("आज का पंचांग", description)
+        self.assertIn("लखनऊ, उत्तर प्रदेश", description)
+        self.assertIn("21 नवंबर 2026", description)
+        self.assertIn("https://www.drikpanchang.com/", description)
+        self.assertNotIn("2026-11-21", description)
+        self.assertNotIn("observance", description.casefold())
 
 
 class RashiEncyclopediaTests(unittest.TestCase):

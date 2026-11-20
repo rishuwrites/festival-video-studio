@@ -121,7 +121,10 @@ class RunOneFallbackTests(unittest.TestCase):
             files["thumbnail"].write_bytes(b"jpg")
             files["metadata"].write_text(json.dumps({
                 "title": "तैयार पाठ",
+                "description": "आज का स्पष्ट हिंदी पंचांग।",
                 "youtube_video_id": "video-123",
+                "scene_art_count": 72,
+                "scene_art_interval_seconds": 5,
             }), encoding="utf-8")
             env = self._environment(output_dir, results_dir)
             env["PREPARED_CONTENT_DIR"] = str(prepared_root)
@@ -134,7 +137,27 @@ class RunOneFallbackTests(unittest.TestCase):
                 result = run_one.run_one(env)
 
         self.assertEqual(result["youtube_status"], "scheduled")
+        self.assertEqual(result["video_title"], "तैयार पाठ")
+        self.assertEqual(result["video_description"], "आज का स्पष्ट हिंदी पंचांग।")
+        self.assertEqual(result["scene_art_interval_seconds"], 5)
         self.assertIsNone(generate.call_args.kwargs["prepared_bundle"])
+
+    def test_panchang_uses_the_requested_hindi_duplicate_title_suffix(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            env = self._environment(root / "output", root / "results")
+            env["CONTENT_TYPE"] = "daily_panchang_rashifal"
+            env["TITLE_SUFFIX"] = "चित्रों सहित संस्करण"
+            with mock.patch.object(
+                run_one, "_prepared_content", return_value=None,
+            ), mock.patch.object(
+                run_one.festival_main, "generate_video",
+                side_effect=RuntimeError("test upload failure"),
+            ) as generate, mock.patch.object(run_one.time, "sleep"):
+                run_one.run_one(env)
+
+        self.assertEqual(generate.call_args.kwargs["title_suffix"], "चित्रों सहित संस्करण")
+        self.assertEqual(generate.call_args.kwargs["title_max_length"], 100)
 
     def test_planned_day_attempts_only_the_panchang_video(self):
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -160,7 +160,7 @@ def _safe_slug(text):
 
 def _make_description(topic, date, scope, research, sources, disclaimer="",
                       title_max_length=100, title_suffix="", festival_tradition=""):
-    date_line = f"तिथि/वर्ष: {date}\n" if date else ""
+    date_line = f"दिनांक: {_thumbnail_date_label(date)}" if date else ""
     chapters = [
         str(scene.get("title", "")).strip()
         for scene in research.get("scenes", [])
@@ -194,22 +194,34 @@ def _make_description(topic, date, scope, research, sources, disclaimer="",
         topic, date, research["headline"], max_length=title_max_length,
         unique_suffix=title_suffix,
     )
-    description_parts = [
-        title,
-        research["research_summary"].strip(),
-        f"इस हिंदी वीडियो में {topic} की तिथि, महत्व, प्रमुख परंपराओं और अलग-अलग क्षेत्रों में प्रचलित रीति-रिवाजों की स्रोत-आधारित जानकारी दी गई है।",
-        "इस वीडियो में: " + " • ".join(chapters[:12]) if chapters else "",
-        f"विषय: {topic}",
-        date_line.rstrip(),
-        f"परंपरा: {festival_tradition}" if festival_tradition.strip() else "",
-        disclaimer,
-        f"क्षेत्र: {scope}",
-        "पंचांग की तिथियां और मुहूर्त स्थान तथा परंपरा के अनुसार बदल सकते हैं। अपने शहर के विश्वसनीय पंचांग से पुष्टि करें।",
-        "वीडियो उपयोगी लगे तो इसे साझा करें और ऐसे ही स्रोत-आधारित हिंदी सांस्कृतिक वीडियो के लिए चैनल को सब्सक्राइब करें।",
-        f"मुख्य खोजशब्द: {', '.join(keywords[:12])}",
-        f"स्रोत और आगे पढ़ें:\n{source_lines}" if source_lines else "",
-        " ".join(f"#{tag}" for tag in hashtags),
-    ]
+    if "आज का पंचांग" in research.get("keywords", []):
+        description_parts = [
+            title,
+            research["research_summary"].strip(),
+            "इस वीडियो में: " + " • ".join(chapters[:12]) if chapters else "",
+            date_line,
+            disclaimer,
+            "पंचांग का समय स्थान और परंपरा के अनुसार बदल सकता है। अपने शहर के विश्वसनीय पंचांग से पुष्टि करें।",
+            f"स्रोत:\n{source_lines}" if source_lines else "",
+            " ".join(f"#{tag}" for tag in hashtags),
+        ]
+    else:
+        description_parts = [
+            title,
+            research["research_summary"].strip(),
+            f"इस हिंदी वीडियो में {topic} की तिथि, महत्व, प्रमुख परंपराओं और अलग-अलग क्षेत्रों में प्रचलित रीति-रिवाजों की स्रोत-आधारित जानकारी दी गई है।",
+            "इस वीडियो में: " + " • ".join(chapters[:12]) if chapters else "",
+            f"विषय: {topic}",
+            date_line,
+            f"परंपरा: {festival_tradition}" if festival_tradition.strip() else "",
+            disclaimer,
+            f"क्षेत्र: {scope}",
+            "पंचांग की तिथियां और मुहूर्त स्थान तथा परंपरा के अनुसार बदल सकते हैं। अपने शहर के विश्वसनीय पंचांग से पुष्टि करें।",
+            "वीडियो उपयोगी लगे तो इसे साझा करें और ऐसे ही स्रोत-आधारित हिंदी सांस्कृतिक वीडियो के लिए चैनल को सब्सक्राइब करें।",
+            f"मुख्य खोजशब्द: {', '.join(keywords[:12])}",
+            f"स्रोत और आगे पढ़ें:\n{source_lines}" if source_lines else "",
+            " ".join(f"#{tag}" for tag in hashtags),
+        ]
     return "\n\n".join(part for part in description_parts if part)[:5000]
 
 
@@ -220,11 +232,16 @@ def _video_title(topic, date, headline, max_length=100, unique_suffix=""):
     if max_length < 30 or max_length > 100:
         raise ValueError("Video title limit must be between 30 and 100 characters")
     if unique_suffix or max_length < 100:
-        suffix_parts = [value for value in (topic, year, unique_suffix)
-                        if value and value.casefold() not in title.casefold()]
+        suffix_parts = [
+            value for value in (
+                year if year and year not in title else "",
+                unique_suffix or (topic if topic.casefold() not in title.casefold() else ""),
+            )
+            if value
+        ]
         suffix = " | " + " ".join(suffix_parts) if suffix_parts else ""
         if len(suffix) >= max_length:
-            suffix = " | " + suffix[-(max_length - 3):]
+            raise ValueError("Title suffix leaves no room for a readable title")
         return title[:max_length - len(suffix)].rstrip() + suffix
     suffix_parts = [value for value in (topic, year) if value and value.casefold() not in title.casefold()]
     suffix = " | " + " ".join(suffix_parts) if suffix_parts else ""
@@ -391,7 +408,7 @@ def _build_scene_compositions(scenes, scene_durations, seed, tmp, fixed_template
     for index, scene in enumerate(scenes):
         shot_count = _scene_image_count(
             scene_durations[index],
-            interval_seconds=60 if fixed_template else render.S.CUT_SECONDS,
+            interval_seconds=render.S.CUT_SECONDS,
         )
         shot_counts[index] = shot_count
         for shot_index in range(shot_count):
@@ -405,7 +422,21 @@ def _build_scene_compositions(scenes, scene_durations, seed, tmp, fixed_template
         if compositions[index]:
             generated.add(index)
 
-    if generated:
+    if fixed_template:
+        missing = sum(
+            shot_counts[index] - len(compositions[index])
+            for index in compositions
+        )
+        if missing:
+            raise RuntimeError(
+                f"Could not generate {missing} unique Panchang images at "
+                f"{render.S.CUT_SECONDS:g}-second intervals"
+            )
+        print(
+            f"  generated {sum(shot_counts.values())} unique Panchang illustrations "
+            f"at {render.S.CUT_SECONDS:g}-second intervals"
+        )
+    elif generated:
         for missing, source in images.reuse_nearest_generated_images(compositions, generated):
             print(f"  scene {missing + 1}: reusing original artwork from scene {source + 1}")
     elif fixed_template:
@@ -597,6 +628,8 @@ def generate_video(
         "title": video_title,
         "description": description,
         "tags": keywords[:20],
+        "scene_art_count": sum(len(artwork) for artwork in compositions.values()),
+        "scene_art_interval_seconds": render.S.CUT_SECONDS,
         "topic": topic,
         "date": date,
         "coverage_scope": scope,

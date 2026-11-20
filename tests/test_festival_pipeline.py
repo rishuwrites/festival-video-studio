@@ -738,7 +738,7 @@ class FestivalValidationTests(unittest.TestCase):
 
 
 class SceneArtworkTests(unittest.TestCase):
-    def test_fixed_template_generates_scene_illustrations_instead_of_title_cards(self):
+    def test_fixed_template_generates_a_new_illustration_for_each_five_second_cut(self):
         scenes = [
             {"title": "तिथि", "emotion": "happy", "visual_prompt": "A moonlit almanac"},
             {"title": "नक्षत्र", "emotion": "happy", "visual_prompt": "Stars over India"},
@@ -746,27 +746,36 @@ class SceneArtworkTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir, \
                 mock.patch.object(festival_main.images, "generate", return_value=True) as generate, \
                 mock.patch.object(festival_main.render, "cover") as cover, \
-                mock.patch.object(festival_main.render, "card") as card:
+                mock.patch.object(festival_main.render, "card") as card, \
+                mock.patch.object(festival_main.render, "reframe") as reframe:
             compositions = festival_main._build_scene_compositions(
-                scenes, [60, 60], 123, temp_dir, fixed_template=True,
+                scenes, [12, 7], 123, temp_dir, fixed_template=True,
             )
 
-        self.assertEqual(generate.call_count, 2)
-        self.assertEqual(cover.call_count, 2)
+        self.assertEqual(festival_main.render.S.CUT_SECONDS, 5)
+        self.assertEqual(generate.call_count, 5)
+        self.assertEqual(cover.call_count, 5)
         card.assert_not_called()
-        self.assertTrue(all(compositions[index] for index in range(2)))
+        reframe.assert_not_called()
+        self.assertEqual([len(compositions[index]) for index in range(2)], [3, 2])
 
-    def test_fixed_template_fails_if_no_scene_illustration_can_be_generated(self):
+    def test_fixed_template_fails_if_any_five_second_image_is_missing(self):
         scenes = [{"title": "तिथि", "emotion": "happy", "visual_prompt": "A moonlit almanac"}]
         with tempfile.TemporaryDirectory() as temp_dir, \
-                mock.patch.object(festival_main.images, "generate", return_value=False), \
-                mock.patch.object(festival_main.render, "card") as card:
-            with self.assertRaisesRegex(RuntimeError, "No generated illustrations"):
+                mock.patch.object(
+                    festival_main.images, "generate", side_effect=[True, False, True],
+                ) as generate, \
+                mock.patch.object(festival_main.render, "cover"), \
+                mock.patch.object(festival_main.render, "card") as card, \
+                mock.patch.object(festival_main.render, "reframe") as reframe:
+            with self.assertRaisesRegex(RuntimeError, "unique Panchang images"):
                 festival_main._build_scene_compositions(
-                    scenes, [60], 123, temp_dir, fixed_template=True,
+                    scenes, [12], 123, temp_dir, fixed_template=True,
                 )
 
+        self.assertEqual(generate.call_count, 3)
         card.assert_not_called()
+        reframe.assert_not_called()
 
 
 if __name__ == "__main__":

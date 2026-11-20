@@ -29,7 +29,10 @@ def _active_batch_slots():
     return active
 
 
-def plan_for_date(calendar_path, batch_date, retry_failed=False, now=None, publish_time=None):
+def plan_for_date(
+    calendar_path, batch_date, retry_failed=False, now=None, publish_time=None,
+    duplicate=False,
+):
     payload = json.loads(Path(calendar_path).read_text(encoding="utf-8"))
     rows = payload if isinstance(payload, list) else payload.get("videos")
     if not isinstance(rows, list):
@@ -66,7 +69,18 @@ def plan_for_date(calendar_path, batch_date, retry_failed=False, now=None, publi
         int(row.get("slot", 0)) for row in batch_rows
     } != active_slots:
         raise ValueError(f"Calendar date {batch_date} must include the active Panchang slot 1")
-    if retry_failed:
+    if duplicate and retry_failed:
+        raise ValueError("Duplicate mode cannot be combined with retry_failed")
+    if duplicate:
+        invalid_rows = [
+            row for row in batch_rows
+            if row.get("status") not in {"scheduled", "uploaded"}
+            or not row.get("youtube_video_id")
+        ]
+        if invalid_rows:
+            raise ValueError("Duplicate mode requires an already-scheduled Panchang video")
+        selected = batch_rows
+    elif retry_failed:
         retryable_statuses = {
             "planned", "generated", "scheduled", "failed_saved_to_drive", "skipped",
         }
@@ -104,7 +118,7 @@ def plan_for_date(calendar_path, batch_date, retry_failed=False, now=None, publi
         raise ValueError(f"No dispatchable {label} for {batch_date}")
     planned = allocate_uploads(selected)
     for row in planned:
-        row["facebook_upload_allowed"] = not bool(row.get("facebook_video_id"))
+        row["facebook_upload_allowed"] = duplicate or not bool(row.get("facebook_video_id"))
     return planned
 
 
@@ -118,6 +132,7 @@ def main():
         default=os.environ.get("RETRY_FAILED", "").strip().casefold() in {"1", "true", "yes"},
     )
     parser.add_argument("--publish-time")
+    parser.add_argument("--duplicate", action="store_true")
     args = parser.parse_args()
     if not args.date:
         parser.error("--date or BATCH_DATE is required")
@@ -127,6 +142,7 @@ def main():
             args.date,
             retry_failed=args.retry_failed,
             publish_time=args.publish_time,
+            duplicate=args.duplicate,
         ),
         ensure_ascii=False,
     ))

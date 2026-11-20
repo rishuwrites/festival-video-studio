@@ -115,6 +115,11 @@ def run_one(env=None):
         env.get("EXTRA_ARGS", "[]"), env.get("FESTIVAL_SCOPE", "").strip(),
     )
     facebook_upload = facebook_option or _enabled(env.get("FACEBOOK_UPLOAD"))
+    title_suffix = env.get("TITLE_SUFFIX", "").strip() or (
+        f"भाग {slot}"
+        if content_type in {"daily_panchang_rashifal", "tithi_and_dates"}
+        else f"{festival_main._thumbnail_date_label(publish_date)} | भाग {slot}"
+    )
     output_dir = Path(env.get("OUTPUT_DIR", OUTPUT_ROOT / f"{calendar_date}_slot_{slot}"))
     result_dir = Path(env.get("RESULTS_DIR", RESULTS_ROOT))
     allowed = env.get("UPLOAD_ALLOWED", "false").strip().casefold() in {"1", "true", "yes"}
@@ -142,8 +147,10 @@ def run_one(env=None):
                 upload=allowed,
                 facebook_upload_enabled=facebook_upload,
                 prepared_bundle=prepared,
-                title_max_length=69,
-                title_suffix=f"{publish_date} Slot {slot}",
+                title_max_length=100 if content_type in {
+                    "daily_panchang_rashifal", "tithi_and_dates",
+                } else 69,
+                title_suffix=title_suffix,
                 festival_tradition=festival_tradition,
                 continue_on_upload_errors=facebook_upload,
                 allow_existing_upload=True,
@@ -182,6 +189,10 @@ def run_one(env=None):
                 "date": calendar_date,
                 "slot": slot,
                 "status": "scheduled",
+                "video_title": metadata.get("title", ""),
+                "video_description": metadata.get("description", ""),
+                "scene_art_count": metadata.get("scene_art_count"),
+                "scene_art_interval_seconds": metadata.get("scene_art_interval_seconds"),
                 "youtube_status": (
                     "scheduled" if metadata.get("youtube_video_id") else "failed"
                 ),
@@ -228,6 +239,12 @@ def run_one(env=None):
                         metadata.get("youtube_video_id") or metadata.get("facebook_video_id")
                     )
                     else "failed_saved_to_drive"
+                ),
+                "video_title": metadata.get("title", "") if generated else "",
+                "video_description": metadata.get("description", "") if generated else "",
+                "scene_art_count": metadata.get("scene_art_count") if generated else None,
+                "scene_art_interval_seconds": (
+                    metadata.get("scene_art_interval_seconds") if generated else None
                 ),
                 "youtube_status": (
                     "scheduled"

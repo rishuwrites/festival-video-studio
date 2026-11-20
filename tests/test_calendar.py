@@ -472,6 +472,49 @@ class DailyUploadBudgetTests(unittest.TestCase):
             self.assertEqual([row["slot"] for row in planned], [1])
             self.assertEqual(sum(row["upload_allowed"] for row in planned), 1)
 
+    def test_duplicate_planner_allows_both_platforms_for_an_existing_panchang(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "content_calendar.json"
+            rows = [
+                {
+                    "date": "2026-11-21",
+                    "slot": slot,
+                    "status": "scheduled" if slot == 1 else "planned",
+                    "youtube_video_id": "existing-video" if slot == 1 else "",
+                    "facebook_video_id": "existing-facebook" if slot == 1 else "",
+                    "publish_time_ist": "06:00",
+                }
+                for slot in range(1, 11)
+            ]
+            path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
+
+            planned = plan_batch.plan_for_date(
+                path, "2026-11-21", duplicate=True,
+            )
+
+        self.assertEqual([row["slot"] for row in planned], [1])
+        self.assertTrue(planned[0]["upload_allowed"])
+        self.assertTrue(planned[0]["facebook_upload_allowed"])
+
+    def test_duplicate_planner_requires_a_successfully_scheduled_original(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "content_calendar.json"
+            rows = [
+                {
+                    "date": "2026-11-21",
+                    "slot": slot,
+                    "status": "planned",
+                    "youtube_video_id": "",
+                }
+                for slot in range(1, 11)
+            ]
+            path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "already-scheduled Panchang"):
+                plan_batch.plan_for_date(
+                    path, "2026-11-21", duplicate=True,
+                )
+
     def test_batch_planner_excludes_blocked_unverified_slots(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / "content_calendar.json"
