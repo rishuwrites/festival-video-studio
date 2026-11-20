@@ -508,6 +508,40 @@ class DailyUploadBudgetTests(unittest.TestCase):
             self.assertEqual([row["slot"] for row in planned], [1])
             self.assertTrue(all(row["upload_allowed"] for row in planned))
 
+    def test_batch_planner_applies_an_explicit_publish_time_override(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "content_calendar.json"
+            rows = [
+                {
+                    "date": "2026-11-20",
+                    "slot": slot,
+                    "status": "planned",
+                    "publish_time_ist": "06:00",
+                }
+                for slot in range(1, 11)
+            ]
+            path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
+
+            planned = plan_batch.plan_for_date(
+                path, "2026-11-20", publish_time="12:00",
+            )
+
+        self.assertEqual([row["publish_time_ist"] for row in planned], ["12:00"])
+
+    def test_batch_planner_rejects_malformed_publish_time_overrides(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "content_calendar.json"
+            rows = [
+                {"date": "2026-11-20", "slot": slot, "status": "planned"}
+                for slot in range(1, 11)
+            ]
+            path.write_text(json.dumps({"videos": rows}), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "HH:MM"):
+                plan_batch.plan_for_date(
+                    path, "2026-11-20", publish_time="9:00",
+                )
+
     def test_batch_planner_ignores_every_slot_outside_the_panchang_plan(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / "content_calendar.json"

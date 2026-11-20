@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -734,6 +735,38 @@ class FestivalValidationTests(unittest.TestCase):
 
         self.assertNotEqual(first, second)
         self.assertTrue(first.startswith("festival-"))
+
+
+class SceneArtworkTests(unittest.TestCase):
+    def test_fixed_template_generates_scene_illustrations_instead_of_title_cards(self):
+        scenes = [
+            {"title": "तिथि", "emotion": "happy", "visual_prompt": "A moonlit almanac"},
+            {"title": "नक्षत्र", "emotion": "happy", "visual_prompt": "Stars over India"},
+        ]
+        with tempfile.TemporaryDirectory() as temp_dir, \
+                mock.patch.object(festival_main.images, "generate", return_value=True) as generate, \
+                mock.patch.object(festival_main.render, "cover") as cover, \
+                mock.patch.object(festival_main.render, "card") as card:
+            compositions = festival_main._build_scene_compositions(
+                scenes, [60, 60], 123, temp_dir, fixed_template=True,
+            )
+
+        self.assertEqual(generate.call_count, 2)
+        self.assertEqual(cover.call_count, 2)
+        card.assert_not_called()
+        self.assertTrue(all(compositions[index] for index in range(2)))
+
+    def test_fixed_template_fails_if_no_scene_illustration_can_be_generated(self):
+        scenes = [{"title": "तिथि", "emotion": "happy", "visual_prompt": "A moonlit almanac"}]
+        with tempfile.TemporaryDirectory() as temp_dir, \
+                mock.patch.object(festival_main.images, "generate", return_value=False), \
+                mock.patch.object(festival_main.render, "card") as card:
+            with self.assertRaisesRegex(RuntimeError, "No generated illustrations"):
+                festival_main._build_scene_compositions(
+                    scenes, [60], 123, temp_dir, fixed_template=True,
+                )
+
+        card.assert_not_called()
 
 
 if __name__ == "__main__":

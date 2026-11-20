@@ -384,6 +384,48 @@ def _shot_prompt(scene, shot_index, shot_count):
     )
 
 
+def _build_scene_compositions(scenes, scene_durations, seed, tmp, fixed_template, thumbnail_color=None):
+    compositions = {index: [] for index in range(len(scenes))}
+    generated = set()
+    shot_counts = {}
+    for index, scene in enumerate(scenes):
+        shot_count = _scene_image_count(
+            scene_durations[index],
+            interval_seconds=60 if fixed_template else render.S.CUT_SECONDS,
+        )
+        shot_counts[index] = shot_count
+        for shot_index in range(shot_count):
+            raw_path = os.path.join(tmp, f"scene_{index}_shot_{shot_index}.jpg")
+            comp_path = os.path.join(tmp, f"comp_{index}_shot_{shot_index}.jpg")
+            prompt = _shot_prompt(scene, shot_index, shot_count)
+            shot_seed = seed + index * 100 + shot_index
+            if images.generate(prompt, shot_seed, raw_path, style=FESTIVAL_STYLE):
+                render.cover(raw_path, comp_path)
+                compositions[index].append(comp_path)
+        if compositions[index]:
+            generated.add(index)
+
+    if generated:
+        for missing, source in images.reuse_nearest_generated_images(compositions, generated):
+            print(f"  scene {missing + 1}: reusing original artwork from scene {source + 1}")
+    elif fixed_template:
+        raise RuntimeError("No generated illustrations are available for the daily Panchang video")
+    else:
+        print("  no generated illustrations available; using designed Hindi title cards")
+        for index, scene in enumerate(scenes):
+            card_path = os.path.join(tmp, f"card_{index}.jpg")
+            render.card(scene["title"], scene["emotion"], card_path, color=thumbnail_color)
+            compositions[index].append(card_path)
+
+    for index, composition in compositions.items():
+        while len(composition) < shot_counts[index]:
+            shot_index = len(composition)
+            comp_path = os.path.join(tmp, f"comp_{index}_fallback_{shot_index}.jpg")
+            render.reframe(composition[shot_index % len(composition)], comp_path, shot_index)
+            composition.append(comp_path)
+    return compositions
+
+
 def generate_video(
     topic, date="", scope=S.DEFAULT_SCOPE, output_dir=None,
     publish_date="", publish_time="", upload=False, facebook_upload_enabled=False,
@@ -471,50 +513,14 @@ def generate_video(
         validate_narration_duration(total)
 
         seed = int(hashlib.sha256(f"{topic}|{date}|{scope}".encode("utf-8")).hexdigest()[:8], 16) % 2_000_000_000
-        compositions = {index: [] for index in range(len(scenes))}
-        generated = set()
-        for index, scene in enumerate(scenes):
-            shot_count = _scene_image_count(
-                segments[index + 1]["times"][-1][1],
-                interval_seconds=60 if fixed_template else render.S.CUT_SECONDS,
-            )
-            if fixed_template:
-                card_path = os.path.join(tmp, f"card_{index}.jpg")
-                render.card(
-                    scene["title"], scene["emotion"], card_path,
-                    color=grounded.get("thumbnail_color"),
-                )
-                compositions[index].append(card_path)
-                generated.add(index)
-                continue
-            for shot_index in range(shot_count):
-                raw_path = os.path.join(tmp, f"scene_{index}_shot_{shot_index}.jpg")
-                comp_path = os.path.join(tmp, f"comp_{index}_shot_{shot_index}.jpg")
-                prompt = _shot_prompt(scene, shot_index, shot_count)
-                shot_seed = seed + index * 100 + shot_index
-                if images.generate(prompt, shot_seed, raw_path, style=FESTIVAL_STYLE):
-                    render.cover(raw_path, comp_path)
-                    compositions[index].append(comp_path)
-            if compositions[index]:
-                generated.add(index)
-        for missing, source in images.reuse_nearest_generated_images(compositions, generated):
-            print(f"  scene {missing + 1}: reusing original artwork from scene {source + 1}")
-        if not generated:
-            print("  no generated illustrations available; using designed Hindi title cards")
-            for index, scene in enumerate(scenes):
-                card_path = os.path.join(tmp, f"card_{index}.jpg")
-                render.card(scene["title"], scene["emotion"], card_path)
-                compositions[index].append(card_path)
-        for index, scene in enumerate(scenes):
-            shot_count = _scene_image_count(
-                segments[index + 1]["times"][-1][1],
-                interval_seconds=60 if fixed_template else render.S.CUT_SECONDS,
-            )
-            while len(compositions[index]) < shot_count:
-                shot_index = len(compositions[index])
-                comp_path = os.path.join(tmp, f"comp_{index}_fallback_{shot_index}.jpg")
-                render.reframe(compositions[index][shot_index % len(compositions[index])], comp_path, shot_index)
-                compositions[index].append(comp_path)
+        compositions = _build_scene_compositions(
+            scenes,
+            [segments[index + 1]["times"][-1][1] for index in range(len(scenes))],
+            seed,
+            tmp,
+            fixed_template,
+            thumbnail_color=grounded.get("thumbnail_color"),
+        )
 
         files = []
         starts = []

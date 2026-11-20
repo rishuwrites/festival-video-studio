@@ -15,6 +15,11 @@ on:
         type: boolean
         required: false
         default: false
+      publish_time:
+        description: Optional IST publish-time override (HH:MM); blank uses the calendar
+        type: string
+        required: false
+        default: ""
   # Re-enable this schedule only after owner confirmation and credential setup.
   # schedule:
   #   - cron: "0 12 * * *"
@@ -42,6 +47,7 @@ jobs:
         env:
           REQUESTED_DATE: ${{ github.event.inputs.date || '' }}
           RETRY_FAILED: ${{ inputs.retry_failed }}
+          PUBLISH_TIME_OVERRIDE: ${{ inputs.publish_time || '' }}
         run: |
           if [ -n "$REQUESTED_DATE" ]; then
             batch_date="$REQUESTED_DATE"
@@ -55,6 +61,9 @@ jobs:
           retry_args=()
           if [ "$RETRY_FAILED" = "true" ]; then
             retry_args+=(--retry-failed)
+          fi
+          if [ -n "$PUBLISH_TIME_OVERRIDE" ]; then
+            retry_args+=(--publish-time "$PUBLISH_TIME_OVERRIDE")
           fi
           matrix="$(python calendar/plan_batch.py --date "$batch_date" "${retry_args[@]}")"
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"

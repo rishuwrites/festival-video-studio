@@ -29,7 +29,7 @@ def _active_batch_slots():
     return active
 
 
-def plan_for_date(calendar_path, batch_date, retry_failed=False, now=None):
+def plan_for_date(calendar_path, batch_date, retry_failed=False, now=None, publish_time=None):
     payload = json.loads(Path(calendar_path).read_text(encoding="utf-8"))
     rows = payload if isinstance(payload, list) else payload.get("videos")
     if not isinstance(rows, list):
@@ -53,6 +53,15 @@ def plan_for_date(calendar_path, batch_date, retry_failed=False, now=None):
         row for row in day_rows
         if row not in legacy_rows and int(row.get("slot", 0)) in active_slots
     ]
+    if publish_time is not None:
+        try:
+            parsed_time = dt.datetime.strptime(publish_time, "%H:%M")
+        except ValueError as exc:
+            raise ValueError("publish_time must use 24-hour HH:MM format") from exc
+        if parsed_time.strftime("%H:%M") != publish_time:
+            raise ValueError("publish_time must use 24-hour HH:MM format")
+        for row in batch_rows:
+            row["publish_time_ist"] = publish_time
     if len(batch_rows) != len(active_slots) or {
         int(row.get("slot", 0)) for row in batch_rows
     } != active_slots:
@@ -108,11 +117,17 @@ def main():
         action="store_true",
         default=os.environ.get("RETRY_FAILED", "").strip().casefold() in {"1", "true", "yes"},
     )
+    parser.add_argument("--publish-time")
     args = parser.parse_args()
     if not args.date:
         parser.error("--date or BATCH_DATE is required")
     print(json.dumps(
-        plan_for_date(args.calendar, args.date, retry_failed=args.retry_failed),
+        plan_for_date(
+            args.calendar,
+            args.date,
+            retry_failed=args.retry_failed,
+            publish_time=args.publish_time,
+        ),
         ensure_ascii=False,
     ))
 
