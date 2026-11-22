@@ -98,7 +98,7 @@ Date range: 2026-11-18 to 2026-12-31 (Asia/Kolkata)
 
 | Slot | Time IST | Source | Type | Topic | Festival date | Tradition | Status |
 |---:|:---:|---|---|---|:---:|---|---|
-| 1 | 06:00 | batch | tithi_and_dates | आज का पंचांग: तिथि, नक्षत्र और राहु काल (2026-11-24) |  |  | planned |
+| 1 | 06:00 | batch | tithi_and_dates | आज का पंचांग: तिथि, नक्षत्र और राहु काल (2026-11-24) |  |  | scheduled |
 | 2 | 07:30 | batch | regional_customs | उत्तर प्रदेश की पूजा थाली सजावट |  |  | planned |
 | 3 | 09:00 | legacy | legacy_daily | Dev Diwali and the many meanings of Kartik Purnima |  |  | legacy_managed |
 | 4 | 10:30 | batch | story_history | इतिहास की झलक: प्रसाद बाँटने की परंपरा |  |  | planned |
