@@ -113,7 +113,7 @@ Date range: 2026-11-18 to 2026-12-31 (Asia/Kolkata)
 
 | Slot | Time IST | Source | Type | Topic | Festival date | Tradition | Status |
 |---:|:---:|---|---|---|:---:|---|---|
-| 1 | 06:00 | batch | daily_panchang_rashifal | आज का पंचांग: तिथि, नक्षत्र और राहु काल (2026-11-25) |  |  | planned |
+| 1 | 06:00 | batch | daily_panchang_rashifal | आज का पंचांग: तिथि, नक्षत्र और राहु काल (2026-11-25) |  |  | scheduled |
 | 2 | 07:30 | batch | regional_customs | गंगा तट की स्थानीय आरती परंपराएँ |  |  | planned |
 | 3 | 09:00 | legacy | legacy_daily | Kanakadasa Jayanti: poetry, devotion and equality in Kannada literature |  |  | legacy_managed |
 | 4 | 10:30 | batch | story_history | इतिहास की झलक: पवित्र नदियों के लोकवृत्त |  |  | planned |
